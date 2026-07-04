@@ -1,0 +1,20 @@
+appId: com.vaultgta.installer
+productName: VaultGTA-Setup
+directories:
+  output: dist
+  buildResources: ../build
+files:
+  - main.js
+  - preload.js
+  - index.html
+  - package.json
+  - app/**/*
+win:
+  target: portable
+  icon: ../assets/icons/app-icon.png
+portable:
+  artifactName: VaultGTA-Setup-${version}.exe
+asar: false
+npmRebuild: false
+electronDownload:
+  mirror: https://npmmirror.com/mirrors/electron/

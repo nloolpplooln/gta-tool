@@ -1,0 +1,13 @@
+{
+  "name": "vault-gta-installer",
+  "version": "10.26.1",
+  "description": "VaultGTA Setup",
+  "main": "main.js",
+  "type": "commonjs",
+  "author": "VaultGTA",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "42.4.0",
+    "electron-builder": "26.15.3"
+  }
+}

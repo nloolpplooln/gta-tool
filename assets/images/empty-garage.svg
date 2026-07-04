@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none" stroke="#555570" stroke-width="1.5">
+  <path d="M15 45l45-35 45 35v55a10 10 0 01-10 10H25a10 10 0 01-10-10z"/>
+  <polyline points="45 110 45 60 75 60 75 110"/>
+  <line x1="30" y1="90" x2="55" y2="90"/>
+  <line x1="65" y1="90" x2="90" y2="90"/>
+</svg>

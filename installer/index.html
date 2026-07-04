@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>VaultGTA Setup</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+  body{
+    background:#0b0b0b;color:#e8e8f0;
+    font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI','Noto Sans SC',sans-serif;
+    display:flex;justify-content:center;align-items:center;
+    height:100vh;overflow:hidden;
+    user-select:none;-webkit-app-region:no-drag;
+  }
+
+  .win{width:100%;height:100%;display:flex;flex-direction:column;position:relative;overflow:hidden}
+
+  /* Title bar */
+  .titlebar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 20px;-webkit-app-region:drag;flex-shrink:0;
+  }
+  .titlebar-l{display:flex;align-items:center;gap:10px}
+  .titlebar-diamond{width:18px;height:18px;background:linear-gradient(135deg,#d4a843,#f0d68a);transform:rotate(45deg);border-radius:2px}
+  .titlebar-name{font-size:13px;font-weight:600;color:#d4a843;letter-spacing:.5px}
+  .titlebar-r{display:flex;gap:6px;-webkit-app-region:no-drag}
+  .tb-btn{width:32px;height:28px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:#9090aa;font-size:16px;cursor:pointer;border-radius:4px;transition:all .15s}
+  .tb-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+
+  /* Content */
+  .content{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 60px 20px}
+  .step{display:none;flex-direction:column;align-items:center;text-align:center;width:100%;max-width:480px}
+  .step.active{display:flex}
+
+  /* Logo */
+  .logo-wrap{margin-bottom:24px;position:relative}
+  .logo-diamond{width:52px;height:52px;background:linear-gradient(135deg,#d4a843,#f0d68a);transform:rotate(45deg);border-radius:6px;box-shadow:0 0 40px rgba(212,168,67,.3)}
+  .logo-diamond::after{content:'';position:absolute;inset:8px;background:#0b0b0b;transform:none;border-radius:3px}
+  .logo-dot{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:8px;height:8px;background:#f0d68a;border-radius:50%;z-index:1}
+
+  h1{font-size:1.6rem;font-weight:700;color:#fff;margin-bottom:4px}
+  h2{font-size:1.1rem;font-weight:600;color:#fff;margin-bottom:4px}
+  .sub{font-size:.8rem;color:#9090aa;margin-bottom:28px}
+
+  .card{
+    width:100%;background:rgba(15,15,30,.55);border:1px solid rgba(212,168,67,.12);
+    border-radius:12px;padding:18px 20px;margin-bottom:20px
+  }
+  .card-row{display:flex;align-items:center;gap:10px}
+  .card-icon{font-size:1.2rem}
+  .card-label{font-size:.7rem;color:#9090aa;text-transform:uppercase;letter-spacing:1px}
+  .card-val{font-size:.82rem;color:#e8e8f0}
+
+  /* Dir input */
+  .dir-row{display:flex;gap:8px;width:100%}
+  .dir-input{
+    flex:1;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(212,168,67,.12);
+    border-radius:8px;color:#fff;font-size:.8rem;outline:none;transition:border-color .15s
+  }
+  .dir-input:focus{border-color:#d4a843;box-shadow:0 0 0 2px rgba(212,168,67,.15)}
+  .btn-sm{
+    padding:10px 16px;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;
+    background:rgba(255,255,255,.06);color:#e8e8f0;border:1px solid rgba(212,168,67,.12);transition:all .15s;white-space:nowrap
+  }
+  .btn-sm:hover{background:rgba(255,255,255,.1);border-color:rgba(212,168,67,.35)}
+
+  /* License text */
+  .license-box{
+    width:100%;max-height:200px;overflow-y:auto;background:rgba(15,15,30,.55);
+    border:1px solid rgba(212,168,67,.12);border-radius:10px;padding:16px;margin-bottom:20px;
+    font-size:.72rem;color:#9090aa;line-height:1.7;text-align:left
+  }
+
+  /* Progress */
+  .progress-wrap{width:100%;margin-bottom:20px}
+  .progress-bar{
+    width:100%;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden
+  }
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#d4a843,#f0d68a);border-radius:2px;transition:width .2s}
+  .progress-text{font-size:.7rem;color:#9090aa;margin-top:8px;text-align:right}
+  .progress-file{font-size:.65rem;color:#555570;margin-top:16px;text-align:center}
+
+  /* Buttons */
+  .actions{display:flex;gap:10px;margin-top:auto;padding-top:20px}
+  .btn{
+    padding:12px 32px;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;border:none;transition:all .15s
+  }
+  .btn-back{background:rgba(255,255,255,.06);color:#e8e8f0;border:1px solid rgba(212,168,67,.12)}
+  .btn-back:hover{background:rgba(255,255,255,.1)}
+  .btn-go{background:linear-gradient(135deg,#d4a843,#c49a2e);color:#0b0b0b}
+  .btn-go:hover{box-shadow:0 0 20px rgba(212,168,67,.35);transform:translateY(-1px)}
+  .btn-go:disabled{opacity:.4;cursor:default;transform:none;box-shadow:none}
+
+  .dots{display:flex;gap:8px;margin-bottom:20px}
+  .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1);transition:all .3s}
+  .dot.active{background:#d4a843;box-shadow:0 0 8px rgba(212,168,67,.4)}
+  .dot.done{background:rgba(212,168,67,.4)}
+
+  .checkmark{font-size:3rem;margin-bottom:16px}
+  .finish-text{font-size:.85rem;color:#e8e8f0;margin-bottom:4px}
+  .finish-sub{font-size:.72rem;color:#9090aa}
+</style>
+</head>
+<body>
+<div class="win">
+  <!-- Title bar -->
+  <div class="titlebar">
+    <div class="titlebar-l">
+      <div class="titlebar-diamond"></div>
+      <span class="titlebar-name">VAULT GTA SETUP</span>
+    </div>
+    <div class="titlebar-r">
+      <button class="tb-btn" onclick="installer.minimize()" title="Minimize">&#x2500;</button>
+      <button class="tb-btn" onclick="installer.close()" title="Close" style="font-size:14px">&#x2715;</button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <!-- Step dots -->
+    <div class="dots" id="dots"></div>
+
+    <!-- Step 1: Welcome -->
+    <div class="step active" id="step-welcome">
+      <div class="logo-wrap">
+        <div class="logo-diamond"></div>
+        <div class="logo-dot"></div>
+      </div>
+      <h1>Welcome to VaultGTA</h1>
+      <p class="sub">GTA Online Vehicle Collection Tracker &mdash; v<span id="ver-display">10.26.1</span></p>
+      <div class="card">
+        <div class="card-row">
+          <span class="card-icon">&#x1f4e6;</span>
+          <div>
+            <div class="card-label">Ready to install</div>
+            <div class="card-val">VaultGTA v<span id="ver-card">10.26.1</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="actions">
+        <div></div>
+        <button class="btn btn-go" onclick="nextStep()">Get Started</button>
+      </div>
+    </div>
+
+    <!-- Step 2: License -->
+    <div class="step" id="step-license">
+      <h2>License Agreement</h2>
+      <p class="sub">Please review the license before installing.</p>
+      <div class="license-box" id="license-text"></div>
+      <div class="actions">
+        <button class="btn btn-back" onclick="prevStep()">Back</button>
+        <button class="btn btn-go" id="btn-agree" onclick="nextStep()">I Agree</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Directory -->
+    <div class="step" id="step-dir">
+      <h2>Install Location</h2>
+      <p class="sub">Choose where to install VaultGTA.</p>
+      <div class="dir-row">
+        <input class="dir-input" id="dir-input" type="text" value="" placeholder="Select install folder...">
+        <button class="btn-sm" onclick="pickDir()">Browse</button>
+      </div>
+      <div class="actions">
+        <button class="btn btn-back" onclick="prevStep()">Back</button>
+        <button class="btn btn-go" onclick="startInstall()">Install</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Progress -->
+    <div class="step" id="step-progress">
+      <h2>Installing</h2>
+      <p class="sub">VaultGTA is being installed on your computer.</p>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+        <div class="progress-text" id="prog-pct">0%</div>
+      </div>
+      <div class="actions" style="justify-content:center">
+        <button class="btn btn-back" onclick="installer.close()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Finish -->
+    <div class="step" id="step-finish">
+      <div class="checkmark">&#x2705;</div>
+      <h2>Installation Complete</h2>
+      <p class="finish-text">VaultGTA has been installed successfully.</p>
+      <p class="finish-sub" id="finish-dir"></p>
+      <div class="actions" style="justify-content:center;gap:10px;">
+        <button class="btn btn-back" onclick="installer.close()">Close</button>
+        <button class="btn btn-go" onclick="installer.launch()">Launch VaultGTA</button>
+      </div>
+    </div>
+
+    <!-- Step 6: Error -->
+    <div class="step" id="step-error">
+      <div class="checkmark" style="font-size:3rem">&#x26A0;</div>
+      <h2>Installation Failed</h2>
+      <p class="finish-text" id="error-msg">An error occurred.</p>
+      <div class="actions" style="justify-content:center">
+        <button class="btn btn-back" onclick="installer.close()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let step = 0;
+const STEPS = ['welcome','license','dir','progress','finish'];
+
+async function init(){
+  document.getElementById('ver-display').textContent = await installer.getVersion();
+  document.getElementById('ver-card').textContent = await installer.getVersion();
+  document.getElementById('dir-input').value = await installer.getDefaultDir();
+
+  document.getElementById('license-text').textContent =
+    'VaultGTA Software License Agreement\n\n' +
+    'Copyright (c) 2026 VaultGTA. All Rights Reserved.\n\n' +
+    'This software is provided "as is", without warranty of any kind, express or implied. ' +
+    'In no event shall the authors or copyright holders be liable for any claim, damages or other liability.\n\n' +
+    'This software is intended for personal use only. GTA, Grand Theft Auto, and Rockstar Games ' +
+    'are trademarks of Rockstar Games and its affiliates.\n\n' +
+    'By installing this software, you agree to the above terms.';
+
+  renderDots();
+  showStep(0);
+}
+
+function renderDots(){
+  const d = document.getElementById('dots');
+  d.innerHTML = STEPS.filter(s=>s!=='error').map((s,i)=>`<div class="dot${i===0?' active':''}" id="dot-${i}"></div>`).join('');
+}
+
+function showStep(i){
+  step = i;
+  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step-'+STEPS[Math.min(i,STEPS.length-1)]).classList.add('active');
+  // Dots
+  document.querySelectorAll('.dot').forEach((d,j)=>{
+    d.classList.remove('active','done');
+    if (j < i) d.classList.add('done');
+    if (j === i) d.classList.add('active');
+  });
+}
+
+function nextStep(){ showStep(Math.min(step+1, STEPS.length-1)); }
+function prevStep(){ showStep(Math.max(step-1, 0)); }
+
+async function pickDir(){
+  const d = await installer.selectDir();
+  if (d) document.getElementById('dir-input').value = d;
+}
+
+async function startInstall(){
+  showStep(3);
+  const dir = document.getElementById('dir-input').value;
+  installer.onProgress(p => {
+    document.getElementById('prog-fill').style.width = p + '%';
+    document.getElementById('prog-pct').textContent = p + '%';
+  });
+  const r = await installer.install(dir);
+  if (r.success) {
+    document.getElementById('finish-dir').textContent = 'Installed to: ' + dir;
+    showStep(4);
+  } else {
+    document.getElementById('error-msg').textContent = r.error;
+    showStep(5);
+  }
+}
+
+init();
+</script>
+</body>
+</html>

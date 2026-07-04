@@ -1,0 +1,169 @@
+/* ===== Encyclopedia Page ===== */
+
+.encyclopedia-controls {
+  display: flex;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.encyclopedia-controls .search-input {
+  flex: 1;
+  min-width: 200px;
+  max-width: 360px;
+}
+
+.encyclopedia-controls select {
+  min-width: 120px;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: var(--border-thin);
+  background: var(--color-bg-tertiary);
+  user-select: none;
+}
+.filter-checkbox input { accent-color: #ff4444; }
+
+.results-count {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-md);
+}
+
+.vehicle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-md);
+}
+
+/* Vehicle Card */
+
+.vehicle-card {
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color var(--transition-normal), transform var(--transition-normal), box-shadow var(--transition-normal);
+  position: relative;
+}
+
+.vehicle-card {
+  border-radius: var(--radius-lg);
+  transition: border-color var(--transition-normal), transform var(--transition-normal), box-shadow var(--transition-normal), border-radius var(--transition-spring);
+}
+
+.vehicle-card:hover {
+  border-color: var(--color-glass-border-hover);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover), var(--border-glow);
+  border-radius: var(--radius-xl);
+}
+
+.vehicle-card:hover .card-image-placeholder {
+  transform: scale(1.05);
+}
+
+.card-image {
+  height: 130px;
+  background: var(--color-bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.card-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 2.5rem;
+  transition: transform var(--transition-normal);
+}
+
+.card-image-placeholder svg {
+  width: 48px;
+  height: 48px;
+  opacity: 0.4;
+}
+
+.card-thumb-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 300ms, transform var(--transition-normal);
+  z-index: 1;
+}
+
+.vehicle-card:hover .card-thumb-img {
+  transform: scale(1.05);
+}
+
+.card-thumb-img.img-error {
+  display: none;
+}
+
+.card-body {
+  padding: var(--space-md);
+}
+
+.card-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: var(--space-xs);
+}
+
+.card-brand {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-sm);
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.card-price {
+  font-size: var(--font-size-xs);
+  color: var(--color-gold);
+  font-family: var(--font-mono);
+}
+
+.card-owned-badge {
+  font-size: var(--font-size-xs);
+  color: var(--color-success);
+}
+
+.card-owned-badge i {
+  margin-right: 2px;
+}
+
+/* No results */
+
+.no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--space-3xl);
+  color: var(--color-text-muted);
+}

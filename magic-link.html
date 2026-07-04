@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>VaultGTA - 免密登录</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#07070d; color:#e8e8e8;
+    font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;
+    display:flex; align-items:center; justify-content:center;
+    min-height:100vh;
+  }
+  .card {
+    background:linear-gradient(180deg,#0d0d1a,#0b0b0b);
+    border:1px solid #1e1e3a; border-radius:12px;
+    padding:40px 32px; width:400px; max-width:90vw; text-align:center;
+  }
+  h1 { color:#d4a843; font-size:22px; letter-spacing:2px; margin-bottom:4px; }
+  .sub { color:#666; font-size:12px; margin-bottom:24px; }
+  h2 { font-size:16px; margin-bottom:12px; }
+  p { color:#999; font-size:13px; line-height:1.6; }
+  .spinner { width:40px; height:40px; border:3px solid #1e1e3a; border-top-color:#d4a843; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>VAULTGTA</h1>
+  <div class="sub">GTA Online 载具收藏管理</div>
+  <div class="spinner"></div>
+  <h2 id="status">正在登录...</h2>
+  <p id="msg">请稍候</p>
+</div>
+
+<script>
+(function () {
+  var elStatus = document.getElementById('status');
+  var elMsg = document.getElementById('msg');
+
+  var hash = window.location.hash;
+  if (!hash) {
+    elStatus.textContent = '链接无效';
+    elMsg.textContent = '请重新申请免密登录';
+    document.querySelector('.spinner').style.display = 'none';
+    return;
+  }
+
+  var params = new URLSearchParams(hash.substring(1));
+  var accessToken = params.get('access_token');
+  var refreshToken = params.get('refresh_token');
+
+  if (!accessToken || !refreshToken) {
+    elStatus.textContent = '链接已过期';
+    elMsg.textContent = '请返回软件重新申请免密登录';
+    document.querySelector('.spinner').style.display = 'none';
+    return;
+  }
+
+  // Set session in browser - the Electron app shares same origin
+  var script = document.createElement('script');
+  script.src = '/vendor/supabase/supabase.js';
+  script.onload = function () {
+    var sb = supabase.createClient(
+      'https://dfchvbffwmuxvdwmqwwx.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmY2h2YmZmd211eHZkd21xd3d4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMDM0NzksImV4cCI6MjA5ODY3OTQ3OX0.ut2xMOFBu9VrZOVQgjTd-S_p6LY_h9Ue6R-azaWDjzg'
+    );
+    sb.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+      .then(function (r) {
+        if (r.error) {
+          elStatus.textContent = '登录失败';
+          elMsg.textContent = r.error.message || '请重试';
+          document.querySelector('.spinner').style.display = 'none';
+        } else {
+          elStatus.textContent = '登录成功！';
+          elMsg.textContent = '请返回 VaultGTA 桌面软件，已自动登录。';
+          document.querySelector('.spinner').style.display = 'none';
+          // Notify Electron that login is done (via same-origin storage)
+          try { window.localStorage.setItem('vaultgta_login_success', '1'); } catch(e) {}
+        }
+      })
+      .catch(function (e) {
+        elStatus.textContent = '链接无效';
+        elMsg.textContent = '请重新申请';
+        document.querySelector('.spinner').style.display = 'none';
+      });
+  };
+  document.head.appendChild(script);
+})();
+</script>
+</body>
+</html>

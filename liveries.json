@@ -1,0 +1,775 @@
+{
+  "vehicles": [
+    {
+      "vehicle": "微托现代版",
+      "liveries": [
+        {
+          "number": 1,
+          "name": "#005霜碧",
+          "cls": ""
+        },
+        {
+          "number": 2,
+          "name": "#014易可乐",
+          "cls": ""
+        },
+        {
+          "number": 3,
+          "name": "#029红木烟业",
+          "cls": ""
+        },
+        {
+          "number": 4,
+          "name": "#041原子",
+          "cls": ""
+        },
+        {
+          "number": 5,
+          "name": "#057爱国者啤酒",
+          "cls": ""
+        },
+        {
+          "number": 6,
+          "name": "#069贵样",
+          "cls": ""
+        },
+        {
+          "number": 7,
+          "name": "#077铛铛钟",
+          "cls": ""
+        },
+        {
+          "number": 8,
+          "name": "#082吃得饱汉堡",
+          "cls": ""
+        },
+        {
+          "number": 9,
+          "name": "#095太空游骑兵",
+          "cls": ""
+        },
+        {
+          "number": 10,
+          "name": "#101机械泡泡糖公主",
+          "cls": ""
+        },
+        {
+          "number": 11,
+          "name": "#113环球石油",
+          "cls": ""
+        },
+        {
+          "number": 12,
+          "name": "#126正义杀手",
+          "cls": ""
+        },
+        {
+          "number": 13,
+          "name": "#139魔音玛卡",
+          "cls": ""
+        },
+        {
+          "number": 14,
+          "name": "#148狮王朗姆酒",
+          "cls": ""
+        },
+        {
+          "number": 15,
+          "name": "#150能量金属",
+          "cls": ""
+        },
+        {
+          "number": 16,
+          "name": "#167希罗汽油",
+          "cls": ""
+        },
+        {
+          "number": 17,
+          "name": "#176尿汤啤",
+          "cls": ""
+        },
+        {
+          "number": 18,
+          "name": "#183拉机",
+          "cls": ""
+        },
+        {
+          "number": 19,
+          "name": "#192肌肉健身房",
+          "cls": ""
+        },
+        {
+          "number": 20,
+          "name": "#202契连科夫",
+          "cls": ""
+        },
+        {
+          "number": 21,
+          "name": "#217毒龙漆活",
+          "cls": "red"
+        },
+        {
+          "number": 22,
+          "name": "#226LTD",
+          "cls": "red"
+        },
+        {
+          "number": 23,
+          "name": "#234箭头",
+          "cls": "red"
+        },
+        {
+          "number": 24,
+          "name": "#246墨工",
+          "cls": "red"
+        },
+        {
+          "number": 25,
+          "name": "#250醉汉啤酒",
+          "cls": "red"
+        },
+        {
+          "number": 26,
+          "name": "#269荣恩",
+          "cls": "red"
+        },
+        {
+          "number": 27,
+          "name": "#273卡布尔",
+          "cls": "red"
+        },
+        {
+          "number": 28,
+          "name": "#281阿密瓦斯",
+          "cls": "red"
+        },
+        {
+          "number": 29,
+          "name": "#293舒兹伯利",
+          "cls": "red"
+        },
+        {
+          "number": 30,
+          "name": "#304黑色雄鹰",
+          "cls": "red"
+        }
+      ]
+    },
+    {
+      "vehicle": "流浪者/炸吧",
+      "liveries": [
+        {
+          "number": 1,
+          "name": "基本迷彩",
+          "cls": ""
+        },
+        {
+          "number": 2,
+          "name": "桑库多迷彩",
+          "cls": ""
+        },
+        {
+          "number": 3,
+          "name": "喷涂迷彩",
+          "cls": ""
+        },
+        {
+          "number": 4,
+          "name": "三色轮廓",
+          "cls": ""
+        },
+        {
+          "number": 5,
+          "name": "九零年代沙盒",
+          "cls": ""
+        },
+        {
+          "number": 6,
+          "name": "现代五色",
+          "cls": ""
+        },
+        {
+          "number": 7,
+          "name": "荒芜影院",
+          "cls": ""
+        },
+        {
+          "number": 8,
+          "name": "冬季迷彩",
+          "cls": ""
+        },
+        {
+          "number": 9,
+          "name": "都市战士",
+          "cls": ""
+        },
+        {
+          "number": 10,
+          "name": "自然保护区 (地堡研究）",
+          "cls": ""
+        },
+        {
+          "number": 11,
+          "name": "海战迷彩 (地堡研究）",
+          "cls": ""
+        },
+        {
+          "number": 12,
+          "name": "都市几何迷彩 (地堡研究）",
+          "cls": ""
+        },
+        {
+          "number": 13,
+          "name": "郊狼几何迷彩 (地堡研究）",
+          "cls": ""
+        },
+        {
+          "number": 14,
+          "name": "大型几何迷彩 (地堡研究）",
+          "cls": ""
+        },
+        {
+          "number": 15,
+          "name": "海军几何迷彩 (地堡研究）",
+          "cls": ""
+        },
+        {
+          "number": 16,
+          "name": "沙漠破碎迷彩 (地堡研究）",
+          "cls": ""
+        },
+        {
+          "number": 17,
+          "name": "都市破碎迷彩 (地堡研究）",
+          "cls": ""
+        },
+        {
+          "number": 18,
+          "name": "大型数码迷彩 (地堡研究）",
+          "cls": ""
+        },
+        {
+          "number": 19,
+          "name": "中型数码迷彩 （地堡研究）",
+          "cls": ""
+        },
+        {
+          "number": 20,
+          "name": "小型数码迷彩 （地堡研究）",
+          "cls": ""
+        },
+        {
+          "number": 31,
+          "name": "粉绿混色迷彩",
+          "cls": "red"
+        },
+        {
+          "number": 32,
+          "name": "蓝黄混色迷彩",
+          "cls": "red"
+        },
+        {
+          "number": 33,
+          "name": "橙褐色阴影迷彩",
+          "cls": "red"
+        },
+        {
+          "number": 34,
+          "name": "蓝绿混色迷彩",
+          "cls": "red"
+        },
+        {
+          "number": 35,
+          "name": "狩猎迷彩",
+          "cls": "red"
+        },
+        {
+          "number": 36,
+          "name": "蓝色格子",
+          "cls": "red"
+        },
+        {
+          "number": 37,
+          "name": "圣托卡普拉硬币",
+          "cls": "red"
+        },
+        {
+          "number": 38,
+          "name": "席桑达·诺芙印字",
+          "cls": "red"
+        },
+        {
+          "number": 39,
+          "name": "席桑达·诺芙多彩",
+          "cls": "red"
+        },
+        {
+          "number": 40,
+          "name": "纸醉金迷",
+          "cls": "red"
+        }
+      ]
+    },
+    {
+      "vehicle": "末日豪劫 不夜城",
+      "liveries": [
+        {
+          "number": 8,
+          "name": "斯塔福德 哦，埃努斯",
+          "cls": ""
+        },
+        {
+          "number": 10,
+          "name": "放荡者 为了女王与国家",
+          "cls": ""
+        },
+        {
+          "number": 11,
+          "name": "V-65 莫洛托克 骷髅头",
+          "cls": ""
+        },
+        {
+          "number": 12,
+          "name": "V-65 莫洛托克 手指虎",
+          "cls": ""
+        },
+        {
+          "number": 13,
+          "name": "V-65 莫洛托克 输送",
+          "cls": ""
+        },
+        {
+          "number": 14,
+          "name": "V-65 莫洛托克 星星",
+          "cls": ""
+        },
+        {
+          "number": 15,
+          "name": "V-65 莫洛托克 格子",
+          "cls": ""
+        },
+        {
+          "number": 16,
+          "name": "V-65 莫洛托克 银河系",
+          "cls": ""
+        },
+        {
+          "number": 17,
+          "name": "V-65 莫洛托克 树木迷彩",
+          "cls": ""
+        },
+        {
+          "number": 18,
+          "name": "V-65 莫洛托克 拐杖唐",
+          "cls": ""
+        },
+        {
+          "number": 19,
+          "name": "V-65 莫洛托克 放假啦",
+          "cls": ""
+        },
+        {
+          "number": 20,
+          "name": "V-65 莫洛托克 圣诞装饰",
+          "cls": ""
+        }
+      ]
+    },
+    {
+      "vehicle": "竞技场 之战",
+      "liveries": [
+        {
+          "number": 11,
+          "name": "克里克 圣诞克里克",
+          "cls": ""
+        }
+      ]
+    },
+    {
+      "vehicle": "名钻 假日赌场 名钻赌场 豪劫",
+      "liveries": [
+        {
+          "number": 1,
+          "name": "R88 淋浴竞速",
+          "cls": ""
+        },
+        {
+          "number": 2,
+          "name": "帕拉贡R 雪怪迷彩",
+          "cls": ""
+        },
+        {
+          "number": 5,
+          "name": "R88 尿汤啤竞速",
+          "cls": ""
+        },
+        {
+          "number": 10,
+          "name": "S80RR 易可乐",
+          "cls": ""
+        }
+      ]
+    },
+    {
+      "vehicle": "洛圣都 夏日特辑",
+      "liveries": [
+        {
+          "number": 9,
+          "name": "陆上专家边境 森林游侠",
+          "cls": ""
+        },
+        {
+          "number": 10,
+          "name": "追捕者XL 纸醉金迷",
+          "cls": ""
+        },
+        {
+          "number": 22,
+          "name": "ZR350（漂移） 漂移拉机",
+          "cls": "red"
+        },
+        {
+          "number": 23,
+          "name": "弄臣RR（漂移） 漂移猩猩绿色",
+          "cls": "red"
+        }
+      ]
+    },
+    {
+      "vehicle": "佩里科岛 抢劫",
+      "liveries": [
+        {
+          "number": 11,
+          "name": "义塔利RSX 黑白铬合金",
+          "cls": ""
+        },
+        {
+          "number": 23,
+          "name": "远途致敬 ROCKSTAR竞速赛事",
+          "cls": "red"
+        }
+      ]
+    },
+    {
+      "vehicle": "洛圣都改装车",
+      "liveries": [
+        {
+          "number": 11,
+          "name": "骷髅马 红木烟业拉力赛",
+          "cls": ""
+        },
+        {
+          "number": 12,
+          "name": "骷髅马 斯坦斯·安德莉亚",
+          "cls": ""
+        },
+        {
+          "number": 13,
+          "name": "骷髅马 拉机",
+          "cls": ""
+        },
+        {
+          "number": 14,
+          "name": "骷髅马 纯迷彩",
+          "cls": ""
+        },
+        {
+          "number": 15,
+          "name": "骷髅马 全福瑜伽迷彩",
+          "cls": ""
+        },
+        {
+          "number": 16,
+          "name": "骷髅马与骷髅马装甲版的所有涂装是共用的 而骷髅马装甲版的涂装只能在尾翼，前保险杠，侧裙上显现",
+          "cls": ""
+        }
+      ]
+    },
+    {
+      "vehicle": "合约",
+      "liveries": [
+        {
+          "number": 11,
+          "name": "陆上彗星S2敞篷版 圣诞老人的新雪橇",
+          "cls": ""
+        },
+        {
+          "number": 12,
+          "name": "神灵 金叶",
+          "cls": ""
+        },
+        {
+          "number": 13,
+          "name": "行者ST 节庆条纹",
+          "cls": ""
+        }
+      ]
+    },
+    {
+      "vehicle": "扩展与升级",
+      "liveries": [
+        {
+          "number": 5,
+          "name": "精力霸R/A 橙色旅程（阿浩）",
+          "cls": ""
+        },
+        {
+          "number": 6,
+          "name": "精力霸R/A 潮园故障（阿浩）",
+          "cls": ""
+        },
+        {
+          "number": 13,
+          "name": "蹂躏者8 橙色旅程（阿浩）",
+          "cls": ""
+        },
+        {
+          "number": 14,
+          "name": "蹂躏者8 潮园故障（阿浩）",
+          "cls": ""
+        }
+      ]
+    },
+    {
+      "vehicle": "犯罪集团",
+      "liveries": [
+        {
+          "number": 10,
+          "name": "科塔西 图形蒙太奇",
+          "cls": ""
+        },
+        {
+          "number": 11,
+          "name": "科塔西 几何图形",
+          "cls": ""
+        }
+      ]
+    },
+    {
+      "vehicle": "洛圣都 面粉战",
+      "liveries": [
+        {
+          "number": 7,
+          "name": "300R 贵样漂移",
+          "cls": ""
+        },
+        {
+          "number": 8,
+          "name": "本质 MT 游猎巡警",
+          "cls": ""
+        },
+        {
+          "number": 9,
+          "name": "粗人 N.O.O.S.E",
+          "cls": ""
+        },
+        {
+          "number": 10,
+          "name": "布里凯德6x6 绿色愚人节",
+          "cls": ""
+        },
+        {
+          "number": 11,
+          "name": "粗人 谷仓旧物",
+          "cls": ""
+        }
+      ]
+    },
+    {
+      "vehicle": "圣安地列斯 雇佣兵",
+      "liveries": [
+        {
+          "number": 7,
+          "name": "跑者 配诺拉力赛",
+          "cls": ""
+        },
+        {
+          "number": 9,
+          "name": "克里克旅行车 固定烈焰",
+          "cls": ""
+        },
+        {
+          "number": 10,
+          "name": "布里格姆 爱之拳",
+          "cls": ""
+        },
+        {
+          "number": 11,
+          "name": "布里格姆 幽灵曝光",
+          "cls": ""
+        },
+        {
+          "number": 13,
+          "name": "(义塔利GTO)史汀格TT 手指虎运动",
+          "cls": ""
+        }
+      ]
+    },
+    {
+      "vehicle": "赃车店",
+      "liveries": [
+        {
+          "number": 2,
+          "name": "铁腕拦截者 洛圣都警局现代",
+          "cls": ""
+        },
+        {
+          "number": 8,
+          "name": "骑兵 XL 迷彩",
+          "cls": ""
+        },
+        {
+          "number": 9,
+          "name": "刺刑官 LX 绿色漫画几何",
+          "cls": ""
+        },
+        {
+          "number": 11,
+          "name": "行者ST-D 共和太空游骑兵",
+          "cls": ""
+        },
+        {
+          "number": 12,
+          "name": "F-160 雷兽 霜碧X易可乐",
+          "cls": ""
+        },
+        {
+          "number": 13,
+          "name": "桑托劳 ROCKSTAR竞速赛事",
+          "cls": ""
+        }
+      ]
+    },
+    {
+      "vehicle": "油水榨干 保金办",
+      "liveries": [
+        {
+          "number": 6,
+          "name": "艳妇 D1 烈焰",
+          "cls": ""
+        },
+        {
+          "number": 8,
+          "name": "英格萨维 拉机竞速",
+          "cls": ""
+        },
+        {
+          "number": 10,
+          "name": "帕拉贡S 触手迷彩",
+          "cls": ""
+        },
+        {
+          "number": 11,
+          "name": "伏翼 飞溅 76",
+          "cls": ""
+        },
+        {
+          "number": 12,
+          "name": "欧洲 X32 恶鲨迷彩",
+          "cls": ""
+        },
+        {
+          "number": 14,
+          "name": "惩戒者 涂鸦标记",
+          "cls": ""
+        },
+        {
+          "number": 16,
+          "name": "欧洲（漂移） 漫画经典",
+          "cls": ""
+        },
+        {
+          "number": 18,
+          "name": "卫士宽体版（漂移） 尿汤啤竞速",
+          "cls": ""
+        },
+        {
+          "number": 19,
+          "name": "卫士宽体版（漂移） 尿汤啤竞速几何",
+          "cls": ""
+        }
+      ]
+    },
+    {
+      "vehicle": "破坏行动探员",
+      "liveries": [
+        {
+          "number": 1,
+          "name": "铁骡DH-7 梅利威瑟安保",
+          "cls": ""
+        },
+        {
+          "number": 4,
+          "name": "女妖GTS 冒险家条纹",
+          "cls": ""
+        },
+        {
+          "number": 6,
+          "name": "艳妇 D5 烈焰",
+          "cls": ""
+        },
+        {
+          "number": 10,
+          "name": "泰坦 250D 埃伯哈德",
+          "cls": ""
+        },
+        {
+          "number": 13,
+          "name": "英格萨维 全未来主义",
+          "cls": ""
+        },
+        {
+          "number": 15,
+          "name": "切布列克（漂移） 喷漆与阴影",
+          "cls": ""
+        }
+      ]
+    },
+    {
+      "vehicle": "此地无银",
+      "liveries": [
+        {
+          "number": 2,
+          "name": "瓦尔顿原厂 拉杆俱乐部粉丝团",
+          "cls": ""
+        },
+        {
+          "number": 6,
+          "name": "卫士GTS 漫画阴影",
+          "cls": ""
+        },
+        {
+          "number": 7,
+          "name": "瓦尔顿原厂 回到90年代",
+          "cls": ""
+        },
+        {
+          "number": 8,
+          "name": "林地人 卡林性能白色",
+          "cls": ""
+        },
+        {
+          "number": 9,
+          "name": "哈帝 草根",
+          "cls": ""
+        },
+        {
+          "number": 10,
+          "name": "飞雀 赛博图案",
+          "cls": ""
+        },
+        {
+          "number": 11,
+          "name": "卫士GTS 快捷药房",
+          "cls": ""
+        },
+        {
+          "number": 12,
+          "name": "瓦尔顿原厂 爱国者啤酒",
+          "cls": ""
+        }
+      ]
+    }
+  ],
+  "notes": []
+}

@@ -1,0 +1,172 @@
+/* ===== VaultGTA - License Plate Creator Page ===== */
+
+/*
+ * Kapra Neue Pro Ex Light Rounded — TypoForge Studio
+ *   1. Local system install (auto-detected)
+ *   2. Drop .woff2 to assets/fonts/KapraNeuePro-ExLightRounded.woff2
+ *   3. Adobe Fonts: @import url("https://use.typekit.net/YOUR_KIT_ID.css");
+ */
+@font-face {
+  font-family: 'PlateFont';
+  src: url('../../assets/fonts/2d54d35469b51f0fbcb0f63cb068820b.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ===== Styles Grid ===== */
+.plate-styles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-sm-plus);
+  margin-bottom: var(--space-lg);
+}
+
+.plate-style-card {
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+  position: relative;
+}
+
+.plate-style-card:hover {
+  border-color: var(--color-glass-border-hover);
+  background: var(--color-glass-bg-alt);
+}
+
+.plate-style-card.selected {
+  border-color: var(--color-gold);
+  box-shadow: var(--shadow-gold);
+}
+
+.plate-style-card .style-preview {
+  width: 100%;
+  height: 36px;
+  border-radius: 4px;
+  margin-bottom: var(--space-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Anton', 'SignPainter-HouseScript', 'Arial Black', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.plate-style-card .style-name {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.plate-style-card.selected .style-name {
+  color: var(--color-gold);
+}
+
+/* ===== Preview Section ===== */
+.plate-preview-section {
+  margin-bottom: var(--space-lg);
+}
+
+.plate-preview-wrapper {
+  background: var(--color-glass-bg);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.plate-canvas-wrap {
+  position: relative;
+  width: 460px;
+  max-width: 100%;
+}
+
+.plate-canvas-wrap canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 4px;
+}
+
+/* ===== Input Section ===== */
+.plate-input-section {
+  margin-bottom: var(--space-md);
+}
+
+.plate-input-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm-plus);
+}
+
+.plate-input-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+.plate-input-wrapper input {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--color-glass-border);
+  border-radius: var(--radius-md);
+  color: #fff;
+  font-family: 'Anton', 'SignPainter-HouseScript', 'Arial Black', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  text-align: center;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.plate-input-wrapper input:focus {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 2px var(--color-gold-glow);
+}
+
+.plate-input-wrapper input::placeholder {
+  color: rgba(255,255,255,0.15);
+  letter-spacing: 4px;
+}
+
+.plate-char-counter {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  min-width: 36px;
+  text-align: right;
+}
+
+.plate-char-counter.full {
+  color: var(--color-gold);
+}
+
+/* ===== Hints ===== */
+.plate-hints {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  display: flex;
+  gap: var(--space-md-plus);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-lg);
+}
+
+.plate-hints span {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+/* ===== Actions ===== */
+.plate-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-sm-plus);
+}

@@ -1,0 +1,495 @@
+/* ===== Garage Page ===== */
+
+/* ===== Garage Sidebar Layout ===== */
+
+.garage-layout {
+  display: flex;
+  gap: var(--space-lg);
+  align-items: flex-start;
+}
+
+.garage-sidebar {
+  width: 200px;
+  min-width: 200px;
+  background: var(--color-glass-bg);
+  border: var(--border-thin);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  max-height: calc(100vh - 140px);
+}
+
+.garage-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--color-sidebar-border);
+}
+
+.garage-sidebar-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.garage-sidebar-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-xs) 0;
+}
+
+/* Sidebar item */
+.garage-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  user-select: none;
+  position: relative;
+  border-left: 3px solid transparent;
+}
+
+.garage-sidebar-item:hover {
+  background: var(--color-sidebar-hover);
+  color: var(--color-text-primary);
+}
+
+.garage-sidebar-item.active {
+  background: var(--color-sidebar-active);
+  color: var(--color-gold);
+  border-left-color: var(--color-gold);
+}
+
+.garage-sidebar-item .sidebar-drag-handle {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.garage-sidebar-item:hover .sidebar-drag-handle {
+  opacity: 0.6;
+}
+
+.garage-sidebar-item .sidebar-item-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.garage-sidebar-item .sidebar-item-count {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  margin-left: auto;
+  padding-left: var(--space-xs);
+}
+
+/* Sidebar drag states */
+.garage-sidebar-item.sidebar-dragging {
+  opacity: 0.5;
+  background: var(--color-glass-border);
+  border-radius: var(--radius-md);
+}
+
+.garage-sidebar-item.sidebar-drag-above {
+  box-shadow: 0 -3px 0 var(--color-gold);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.garage-sidebar-item.sidebar-drag-below {
+  box-shadow: 0 3px 0 var(--color-gold);
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
+
+/* Vehicle drop target on sidebar */
+.garage-sidebar-item.sidebar-potential-target {
+  outline: 2px dashed var(--color-glass-border);
+  outline-offset: -2px;
+  border-radius: var(--radius-md);
+  animation: sidebarTargetPulse 1.5s ease-in-out infinite;
+}
+
+.garage-sidebar-item.sidebar-drop-target {
+  background: rgba(212, 168, 67, 0.2) !important;
+  color: var(--color-gold) !important;
+  outline: 2px solid var(--color-gold);
+  outline-offset: -2px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 12px rgba(212, 168, 67, 0.4);
+}
+
+@keyframes sidebarTargetPulse {
+  0%, 100% { outline-color: var(--color-glass-border); }
+  50% { outline-color: rgba(212, 168, 67, 0.4); }
+}
+
+/* Garage main content area */
+.garage-main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Mobile header (hidden on desktop) */
+.garage-mobile-header {
+  display: none;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+  align-items: center;
+}
+
+.garage-mobile-header .form-select {
+  flex: 1;
+}
+
+/* Garage Content */
+
+.garage-content-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.garage-name-display {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.garage-count-display {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-left: var(--space-sm);
+}
+
+.garage-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+/* Garage Grid */
+
+.garage-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+
+.garage-vehicle {
+  position: relative;
+  cursor: grab;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.garage-vehicle:active {
+  cursor: grabbing;
+}
+
+.garage-vehicle.dragging {
+  opacity: 0.4;
+}
+
+.garage-vehicle .drag-handle {
+  position: absolute;
+  top: var(--space-xs);
+  left: var(--space-xs);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  z-index: 2;
+  cursor: grab;
+}
+
+.garage-vehicle:hover .drag-handle {
+  opacity: 1;
+}
+
+.garage-vehicle .remove-btn {
+  position: absolute;
+  top: var(--space-xs);
+  right: var(--space-xs);
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: rgba(231, 76, 60, 0.8);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xs);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  z-index: 2;
+  cursor: pointer;
+}
+
+.garage-vehicle:hover .remove-btn {
+  opacity: 1;
+}
+
+.garage-vehicle .remove-btn:hover {
+  background: var(--color-danger);
+}
+
+/* Edit card button */
+.garage-vehicle .edit-card-btn {
+  position: absolute;
+  top: var(--space-xs);
+  right: 32px;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: rgba(212, 168, 67, 0.8);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  z-index: 2;
+  cursor: pointer;
+}
+
+.garage-vehicle:hover .edit-card-btn {
+  opacity: 1;
+}
+
+.garage-vehicle .edit-card-btn:hover {
+  background: var(--color-gold);
+}
+
+/* Note indicator */
+.garage-vehicle .card-note-indicator {
+  position: absolute;
+  bottom: 42px;
+  right: 4px;
+  font-size: 14px;
+  z-index: 1;
+  pointer-events: none;
+  text-shadow: 0 0 4px rgba(0,0,0,0.8);
+}
+
+/* Customized card */
+.garage-vehicle.has-custom {
+  border-radius: var(--radius-md);
+}
+
+/* Drop indicator */
+
+.garage-drop-indicator {
+  height: 3px;
+  background: var(--color-gold);
+  border-radius: var(--radius-full);
+  animation: glowPulse 1s ease-in-out infinite;
+  grid-column: 1 / -1;
+}
+
+/* ===== Global Search ===== */
+
+.garage-global-search {
+  position: relative;
+  width: 280px;
+}
+
+.garage-global-search .form-input {
+  padding-left: 36px;
+  font-size: var(--font-size-sm);
+}
+
+/* Search results dropdown panel */
+.search-results-panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: var(--space-xs);
+  background: rgba(20, 20, 24, 0.98);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: var(--border-thin);
+  border-radius: var(--radius-md);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: var(--shadow-xl);
+}
+
+.search-result-group {
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--color-sidebar-border);
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item:hover {
+  background: rgba(212, 168, 67, 0.1);
+  color: var(--color-text-primary);
+}
+
+.search-result-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.search-result-name {
+  font-weight: var(--font-weight-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-result-sub {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-left: auto;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.search-result-empty {
+  padding: var(--space-lg) var(--space-md);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.search-result-more {
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+  font-style: italic;
+}
+
+/* ===== Vehicle highlight from search ===== */
+
+.garage-vehicle.search-highlight {
+  animation: searchHighlight 2s ease-out;
+  border-radius: var(--radius-md);
+}
+
+@keyframes searchHighlight {
+  0%   { box-shadow: 0 0 0 3px var(--color-gold); }
+  50%  { box-shadow: 0 0 16px 4px var(--color-gold); }
+  100% { box-shadow: 0 0 0 0px transparent; }
+}
+
+/* Empty Garage */
+
+.garage-empty {
+  text-align: center;
+  padding: var(--space-3xl);
+  color: var(--color-text-muted);
+}
+
+.garage-empty svg {
+  width: 120px;
+  height: 120px;
+  opacity: 0.2;
+  margin-bottom: var(--space-lg);
+}
+
+/* Add vehicle modal */
+
+.add-vehicle-list {
+  max-height: 400px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.add-vehicle-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.add-vehicle-item:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.add-vehicle-item.already-owned {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Album photo picker in card edit modal */
+.album-photo-picker {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+.album-thumb {
+  width: 60px;
+  height: 45px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  flex-shrink: 0;
+  transition: border-color var(--transition-fast);
+}
+
+.album-thumb:hover {
+  border-color: var(--color-gold-light);
+}
+
+.album-thumb.selected {
+  border-color: var(--color-gold) !important;
+}
+
+.album-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

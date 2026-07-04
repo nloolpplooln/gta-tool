@@ -1,0 +1,17 @@
+node_modules/
+vendor/*.js
+vendor/*.wasm
+vendor/*.gz
+vendor/*.traineddata
+!vendor/.gitkeep
+.electron-dist/
+dist/
+release/
+*.exe
+installer/app/
+installer/dist/
+*.log
+.DS_Store
+settings.local.json
+xhh_*.html
+*.tmp

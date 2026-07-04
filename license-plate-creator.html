@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GTA Online License Plate Creator</title>
+  <link rel="icon" type="image/png" href="assets/icons/app-icon.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+
+  <!-- Three.js -->
+  <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+  </script>
+
+  <style>
+    /*
+     * Kapra Neue Pro Ex Light Rounded — TypoForge Studio
+     * Available via:
+     *   1. Local system install (auto-detected below)
+     *   2. Drop .woff2 file to assets/fonts/KapraNeuePro-ExLightRounded.woff2
+     *   3. Adobe Fonts: create a web project with "kapra-neue-pro" family,
+     *      then add: @import url("https://use.typekit.net/YOUR_KIT_ID.css");
+     */
+    @font-face {
+      font-family: 'PlateFont';
+      src: url('assets/fonts/2d54d35469b51f0fbcb0f63cb068820b.woff') format('woff');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    /* ===== Page ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0b0b0b;
+      color: #e8e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 32px 20px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 780px;
+    }
+
+    /* ===== Header ===== */
+    .header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .header p {
+      color: #9090aa;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    /* ===== Section label ===== */
+    .sec-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #555570;
+      margin-bottom: 10px;
+    }
+
+    /* ===== Style grid ===== */
+    .style-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 600px) { .style-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .style-card {
+      background: rgba(15,15,30,0.55);
+      border: 1px solid rgba(212,168,67,0.12);
+      border-radius: 10px;
+      padding: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+    .style-card:hover { border-color: rgba(212,168,67,0.35); }
+    .style-card.selected { border-color: #d4a843; box-shadow: 0 0 14px rgba(212,168,67,0.3); }
+
+    .style-card canvas {
+      width: 100%;
+      height: auto;
+      border-radius: 3px;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .style-card .name {
+      font-size: 0.7rem;
+      color: #9090aa;
+    }
+    .style-card.selected .name { color: #d4a843; }
+
+    /* ===== Preview ===== */
+    .preview-box {
+      background: rgba(15,15,30,0.55);
+      border: 1px solid rgba(212,168,67,0.12);
+      border-radius: 14px;
+      padding: 28px;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    #three-container {
+      width: 100%;
+      max-width: 700px;
+      aspect-ratio: 2 / 1;
+      cursor: grab;
+    }
+    #three-container:active { cursor: grabbing; }
+    #three-container canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+      border-radius: 3px;
+    }
+
+    /* ===== Input ===== */
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .input-wrap { flex: 1; }
+    .input-wrap input {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(212,168,67,0.12);
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'KapraNeuePro', 'Anton', 'Arial Black', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .input-wrap input:focus { border-color: #d4a843; box-shadow: 0 0 0 2px rgba(212,168,67,0.2); }
+    .input-wrap input::placeholder { color: rgba(255,255,255,0.12); letter-spacing: 4px; }
+
+    .cnt {
+      font-family: 'Consolas', monospace;
+      font-size: 0.78rem;
+      color: #555570;
+      min-width: 32px;
+      text-align: right;
+    }
+    .cnt.full { color: #d4a843; }
+
+    /* ===== Hints & Actions ===== */
+    .hints {
+      font-size: 0.7rem;
+      color: #555570;
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: none;
+    }
+    .btn-pri { background: #d4a843; color: #0b0b0b; }
+    .btn-pri:hover { background: #f0d68a; box-shadow: 0 0 14px rgba(212,168,67,0.3); }
+    .btn-sec { background: rgba(255,255,255,0.06); color: #e8e8f0; border: 1px solid rgba(212,168,67,0.12); }
+    .btn-sec:hover { border-color: rgba(212,168,67,0.35); background: rgba(255,255,255,0.1); }
+
+    /* ===== Debug Panel ===== */
+    .debug-panel {
+      background: rgba(15,15,30,0.45);
+      border: 1px solid rgba(212,168,67,0.15);
+      border-radius: 10px;
+      padding: 0 14px;
+      margin-bottom: 20px;
+    }
+    .debug-panel[open] { padding-bottom: 14px; }
+    .debug-toggle {
+      cursor: pointer;
+      padding: 10px 0;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #d4a843;
+      user-select: none;
+      outline: none;
+    }
+    .debug-toggle::marker { font-size: 0.7rem; }
+    .debug-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 600px) { .debug-grid { grid-template-columns: 1fr; } }
+    .debug-item label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: #9090aa;
+      margin-bottom: 4px;
+    }
+    .debug-item label span { color: #d4a843; font-family: 'Consolas', monospace; }
+    .debug-item input[type="range"] {
+      width: 100%;
+      height: 4px;
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    .debug-item input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #d4a843;
+      cursor: pointer;
+      border: none;
+    }
+
+    /* Loading mask */
+    .loading-overlay {
+      position: fixed; inset: 0; background: rgba(11,11,11,0.85);
+      display: flex; align-items: center; justify-content: center; z-index: 999;
+    }
+    .loading-overlay.done { display: none; }
+    .loading-spinner { color: #d4a843; font-size: 1.2rem; }
+  </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loader">
+  <span class="loading-spinner">加载车牌底图中...</span>
+</div>
+
+<div class="app">
+
+  <header class="header">
+    <h1>GTA Online 车牌定制</h1>
+    <p>选择样式 · 输入号码 · 实时预览 · 导出原图</p>
+  </header>
+
+  <!-- Style Grid -->
+  <p class="sec-label">选择车牌样式</p>
+  <div class="style-grid" id="styleGrid"></div>
+
+  <!-- Debug Panel -->
+  <details class="debug-panel" id="debugPanel">
+    <summary class="debug-toggle">🔧 字体调试面板（字号 / 位置）</summary>
+    <div class="debug-grid">
+      <div class="debug-item">
+        <label>字号 <span id="valFontSize">540</span>px</label>
+        <input type="range" id="rngFontSize" min="100" max="800" value="540" step="2">
+      </div>
+      <div class="debug-item">
+        <label>水平位置 X <span id="valTextX">0.50</span></label>
+        <input type="range" id="rngTextX" min="0.20" max="0.80" value="0.50" step="0.005">
+      </div>
+      <div class="debug-item">
+        <label>垂直位置 Y <span id="valTextY">0.595</span></label>
+        <input type="range" id="rngTextY" min="0.20" max="0.80" value="0.595" step="0.001">
+      </div>
+    </div>
+  </details>
+
+  <!-- Preview -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+    <p class="sec-label" style="margin-bottom:0;">实时预览</p>
+    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.75rem;color:#9090aa;">
+      <span>2D</span>
+      <input type="checkbox" id="toggle3D" checked style="display:none;">
+      <span class="toggle-track" id="toggleTrack" style="width:40px;height:22px;background:#d4a843;border-radius:11px;position:relative;transition:background 0.2s;">
+        <span class="toggle-thumb" style="position:absolute;top:2px;left:20px;width:18px;height:18px;background:#fff;border-radius:50%;transition:left 0.2s;"></span>
+      </span>
+      <span>3D</span>
+    </label>
+  </div>
+  <div class="preview-box">
+    <canvas id="preview2dCanvas" width="2048" height="1024" style="width:100%;max-width:700px;aspect-ratio:2/1;display:none;border-radius:3px;"></canvas>
+    <div id="three-container" style="width:100%;max-width:700px;aspect-ratio:2/1;display:block;"></div>
+  </div>
+
+  <!-- Input -->
+  <p class="sec-label">输入车牌号码</p>
+  <div class="input-row">
+    <div class="input-wrap">
+      <input type="text" id="textInput" maxlength="8" placeholder="ABC1234" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+    </div>
+    <span class="cnt" id="charCnt">0/8</span>
+  </div>
+
+  <div class="hints">
+    <span>仅支持 A-Z、0-9、空格，最多 8 个字符</span>
+    <span>导出为 2048×1024 原图分辨率 PNG</span>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-sec" id="btnReset">重置</button>
+    <button class="btn btn-pri" id="btnExport">导出原图 PNG (2048×1024)</button>
+  </div>
+</div>
+
+<!-- Hidden canvas: 2D texture source (offscreen, not display:none) -->
+<canvas id="textureCanvas" width="2048" height="1024" style="position:absolute;left:-9999px;top:0;"></canvas>
+<!-- Hidden full-res canvas for export -->
+<canvas id="exportCanvas" width="2048" height="1024" style="display:none;"></canvas>
+
+<script type="module">
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+(function() {
+  'use strict';
+
+  /* ============================================================
+   *  Plate Style Config
+   *  textArea: {x%, y%, w%, h%} — safe zone on the plate image
+   *  Each plate image is 2048×1024; text must avoid stickers & screws
+   * ============================================================ */
+  var PLATES = [
+    { id: 'las-venturas',      name: '拉斯文加斯',       img: 'assets/plate-bg/拉斯文加斯.png',       textColor: '#1a3a7a', textArea: {} },
+    { id: 'e-cola',            name: '易可乐',           img: 'assets/plate-bg/易可乐.png',           textColor: '#ffffff', textArea: {} },
+    { id: 'ls-troublemakers',  name: '洛圣都捣蛋者队',    img: 'assets/plate-bg/洛圣都捣蛋者队.png',    textColor: '#EDAF1F', textArea: {} },
+    { id: 'ls-car-club',       name: '洛圣都车友会',      img: 'assets/plate-bg/洛圣都车友会.png',      textColor: '#000000', textArea: {} },
+    { id: 'sprunk',            name: '霜碧',             img: 'assets/plate-bg/霜碧.png',             textColor: '#ffffff', textArea: {} },
+    { id: 'ls-tremors',        name: '洛圣都颤栗队',      img: 'assets/plate-bg/洛圣都颤栗队.png',      textColor: '#ffffff', textArea: {} },
+    { id: 'liberty-city',      name: '自由市',           img: 'assets/plate-bg/自由市.png',           textColor: '#00086F', textArea: {} }
+  ];
+
+  var W = 2048, H = 1024;   // native resolution
+  var selIdx = 0;
+  var plateText = 'ABC1234'; // default 7-char
+  var loadedImages = {};     // cache: id -> HTMLImageElement
+
+  /* ============================================================
+   *  DOM
+   * ============================================================ */
+  var textureCanvas = document.getElementById('textureCanvas');
+  var textureCtx    = textureCanvas.getContext('2d');
+  var exportCanvas  = document.getElementById('exportCanvas');
+  var exportCtx     = exportCanvas.getContext('2d');
+  var preview2dCanvas = document.getElementById('preview2dCanvas');
+  var preview2dCtx    = preview2dCanvas.getContext('2d');
+  var styleGrid     = document.getElementById('styleGrid');
+  var textInput     = document.getElementById('textInput');
+  var charCnt       = document.getElementById('charCnt');
+  var loader        = document.getElementById('loader');
+  var threeContainer = document.getElementById('three-container');
+  var toggle3D      = document.getElementById('toggle3D');
+  var toggleTrack   = document.getElementById('toggleTrack');
+  var is3DMode      = true;
+
+  /* ============================================================
+   *  Three.js Scene Setup
+   * ============================================================ */
+  var renderer, scene, camera, plateMesh, plateTexture, controls;
+
+  function initThreeJS() {
+    // Renderer
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3));
+    var rw = threeContainer.clientWidth || 700;
+    var rh = threeContainer.clientHeight || 350;
+    renderer.setSize(rw, rh);
+    threeContainer.appendChild(renderer.domElement);
+
+    // Scene + bg
+    scene = new THREE.Scene();
+
+    // Camera
+    camera = new THREE.PerspectiveCamera(30, rw / rh, 0.1, 100);
+    camera.position.set(0, 0, 8);
+    camera.lookAt(0, 0, 0);
+
+    // Lights
+    scene.add(new THREE.AmbientLight(0xffffff, 2.5));
+    var key = new THREE.DirectionalLight(0xffffff, 4);
+    key.position.set(2, 1.5, 5);
+    scene.add(key);
+    var fill = new THREE.DirectionalLight(0xffffff, 2);
+    fill.position.set(-2, -0.5, 1);
+    scene.add(fill);
+
+    // Texture from canvas
+    plateTexture = new THREE.CanvasTexture(textureCanvas);
+    plateTexture.colorSpace = THREE.SRGBColorSpace;
+    plateTexture.minFilter = THREE.LinearFilter;
+    plateTexture.magFilter = THREE.LinearFilter;
+
+    // Single plate mesh — 2:1 ratio
+    var geom = new THREE.PlaneGeometry(4, 2);
+    var mat = new THREE.MeshStandardMaterial({
+      map: plateTexture,
+      roughness: 0.25,
+      metalness: 0.05
+    });
+    plateMesh = new THREE.Mesh(geom, mat);
+    plateMesh.rotation.x = -0.08;
+    scene.add(plateMesh);
+
+    // OrbitControls — restricted to front only
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 0, 0);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.15;
+    controls.rotateSpeed = 0.4;
+    controls.zoomSpeed = 0.8;
+    controls.minDistance = 3.5;
+    controls.maxDistance = 14;
+    controls.minPolarAngle = Math.PI / 3;
+    controls.maxPolarAngle = Math.PI * 2 / 3;
+    controls.minAzimuthAngle = -Math.PI / 3;
+    controls.maxAzimuthAngle = Math.PI / 3;
+    controls.update();
+
+    // Handle resize
+    window.addEventListener('resize', function() {
+      if (!renderer) return;
+      var w = threeContainer.clientWidth;
+      var h = threeContainer.clientHeight;
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    });
+
+    animate();
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    if (controls) controls.update();
+    if (renderer && scene && camera) renderer.render(scene, camera);
+  }
+
+  function updateTexture() {
+    if (!plateTexture) return;
+    plateTexture.needsUpdate = true;
+  }
+
+  function switchView() {
+    var thumb = toggleTrack.querySelector('.toggle-thumb');
+    if (is3DMode) {
+      threeContainer.style.display = 'block';
+      preview2dCanvas.style.display = 'none';
+      toggleTrack.style.background = '#d4a843';
+      thumb.style.left = '20px';
+    } else {
+      threeContainer.style.display = 'none';
+      preview2dCanvas.style.display = 'block';
+      toggleTrack.style.background = '#555570';
+      thumb.style.left = '2px';
+    }
+  }
+
+  // Toggle click
+  toggleTrack.addEventListener('click', function() {
+    is3DMode = !is3DMode;
+    toggle3D.checked = is3DMode;
+    switchView();
+  });
+
+  // Debug sliders
+  var rngFontSize   = document.getElementById('rngFontSize');
+  var rngTextX      = document.getElementById('rngTextX');
+  var rngTextY      = document.getElementById('rngTextY');
+  var valFontSize   = document.getElementById('valFontSize');
+  var valTextX      = document.getElementById('valTextX');
+  var valTextY      = document.getElementById('valTextY');
+
+  /* ============================================================
+   *  Read current debug values
+   * ============================================================ */
+  function getFontSize() { return parseInt(rngFontSize.value); }
+  function getTextCX()   { return parseFloat(rngTextX.value); }
+  function getTextCY()   { return parseFloat(rngTextY.value); }
+
+  /* ============================================================
+   *  Font
+   * ============================================================ */
+  function getPlateFont() {
+    return '"PlateFont", "Anton", "Arial Black", sans-serif';
+  }
+
+  /* ============================================================
+   *  Halftone dot pattern generator
+   *  Creates a subtle dot screen texture over the text
+   * ============================================================ */
+  function createHalftonePattern(size, dotSize, opacity) {
+    var patCanvas = document.createElement('canvas');
+    patCanvas.width = size;
+    patCanvas.height = size;
+    var pctx = patCanvas.getContext('2d');
+
+    // Grid of small dots
+    pctx.fillStyle = 'rgba(0,0,0,' + opacity + ')';
+    var step = size / 4;
+    for (var y = step/2; y < size; y += step) {
+      for (var x = step/2; x < size; x += step) {
+        pctx.beginPath();
+        pctx.arc(x, y, dotSize, 0, Math.PI * 2);
+        pctx.fill();
+      }
+    }
+    return pctx.createPattern(patCanvas, 'repeat');
+  }
+
+  /* ============================================================
+   *  Draw plate with text onto a given canvas context
+   *  This is the core render function — works for both preview & export
+   * ============================================================ */
+  function drawPlate(ctx, outW, outH, plate, text) {
+    var img = loadedImages[plate.id];
+    if (!img) return;
+
+    // 1) Draw plate background image at full resolution
+    ctx.clearRect(0, 0, outW, outH);
+    ctx.drawImage(img, 0, 0, outW, outH);
+
+    if (!text) return; // no text to draw
+
+    // 2) Use debug slider values for position and size
+    var fontSize = getFontSize();
+    var cx = getTextCX() * outW;
+    var cy = getTextCY() * outH;
+    ctx.font = fontSize + 'px ' + getPlateFont();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // Offscreen canvas for halftone mask
+    var txtCanvas = document.createElement('canvas');
+    txtCanvas.width = outW;
+    txtCanvas.height = outH;
+    var tctx = txtCanvas.getContext('2d');
+    tctx.font = ctx.font;
+    tctx.textAlign = 'center';
+    tctx.textBaseline = 'middle';
+
+    // Emboss: 3 layers
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillText(text, cx + 2.5, cy + 2.5);
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.fillText(text, cx - 1.5, cy - 1.5);
+    ctx.fillStyle = plate.textColor;
+    ctx.fillText(text, cx, cy);
+
+    // Halftone mask
+    tctx.fillStyle = '#fff';
+    tctx.fillText(text, cx, cy);
+
+    // Halftone dot texture
+    var dotCanvas = document.createElement('canvas');
+    dotCanvas.width = outW;
+    dotCanvas.height = outH;
+    var dctx = dotCanvas.getContext('2d');
+    var dotPat = createHalftonePattern(16, 1.2, 0.08);
+    dctx.fillStyle = dotPat;
+    dctx.fillRect(0, 0, outW, outH);
+    dctx.globalCompositeOperation = 'destination-in';
+    dctx.drawImage(txtCanvas, 0, 0);
+    ctx.drawImage(dotCanvas, 0, 0);
+  }
+
+  /* ============================================================
+   *  Preload all plate images
+   * ============================================================ */
+  function preloadImages(callback) {
+    var total = PLATES.length;
+    var loaded = 0;
+    var failed = false;
+
+    PLATES.forEach(function(plate) {
+      var img = new Image();
+      img.onload = function() {
+        loadedImages[plate.id] = img;
+        loaded++;
+        if (loaded === total) callback();
+      };
+      img.onerror = function() {
+        console.warn('Failed to load: ' + plate.img);
+        loaded++;
+        if (loaded === total) callback();
+      };
+      img.src = plate.img;
+    });
+  }
+
+  /* ============================================================
+   *  Render — both preview and export
+   * ============================================================ */
+  function renderAll() {
+    var plate = PLATES[selIdx];
+    var text = plateText;
+    // 2D preview
+    drawPlate(preview2dCtx, W, H, plate, text);
+    // Texture for Three.js
+    drawPlate(textureCtx, W, H, plate, text);
+    updateTexture();
+    // Export
+    drawPlate(exportCtx, W, H, plate, text);
+  }
+
+  /* ============================================================
+   *  Style grid — render thumbnails
+   * ============================================================ */
+  function renderStyleGrid() {
+    styleGrid.innerHTML = '';
+    PLATES.forEach(function(plate, idx) {
+      var card = document.createElement('div');
+      card.className = 'style-card' + (idx === selIdx ? ' selected' : '');
+
+      // Mini canvas thumbnail — use full drawPlate for emboss + halftone
+      var thumbCanvas = document.createElement('canvas');
+      thumbCanvas.width = W;
+      thumbCanvas.height = H;
+      thumbCanvas.style.width = '100%';
+      thumbCanvas.style.height = 'auto';
+      var tctx = thumbCanvas.getContext('2d');
+      drawPlate(tctx, W, H, plate, 'ABC123');
+
+      var nameEl = document.createElement('span');
+      nameEl.className = 'name';
+      nameEl.textContent = plate.name;
+
+      card.appendChild(thumbCanvas);
+      card.appendChild(nameEl);
+      card.addEventListener('click', function() { selectPlate(idx); });
+      styleGrid.appendChild(card);
+    });
+  }
+
+  function selectPlate(idx) {
+    selIdx = idx;
+    var cards = styleGrid.querySelectorAll('.style-card');
+    cards.forEach(function(c, i) { c.classList.toggle('selected', i === idx); });
+    renderAll();
+  }
+
+  /* ============================================================
+   *  Input handling
+   * ============================================================ */
+  textInput.addEventListener('input', function(e) {
+    var raw = e.target.value;
+    var filtered = raw.toUpperCase().replace(/[^A-Z0-9 ]/g, '').substring(0, 8);
+    if (filtered !== raw) {
+      var pos = textInput.selectionStart;
+      e.target.value = filtered;
+      var newPos = Math.max(0, pos - Math.max(0, raw.length - filtered.length));
+      textInput.setSelectionRange(newPos, newPos);
+    }
+    plateText = filtered;
+    charCnt.textContent = filtered.length + '/8';
+    charCnt.classList.toggle('full', filtered.length >= 8);
+    renderAll();
+  });
+
+  textInput.addEventListener('paste', function(e) {
+    e.preventDefault();
+    var pasted = (e.clipboardData || window.clipboardData).getData('text');
+    var filtered = pasted.toUpperCase().replace(/[^A-Z0-9 ]/g, '').substring(0, 8);
+    var cur = textInput.value;
+    var s = textInput.selectionStart, end = textInput.selectionEnd;
+    var nv = cur.substring(0, s) + filtered + cur.substring(end);
+    nv = nv.substring(0, 8);
+    textInput.value = nv;
+    plateText = nv;
+    charCnt.textContent = nv.length + '/8';
+    charCnt.classList.toggle('full', nv.length >= 8);
+    renderAll();
+  });
+
+  /* ============================================================
+   *  Buttons
+   * ============================================================ */
+  document.getElementById('btnReset').addEventListener('click', function() {
+    textInput.value = 'ABC1234';
+    plateText = 'ABC1234';
+    charCnt.textContent = '7/8';
+    charCnt.classList.remove('full');
+    selIdx = 0;
+    var cards = styleGrid.querySelectorAll('.style-card');
+    cards.forEach(function(c, i) { c.classList.toggle('selected', i === 0); });
+    renderAll();
+  });
+
+  document.getElementById('btnExport').addEventListener('click', function() {
+    // Render fresh to export canvas at 2048×1024
+    var plate = PLATES[selIdx];
+    drawPlate(exportCtx, W, H, plate, plateText);
+
+    exportCanvas.toBlob(function(blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'plate_' + (plateText || 'CUSTOM') + '_' + plate.id + '.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 'image/png', 1.0);
+  });
+
+  /* ============================================================
+   *  Debug slider bindings
+   * ============================================================ */
+  function bindSliders() {
+    [rngFontSize, rngTextX, rngTextY].forEach(function(slider) {
+      slider.addEventListener('input', function() {
+        valFontSize.textContent = rngFontSize.value;
+        valTextX.textContent = parseFloat(rngTextX.value).toFixed(3);
+        valTextY.textContent = parseFloat(rngTextY.value).toFixed(3);
+        renderAll();
+      });
+    });
+  }
+
+  /* ============================================================
+   *  Init
+   * ============================================================ */
+  preloadImages(function() {
+    loader.classList.add('done');
+    textInput.value = 'ABC1234';
+    plateText = 'ABC1234';
+    charCnt.textContent = '7/8';
+    bindSliders();
+    switchView();
+    // Delay Three.js init until DOM layout complete
+    requestAnimationFrame(function() {
+      initThreeJS();
+      var fs = getFontSize();
+      document.fonts.load(fs + 'px PlateFont').then(function() {
+        renderStyleGrid();
+        renderAll();
+      });
+    });
+  });
+
+})();
+</script>
+</body>
+</html>

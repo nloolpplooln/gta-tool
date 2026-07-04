@@ -1,0 +1,122 @@
+/* ===== VaultGTA - Design Tokens ===== */
+
+:root {
+  /* ===== COLOR PALETTE ===== */
+  --color-bg-primary: #07070d;
+  --color-bg-secondary: #0d0d16;
+  --color-bg-tertiary: #14141f;
+  --color-bg-elevated: #16161f;
+
+  /* Glass morphism — lighter opacity for true blur visibility */
+  --color-glass-bg: rgba(15, 15, 30, 0.55);
+  --color-glass-bg-alt: rgba(15, 15, 30, 0.35);
+  --color-glass-gradient: linear-gradient(135deg, rgba(20, 20, 40, 0.6), rgba(12, 12, 25, 0.5));
+  --color-glass-border: rgba(212, 168, 67, 0.12);
+  --color-glass-border-hover: rgba(212, 168, 67, 0.35);
+  --color-glass-blur: 16px;
+
+  --color-gold: #d4a843;
+  --color-gold-light: #f0d68a;
+  --color-gold-dark: #a67c2e;
+  --color-gold-glow: rgba(212, 168, 67, 0.35);
+  --color-gold-subtle: rgba(212, 168, 67, 0.06);
+
+  --color-text-primary: #e8e8f0;
+  --color-text-secondary: #9090aa;
+  --color-text-muted: #555570;
+  --color-text-inverse: #07070d;
+
+  --color-accent-common: #4a9eff;
+  --color-accent-rare: #9b59b6;
+  --color-accent-legendary: #ffd700;
+
+  --color-success: #2ecc71;
+  --color-warning: #f39c12;
+  --color-danger: #e74c3c;
+  --color-info: #3498db;
+
+  --color-border-subtle: rgba(255, 255, 255, 0.04);
+
+  --color-sidebar-bg: rgba(7, 7, 13, 0.95);
+  --color-sidebar-border: rgba(212, 168, 67, 0.08);
+  --color-sidebar-hover: rgba(212, 168, 67, 0.06);
+  --color-sidebar-active: rgba(212, 168, 67, 0.12);
+
+  /* ===== TYPOGRAPHY ===== */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', 'JetBrains Mono', monospace;
+
+  --font-size-xs: 0.6875rem;
+  --font-size-sm-plus: 0.75rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-base: 0.9375rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2.25rem;
+  --font-size-3xl: 3rem;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* ===== SPACING ===== */
+  --space-2xs: 2px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-sm-plus: 12px;
+  --space-md: 16px;
+  --space-md-plus: 20px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xl-plus: 40px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* ===== BORDERS ===== */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  --border-thin: 1px solid var(--color-glass-border);
+  --border-gold: 1px solid var(--color-gold);
+  --border-glow: 0 0 16px var(--color-gold-glow);
+
+  /* ===== SHADOWS ===== */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.4);
+  --shadow-gold: 0 0 24px var(--color-gold-glow);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 0 1px var(--color-glass-border);
+  --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--color-glass-border-hover);
+
+  /* ===== EASING CURVES ===== */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ===== TRANSITIONS ===== */
+  --transition-fast: 150ms var(--ease-out);
+  --transition-normal: 250ms var(--ease-out);
+  --transition-slow: 400ms var(--ease-out);
+  --transition-spring: 350ms var(--ease-spring);
+
+  /* ===== LAYOUT ===== */
+  --sidebar-width: 240px;
+  --content-max-width: 1200px;
+  --header-height: 60px;
+
+  /* ===== Z-INDEX ===== */
+  --z-sidebar: 100;
+  --z-modal: 200;
+  --z-toast: 300;
+  --z-loading: 400;
+}
