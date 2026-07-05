@@ -51,8 +51,7 @@ npm run build:win
 
 ## 数据来源
 
-- [antwen.cn](https://antwen.cn) — GTA 中文数据库
-- [小黑盒](https://www.xiaoheihe.cn) — GTA5 百科
+gta wiki
 
 ## 免责声明
 
