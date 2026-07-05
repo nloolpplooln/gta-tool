@@ -1,7 +1,7 @@
-/* ===== Settings Page ===== */
+/* ===== Settings / About Page ===== */
+
 .settings-page {
-  padding: var(--space-lg);
-  max-width: 800px;
+  max-width: 720px;
   margin: 0 auto;
 }
 
@@ -11,32 +11,78 @@
   gap: var(--space-lg);
 }
 
+/* ---- Brand Hero ---- */
+
+.settings-brand {
+  text-align: center;
+  padding: var(--space-3xl) 0 var(--space-2xl);
+}
+
+.settings-logo {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-lg);
+  border-radius: var(--radius-xl);
+}
+
+.settings-brand-name {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gold);
+  letter-spacing: 0.04em;
+  margin-bottom: var(--space-sm);
+}
+
+.settings-slogan {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-lg);
+}
+
+.settings-meta {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  opacity: 0.7;
+  margin-bottom: var(--space-xs);
+}
+
+.settings-author {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-muted);
+  opacity: 0.6;
+  margin-top: var(--space-md);
+}
+
+.settings-author a {
+  color: var(--color-gold);
+  opacity: 0.8;
+}
+
+.settings-author a:hover {
+  opacity: 1;
+}
+
+/* ---- Settings Cards ---- */
+
 .settings-card {
-  background: var(--color-glass-bg);
-  border: var(--border-thin);
-  border-radius: var(--radius-md);
-  padding: var(--space-lg);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
 }
 
 .settings-card h3 {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   margin: 0 0 var(--space-md) 0;
   color: var(--color-gold);
 }
 
 .settings-card p {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-caption);
   color: var(--color-text-secondary);
   line-height: 1.7;
   margin: 0 0 var(--space-sm) 0;
-}
-
-.settings-card ul {
-  margin: 0;
-  padding-left: var(--space-lg);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  line-height: 1.8;
+  opacity: 0.8;
 }
 
 /* Row (input + button) */
@@ -66,53 +112,15 @@
 }
 
 .settings-action-item strong {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-caption);
   color: var(--color-text-primary);
 }
 
 .settings-action-item p {
   margin: 2px 0 0 0;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-caption);
   color: var(--color-text-muted);
-}
-
-/* Usage steps */
-.usage-steps {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-}
-
-.usage-step {
-  display: flex;
-  gap: var(--space-md);
-  align-items: flex-start;
-}
-
-.step-num {
-  flex-shrink: 0;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--color-gold);
-  color: #000;
-  font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.usage-step strong {
-  display: block;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
-  margin-bottom: 2px;
-}
-
-.usage-step p {
-  margin: 0;
-  font-size: var(--font-size-xs);
+  opacity: 0.6;
 }
 
 /* Table */
@@ -124,7 +132,7 @@
 
 .settings-table td {
   padding: 6px 10px;
-  border-bottom: 1px solid var(--color-sidebar-border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .settings-table td:first-child {
@@ -139,6 +147,7 @@
 }
 
 .text-muted-sm {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-caption);
   color: var(--color-text-muted);
+  opacity: 0.7;
 }

@@ -76,6 +76,28 @@ GTA.Router = (function () {
       parseParams: function () { return {}; }
     },
     {
+      pattern: /^#\/colors(?:\?(.+))?$/,
+      page: 'colors',
+      controller: GTA.Colors,
+      parseParams: function (m) {
+        var params = {};
+        if (m[1]) {
+          var parts = m[1].split('&');
+          parts.forEach(function (p) {
+            var kv = p.split('=');
+            if (kv.length === 2) params[kv[0]] = kv[1];
+          });
+        }
+        return params;
+      }
+    },
+    {
+      pattern: /^#\/wiki-colors$/,
+      page: 'wiki-colors',
+      controller: GTA.WikiColors,
+      parseParams: function () { return {}; }
+    },
+    {
       pattern: /^#\/compare$/,
       page: 'compare',
       controller: GTA.Compare,

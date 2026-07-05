@@ -37,86 +37,78 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: #0b0b0b;
-      color: #e8e8f0;
+      background: transparent;
+      color: #e8e8e8;
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      padding: 32px 20px;
+      padding: 24px 20px;
+      overflow-y: auto;
     }
+    body::-webkit-scrollbar { width: 3px; }
+    body::-webkit-scrollbar-track { background: transparent; }
+    body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 3px; }
 
     .app {
       width: 100%;
       max-width: 780px;
     }
 
-    /* ===== Header ===== */
-    .header {
-      text-align: center;
-      margin-bottom: 28px;
-    }
-    .header h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: #fff;
-    }
-    .header p {
-      color: #9090aa;
-      font-size: 0.85rem;
-      margin-top: 4px;
-    }
-
     /* ===== Section label ===== */
     .sec-label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: #555570;
-      margin-bottom: 10px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #8a8a8a;
+      margin-bottom: 12px;
+      opacity: 0.8;
+      letter-spacing: 0.03em;
     }
 
     /* ===== Style grid ===== */
     .style-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+      gap: var(--space-md, 16px);
       margin-bottom: 24px;
     }
     @media (max-width: 600px) { .style-grid { grid-template-columns: repeat(2, 1fr); } }
 
     .style-card {
-      background: rgba(15,15,30,0.55);
-      border: 1px solid rgba(212,168,67,0.12);
-      border-radius: 10px;
-      padding: 8px;
+      background: rgba(19,19,19,0.5);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 16px;
+      padding: 10px;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
       text-align: center;
     }
-    .style-card:hover { border-color: rgba(212,168,67,0.35); }
-    .style-card.selected { border-color: #d4a843; box-shadow: 0 0 14px rgba(212,168,67,0.3); }
+    .style-card:hover { border-color: rgba(212,168,67,0.25); transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+    .style-card.selected { border-color: #D4A843; box-shadow: 0 0 0 1px rgba(212,168,67,0.3); }
 
     .style-card canvas {
       width: 100%;
       height: auto;
-      border-radius: 3px;
-      margin-bottom: 6px;
+      border-radius: 4px;
+      margin-bottom: 8px;
       display: block;
     }
     .style-card .name {
-      font-size: 0.7rem;
-      color: #9090aa;
+      font-size: 0.75rem;
+      color: #8a8a8a;
     }
-    .style-card.selected .name { color: #d4a843; }
+    .style-card.selected .name { color: #D4A843; }
 
     /* ===== Preview ===== */
     .preview-box {
-      background: rgba(15,15,30,0.55);
-      border: 1px solid rgba(212,168,67,0.12);
-      border-radius: 14px;
-      padding: 28px;
+      background: rgba(19,19,19,0.4);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 16px;
+      padding: 24px;
       display: flex;
       justify-content: center;
       margin-bottom: 24px;
@@ -133,7 +125,7 @@
       display: block;
       width: 100% !important;
       height: 100% !important;
-      border-radius: 3px;
+      border-radius: 4px;
     }
 
     /* ===== Input ===== */
@@ -147,38 +139,39 @@
     .input-wrap input {
       width: 100%;
       padding: 14px 16px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(212,168,67,0.12);
-      border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
       color: #fff;
-      font-family: 'KapraNeuePro', 'Anton', 'Arial Black', sans-serif;
+      font-family: 'PlateFont', 'Anton', 'Arial Black', sans-serif;
       font-size: 1.5rem;
       letter-spacing: 4px;
       text-transform: uppercase;
       text-align: center;
       outline: none;
-      transition: border-color 0.15s;
+      transition: border-color 0.22s, background 0.22s;
     }
-    .input-wrap input:focus { border-color: #d4a843; box-shadow: 0 0 0 2px rgba(212,168,67,0.2); }
-    .input-wrap input::placeholder { color: rgba(255,255,255,0.12); letter-spacing: 4px; }
+    .input-wrap input:focus { border-color: #D4A843; background: rgba(255,255,255,0.06); box-shadow: none; }
+    .input-wrap input::placeholder { color: rgba(255,255,255,0.1); letter-spacing: 4px; }
 
     .cnt {
       font-family: 'Consolas', monospace;
-      font-size: 0.78rem;
-      color: #555570;
+      font-size: 0.8rem;
+      color: #555;
       min-width: 32px;
       text-align: right;
     }
-    .cnt.full { color: #d4a843; }
+    .cnt.full { color: #D4A843; }
 
     /* ===== Hints & Actions ===== */
     .hints {
-      font-size: 0.7rem;
-      color: #555570;
+      font-size: 0.75rem;
+      color: #555;
       display: flex;
       gap: 18px;
       flex-wrap: wrap;
       margin-bottom: 20px;
+      opacity: 0.7;
     }
     .actions {
       display: flex;
@@ -192,19 +185,21 @@
       font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all 0.22s;
       border: none;
     }
-    .btn-pri { background: #d4a843; color: #0b0b0b; }
-    .btn-pri:hover { background: #f0d68a; box-shadow: 0 0 14px rgba(212,168,67,0.3); }
-    .btn-sec { background: rgba(255,255,255,0.06); color: #e8e8f0; border: 1px solid rgba(212,168,67,0.12); }
-    .btn-sec:hover { border-color: rgba(212,168,67,0.35); background: rgba(255,255,255,0.1); }
+    .btn-pri { background: #D4A843; color: #0B0B0B; }
+    .btn-pri:hover { background: #e8c96e; }
+    .btn-sec { background: rgba(255,255,255,0.04); color: #e8e8e8; border: 1px solid rgba(255,255,255,0.06); }
+    .btn-sec:hover { border-color: rgba(212,168,67,0.3); color: #D4A843; }
 
     /* ===== Debug Panel ===== */
     .debug-panel {
-      background: rgba(15,15,30,0.45);
-      border: 1px solid rgba(212,168,67,0.15);
-      border-radius: 10px;
+      background: rgba(19,19,19,0.4);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 16px;
       padding: 0 14px;
       margin-bottom: 20px;
     }
@@ -212,9 +207,9 @@
     .debug-toggle {
       cursor: pointer;
       padding: 10px 0;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       font-weight: 600;
-      color: #d4a843;
+      color: #D4A843;
       user-select: none;
       outline: none;
     }
@@ -229,16 +224,16 @@
       display: flex;
       justify-content: space-between;
       font-size: 0.7rem;
-      color: #9090aa;
+      color: #8a8a8a;
       margin-bottom: 4px;
     }
-    .debug-item label span { color: #d4a843; font-family: 'Consolas', monospace; }
+    .debug-item label span { color: #D4A843; font-family: 'Consolas', monospace; }
     .debug-item input[type="range"] {
       width: 100%;
       height: 4px;
       -webkit-appearance: none;
       appearance: none;
-      background: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.08);
       border-radius: 2px;
       outline: none;
       cursor: pointer;
@@ -248,7 +243,7 @@
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      background: #d4a843;
+      background: #D4A843;
       cursor: pointer;
       border: none;
     }
@@ -259,7 +254,7 @@
       display: flex; align-items: center; justify-content: center; z-index: 999;
     }
     .loading-overlay.done { display: none; }
-    .loading-spinner { color: #d4a843; font-size: 1.2rem; }
+    .loading-spinner { color: #D4A843; font-size: 1.2rem; }
   </style>
 </head>
 <body>
@@ -269,11 +264,6 @@
 </div>
 
 <div class="app">
-
-  <header class="header">
-    <h1>GTA Online 车牌定制</h1>
-    <p>选择样式 · 输入号码 · 实时预览 · 导出原图</p>
-  </header>
 
   <!-- Style Grid -->
   <p class="sec-label">选择车牌样式</p>

@@ -18,7 +18,7 @@
 
 .album-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: var(--space-md);
 }
 
@@ -26,22 +26,21 @@
   position: relative;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  border: var(--border-thin);
   aspect-ratio: 4 / 3;
   background: var(--color-bg-tertiary);
   cursor: pointer;
-  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
 }
 
 .album-photo:hover {
-  border-color: var(--color-gold);
+  transform: translateY(-4px) scale(1.02);
   box-shadow: var(--shadow-card-hover);
 }
 
 .album-photo img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform var(--transition-normal);
 }
 
@@ -146,7 +145,7 @@
 
 .album-upload {
   position: relative;
-  border: 2px dashed var(--color-glass-border);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-lg);
   aspect-ratio: 4 / 3;
   display: flex;

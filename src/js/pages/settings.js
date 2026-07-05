@@ -10,13 +10,12 @@ GTA.Settings = (function () {
     if (!container) return;
 
     container.innerHTML =
-      '<h1 style="margin-bottom:var(--space-md);">关于</h1>' +
       '<div class="settings-grid">' +
+        renderBrandHero() +
         renderPlayerName() +
+        renderAutoUpdate() +
         renderCloudSync() +
         renderDataActions() +
-        renderTutorial() +
-        renderAboutInfo() +
         renderDisclaimer() +
       '</div>';
 
@@ -43,6 +42,18 @@ GTA.Settings = (function () {
         '<button class="btn btn-primary" id="btn-save-display-name">保存</button>' +
       '</div>' +
       '<p class="text-muted" style="margin-top:var(--space-xs)" id="settings-display-name-status"></p>' +
+    '</div>';
+  }
+
+  function renderAutoUpdate() {
+    return '<div class="settings-card">' +
+      '<h3>软件更新</h3>' +
+      '<p>当前版本：<span id="update-current-version">v' + (GTA.APP_VERSION || '未知') + '</span></p>' +
+      '<div class="settings-row">' +
+        '<button class="btn btn-primary" id="btn-check-update">检查更新</button>' +
+        '<button class="btn btn-success" id="btn-install-update" style="display:none">重启安装更新</button>' +
+      '</div>' +
+      '<p class="text-muted" style="margin-top:var(--space-sm)" id="update-status"></p>' +
     '</div>';
   }
 
@@ -83,72 +94,15 @@ GTA.Settings = (function () {
     '</div>';
   }
 
-  function renderTutorial() {
-    return '<div class="settings-card">' +
-      '<h3>使用教程</h3>' +
-      '<div class="usage-steps">' +
-
-      '<details class="tutorial-detail" open>' +
-        '<summary style="font-weight:var(--font-weight-semibold);cursor:pointer;padding:var(--space-xs) 0;">1. 浏览与搜索载具</summary>' +
-        '<div style="padding-left:var(--space-md);color:var(--color-text-secondary);font-size:var(--font-size-sm);line-height:1.8;">' +
-          '<p>左侧菜单进入<span class="badge">载具百科</span>，可按品牌、类型筛选所有车辆。</p>' +
-          '<p>搜索框支持输入车辆中文名、英文名或游戏模型名。</p>' +
-          '<p>点击任意车辆进入详情页，查看：性能数据、详细规格、爆炸抗性、改装选项、涂装、多角度截图、装甲信息。</p>' +
-        '</div>' +
-      '</details>' +
-
-      '<details class="tutorial-detail">' +
-        '<summary style="font-weight:var(--font-weight-semibold);cursor:pointer;padding:var(--space-xs) 0;">2. 收藏车辆与库</summary>' +
-        '<div style="padding-left:var(--space-md);color:var(--color-text-secondary);font-size:var(--font-size-sm);line-height:1.8;">' +
-          '<p>在车辆详情页点击<span class="badge">加入收藏</span>标记已拥有，车辆会出现在仪表盘统计中。</p>' +
-          '<p>左侧菜单进入<span class="badge">我的车库</span>，创建车库（如 "日蚀大道公寓"），将收藏的车辆分配到车库中。</p>' +
-          '<p>每个车库可拖拽排序，总价值实时显示。</p>' +
-        '</div>' +
-      '</details>' +
-
-      '<details class="tutorial-detail">' +
-        '<summary style="font-weight:var(--font-weight-semibold);cursor:pointer;padding:var(--space-xs) 0;">3. 记录改装花费</summary>' +
-        '<div style="padding-left:var(--space-md);color:var(--color-text-secondary);font-size:var(--font-size-sm);line-height:1.8;">' +
-          '<p>在车辆详情页点击<span class="badge">改装记录</span>，页面会显示该车的实际改装选项（来自游戏数据）。</p>' +
-          '<p>勾选已安装的改装件（每类只能选一个），系统自动计算改装总花费。额外花费可手动填入（如喷漆、保险等）。</p>' +
-          '<p>保存后改装花费会计入<span class="badge">仪表盘</span>总资产，历史记录可删除。</p>' +
-        '</div>' +
-      '</details>' +
-
-      '<details class="tutorial-detail">' +
-        '<summary style="font-weight:var(--font-weight-semibold);cursor:pointer;padding:var(--space-xs) 0;">4. 载具对比</summary>' +
-        '<div style="padding-left:var(--space-md);color:var(--color-text-secondary);font-size:var(--font-size-sm);line-height:1.8;">' +
-          '<p>在载具百科或详情页点击<span class="badge">对比</span>按钮，最多同时对比 4 辆车。</p>' +
-          '<p>左侧菜单进入<span class="badge">载具对比</span>查看并排对比表：价格、性能、规格、装甲、爆炸抗性、特性标签、真实车型。</p>' +
-        '</div>' +
-      '</details>' +
-
-      '<details class="tutorial-detail">' +
-        '<summary style="font-weight:var(--font-weight-semibold);cursor:pointer;padding:var(--space-xs) 0;">5. DLC时间线</summary>' +
-        '<div style="padding-left:var(--space-md);color:var(--color-text-secondary);font-size:var(--font-size-sm);line-height:1.8;">' +
-          '<p>左侧菜单进入<span class="badge">DLC时间线</span>，树杈型展示所有 47 个 DLC 及每个版本推出的车辆。</p>' +
-          '<p>点击DLC卡片展开查看车辆列表，点击车辆跳转详情页。</p>' +
-        '</div>' +
-      '</details>' +
-
-      '<details class="tutorial-detail">' +
-        '<summary style="font-weight:var(--font-weight-semibold);cursor:pointer;padding:var(--space-xs) 0;">6. AI扫描识别（游戏内）</summary>' +
-        '<div style="padding-left:var(--space-md);color:var(--color-text-secondary);font-size:var(--font-size-sm);line-height:1.8;">' +
-          '<p>游戏中打开载具管理界面 → 回到VaultGTA进入<span class="badge">AI扫描</span> → 框选载具名称区域 → OCR自动识别 → 匹配并标记收藏。</p>' +
-          '<p>适合批量导入车库车辆。</p>' +
-        '</div>' +
-      '</details>' +
-
-      '<details class="tutorial-detail">' +
-        '<summary style="font-weight:var(--font-weight-semibold);cursor:pointer;padding:var(--space-xs) 0;">7. 数据备份与恢复</summary>' +
-        '<div style="padding-left:var(--space-md);color:var(--color-text-secondary);font-size:var(--font-size-sm);line-height:1.8;">' +
-          '<p>在本页<span class="badge">数据管理</span>区域，可导出 JSON 备份（完整数据）或 CSV（Excel可打开）。</p>' +
-          '<p>重装系统或换电脑时，先导出 JSON → 在新电脑导入即可恢复全部数据。</p>' +
-          '<p>云端同步需要登录账号，手动上传/下载。</p>' +
-        '</div>' +
-      '</details>' +
-
-      '</div>' +
+  function renderBrandHero() {
+    var vehicleCount = Catalog ? Catalog.getCount() : 858;
+    return '<div class="settings-brand">' +
+      '<img class="settings-logo" src="../../assets/icons/app-icon.png" alt="VaultGTA" onerror="this.style.display=\'none\'">' +
+      '<h2 class="settings-brand-name">VaultGTA</h2>' +
+      '<p class="settings-slogan">GTA Online 载具收藏管理工具</p>' +
+      '<p class="settings-meta">收录 <strong>' + vehicleCount + '</strong> 款载具 &nbsp;·&nbsp; 版本 <span id="about-version">v' + (GTA.APP_VERSION || '10.27.0') + '</span></p>' +
+      '<p class="settings-meta">数据来源 antwen.cn / xiaoheihe.cn</p>' +
+      '<p class="settings-author">by oolpploo &nbsp;·&nbsp; <a href="https://github.com/oolpploo/VaultGTA" target="_blank">GitHub</a> &nbsp;·&nbsp; 2453133436@qq.com</p>' +
     '</div>';
   }
 
@@ -160,7 +114,7 @@ GTA.Settings = (function () {
       '<p>数据来源：antwen.cn（中文GTA数据库）、小黑盒 GTA5 百科 (xiaoheihe.cn)</p>' +
       '<p>作者：GTA玩家 oolpploo</p>' +
       '<p class="text-muted">联系：2453133436@qq.com</p>' +
-      '<p class="text-muted">版本 v9.3.2</p>' +
+      '<p class="text-muted">版本 <span id="about-version">v' + (GTA.APP_VERSION || '10.27.0') + '</span></p>' +
     '</div>';
   }
 
@@ -443,6 +397,80 @@ GTA.Settings = (function () {
     });
   }
 
+  function bindUpdate() {
+    var btnCheck = document.getElementById('btn-check-update');
+    var btnInstall = document.getElementById('btn-install-update');
+    var statusEl = document.getElementById('update-status');
+    var versionEl = document.getElementById('update-current-version');
+    var api = window.electronAPI;
+
+    // Show current version
+    if (api && api.getVersion && versionEl) {
+      api.getVersion().then(function (v) {
+        if (v) {
+          versionEl.textContent = 'v' + v;
+          var aboutVer = document.getElementById('about-version');
+          if (aboutVer) aboutVer.textContent = 'v' + v;
+        }
+      });
+    }
+
+    if (btnCheck) {
+      btnCheck.addEventListener('click', async function () {
+        if (!api || !api.checkUpdate) {
+          statusEl.textContent = '仅在桌面应用中可用';
+          statusEl.style.color = 'var(--color-text-muted)';
+          return;
+        }
+        btnCheck.disabled = true;
+        statusEl.textContent = '正在检查更新...';
+        statusEl.style.color = 'var(--color-text-muted)';
+        try {
+          await api.checkUpdate();
+        } catch (e) {
+          statusEl.textContent = '检查更新失败';
+          statusEl.style.color = 'var(--color-danger)';
+          btnCheck.disabled = false;
+        }
+      });
+    }
+
+    if (btnInstall) {
+      btnInstall.addEventListener('click', function () {
+        if (api && api.installUpdate) api.installUpdate();
+      });
+    }
+
+    // Listen for update status from main process
+    if (api && api.onUpdateStatus) {
+      api.onUpdateStatus(function (data) {
+        if (statusEl) {
+          statusEl.textContent = data.message;
+          if (data.status === 'error') {
+            statusEl.style.color = 'var(--color-danger)';
+          } else if (data.status === 'downloaded') {
+            statusEl.style.color = 'var(--color-success)';
+          } else if (data.status === 'latest') {
+            statusEl.style.color = 'var(--color-success)';
+          } else {
+            statusEl.style.color = 'var(--color-text-muted)';
+          }
+        }
+        if (data.status === 'downloaded') {
+          if (btnCheck) btnCheck.style.display = 'none';
+          if (btnInstall) btnInstall.style.display = '';
+        }
+        if (data.status === 'available' || data.status === 'downloading') {
+          if (btnCheck) btnCheck.style.display = 'none';
+        }
+        if (data.status === 'error' || data.status === 'latest') {
+          if (btnCheck) { btnCheck.style.display = ''; btnCheck.disabled = false; }
+          if (btnInstall) btnInstall.style.display = 'none';
+        }
+      });
+    }
+  }
+
   function bindButtons() {
     var btnSaveName = document.getElementById('btn-save-name');
     if (btnSaveName) btnSaveName.addEventListener('click', savePlayerName);
@@ -467,6 +495,8 @@ GTA.Settings = (function () {
 
     var btnClear = document.getElementById('btn-clear-data');
     if (btnClear) btnClear.addEventListener('click', clearAllData);
+
+    bindUpdate();
 
     updateCloudStatus();
     var btnUpload = document.getElementById('btn-cloud-upload');

@@ -1,6 +1,6 @@
 {
   "name": "vault-gta",
-  "version": "10.27.0",
+  "version": "10.28.0",
   "description": "VaultGTA - GTA Online Vehicle Collection Tracker",
   "main": "main.js",
   "scripts": {
@@ -15,6 +15,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.110.0",
     "dexie": "^4.0.8",
+    "electron-updater": "^6.8.9",
     "html2canvas": "^1.4.1",
     "tesseract.js": "^5.1.1"
   },
@@ -39,6 +40,12 @@
       "vehicles.json",
       "xhh_slugs.json",
       "liveries.json",
+      "gta-colors.json",
+      "street-car-colors.json",
+      "wiki-colors.json",
+      "vehicle-blacklist.json",
+      "vehicle-parts-restrictions.json",
+      "street-car-models.json",
       "assets/liveries.pdf",
       "assets/**/*",
       "garage-scanner-overlay.html",

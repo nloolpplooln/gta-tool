@@ -3,47 +3,30 @@
 html, body {
   height: 100%;
   overflow: hidden;
+  scroll-behavior: smooth;
 }
 
 body {
   font-family: var(--font-sans);
   font-size: var(--font-size-base);
   color: var(--color-text-primary);
-  background-color: var(--color-bg-primary);
+  background: var(--color-bg-primary);
+}
 
-  /* Carbon fiber background */
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 3px,
-      rgba(255, 255, 255, 0.015) 3px,
-      rgba(255, 255, 255, 0.015) 4px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 3px,
-      rgba(255, 255, 255, 0.015) 3px,
-      rgba(255, 255, 255, 0.015) 4px
-    ),
-    repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 6px,
-      rgba(255, 255, 255, 0.008) 6px,
-      rgba(255, 255, 255, 0.008) 7px
-    ),
-    radial-gradient(
-      ellipse at 50% 0%,
-      rgba(212, 168, 67, 0.03) 0%,
-      transparent 70%
-    );
+/* Fullscreen background video */
+#bg-video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  filter: brightness(0.75) saturate(1);
 }
 
 ::selection {
-  background: var(--color-gold);
-  color: var(--color-text-inverse);
+  background: rgba(212, 168, 67, 0.25);
+  color: var(--color-gold-light);
 }
 
 :focus-visible {
@@ -55,10 +38,38 @@ a:hover {
   color: var(--color-gold-light);
 }
 
+/* Typography scale */
 h1 { font-size: var(--font-size-2xl); }
 h2 { font-size: var(--font-size-xl); }
 h3 { font-size: var(--font-size-lg); }
 h4 { font-size: var(--font-size-base); }
+
+/* Page title — 56px Bold */
+.page-title {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+  letter-spacing: -0.03em;
+}
+
+.page-title span {
+  color: var(--color-gold);
+}
+
+/* Large stat number — 48px Bold */
+.stat-number {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+}
+
+/* Caption text — 14px, reduced opacity, refined spacing */
+.caption {
+  font-size: var(--font-size-caption);
+  opacity: 0.7;
+  letter-spacing: 0.02em;
+}
 
 strong {
   font-weight: var(--font-weight-semibold);

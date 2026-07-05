@@ -7,7 +7,7 @@
 
 .livery-pdf-wrap {
   margin-bottom: var(--space-lg);
-  border: var(--border-thin);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: var(--radius-md);
   overflow: hidden;
   background: #fff;
@@ -39,21 +39,21 @@
   gap: 4px;
 }
 .legend-dot {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 2px;
   display: inline-block;
 }
-.legend-dot.normal { background: rgba(46,204,113,0.25); border: 1px solid rgba(46,204,113,0.5); }
-.legend-dot.hidden { background: rgba(231,76,60,0.15); border: 1px solid rgba(231,76,60,0.4); }
-.legend-dot.hidden2 { background: rgba(231,76,60,0.25); border: 1px solid rgba(231,76,60,0.6); }
+.legend-dot.normal { background: rgba(46,204,113,0.2); }
+.legend-dot.hidden { background: rgba(231,76,60,0.12); }
+.legend-dot.hidden2 { background: rgba(231,76,60,0.2); }
 
 /* Table */
 .livery-table-wrap {
   overflow-x: auto;
-  border: var(--border-thin);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: var(--radius-md);
-  background: var(--color-glass-bg);
+  background: var(--color-bg-tertiary);
 }
 
 .livery-table {
@@ -76,7 +76,7 @@
   padding: 6px 2px;
   text-align: center;
   min-width: 30px;
-  border-bottom: 1px solid var(--color-sidebar-border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .livery-vehicle-col {
@@ -93,37 +93,37 @@
 .livery-table td {
   padding: 2px 2px;
   text-align: center;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
   height: 34px;
   vertical-align: middle;
 }
 
 .livery-table tbody tr:hover td {
-  background: rgba(255,255,255,0.04);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .livery-table td.has-livery {
-  background: rgba(46, 204, 113, 0.08);
+  background: rgba(46, 204, 113, 0.06);
   cursor: default;
   padding: 2px 3px;
 }
 
 .livery-table td.livery-hidden {
-  background: rgba(231, 76, 60, 0.1);
+  background: rgba(231, 76, 60, 0.08);
 }
 
 .livery-table td.livery-hidden2 {
-  background: rgba(231, 76, 60, 0.18);
+  background: rgba(231, 76, 60, 0.14);
 }
 
 .livery-table tbody tr:hover td.has-livery {
-  background: rgba(46, 204, 113, 0.18);
+  background: rgba(46, 204, 113, 0.14);
 }
 .livery-table tbody tr:hover td.livery-hidden {
-  background: rgba(231, 76, 60, 0.22);
+  background: rgba(231, 76, 60, 0.18);
 }
 .livery-table tbody tr:hover td.livery-hidden2 {
-  background: rgba(231, 76, 60, 0.32);
+  background: rgba(231, 76, 60, 0.26);
 }
 
 .livery-num {
@@ -148,11 +148,10 @@
 .livery-notes {
   margin-top: var(--space-lg);
   padding: var(--space-md);
-  background: var(--color-glass-bg);
-  border: var(--border-thin);
+  background: var(--color-bg-tertiary);
   border-radius: var(--radius-md);
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
   line-height: 1.8;
 }
 

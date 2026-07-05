@@ -6,19 +6,20 @@
 }
 
 .dlc-card {
-  transition: border-color 0.15s;
+  transition: border-color var(--transition-normal);
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 .dlc-card:hover {
-  border-color: var(--color-gold);
+  border-color: rgba(212, 168, 67, 0.2);
 }
 
 .dlc-card-header {
-  transition: background 0.15s;
+  transition: background var(--transition-fast);
 }
 .dlc-card-header:hover {
-  background: rgba(255,255,255,0.03);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .dlc-vehicles {
-  border-top: 1px solid var(--color-sidebar-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
 }

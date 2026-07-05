@@ -1,0 +1,393 @@
+/* ===== GTA Color Cards Page ===== */
+
+.colors-page {
+  padding: var(--space-lg);
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* ---- Header ---- */
+
+.colors-header {
+  margin-bottom: var(--space-md);
+}
+
+.colors-header h1 {
+  margin: 0 0 var(--space-xs);
+  font-size: var(--font-size-xl);
+  color: var(--color-text-primary);
+}
+
+.colors-header p {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin: 0 0 var(--space-sm);
+}
+
+/* ---- Search ---- */
+
+.color-search {
+  margin-bottom: var(--space-md);
+}
+
+.color-search .form-input {
+  max-width: 360px;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-sm);
+}
+
+/* ---- Filter Chips ---- */
+
+.color-filter-chips {
+  display: flex;
+  gap: 6px;
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.color-filter-chip {
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  user-select: none;
+}
+
+.color-filter-chip:hover {
+  color: var(--color-gold);
+}
+
+.color-filter-chip.active {
+  background: var(--color-gold);
+  color: var(--color-text-inverse);
+}
+
+/* ---- Results Count ---- */
+
+.color-results-count {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-sm);
+}
+
+/* ---- Card Grid ---- */
+
+.color-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-sm);
+}
+
+/* ---- Color Card ---- */
+
+.color-card {
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  cursor: pointer;
+}
+
+.color-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* ---- Color Swatch ---- */
+
+.color-swatch {
+  width: 100%;
+  height: 130px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 6px;
+  position: relative;
+}
+
+.color-swatch .color-id {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  padding: 1px 8px;
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.3px;
+}
+
+/* Chameleon gradient swatch */
+.chameleon-swatch {
+  position: relative;
+  overflow: hidden;
+}
+
+.chameleon-swatch::after {
+  content: '变色龙';
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  font-size: 9px;
+  color: rgba(255,255,255,0.7);
+  background: rgba(0,0,0,0.35);
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+@keyframes chameleon-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ---- Color Info ---- */
+
+.color-info {
+  padding: var(--space-sm);
+}
+
+.color-name {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+  gap: 6px;
+}
+
+.color-name-cn {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.color-name-en {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  text-align: right;
+  flex-shrink: 0;
+  max-width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- Category Badge ---- */
+
+.color-category-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+
+.color-category-badge.Metallic {
+  background: rgba(212, 168, 67, 0.15);
+  color: var(--color-gold);
+}
+
+.color-category-badge.Matte {
+  background: rgba(155, 89, 182, 0.12);
+  color: #c39bd3;
+}
+
+.color-category-badge.Util {
+  background: rgba(52, 152, 219, 0.12);
+  color: #5dade2;
+}
+
+.color-category-badge.Worn {
+  background: rgba(46, 204, 113, 0.12);
+  color: var(--color-success);
+}
+
+.color-category-badge.Metal {
+  background: rgba(231, 76, 60, 0.12);
+  color: #f1948a;
+}
+
+.color-category-badge.Chrome {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e8e8f0;
+}
+
+.color-category-badge.Chameleon {
+  background: linear-gradient(135deg, rgba(255,0,128,0.15), rgba(0,128,255,0.15), rgba(128,0,255,0.15));
+  color: #e040fb;
+}
+
+/* Hidden badge (for unavailable chameleon colors) */
+.color-info .badge-hidden {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0 4px;
+  border-radius: 3px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* ---- Price & Unlock ---- */
+
+.color-price-unlock {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 10px;
+  margin-bottom: 6px;
+}
+
+.color-price {
+  color: var(--color-gold);
+  font-weight: var(--font-weight-semibold);
+  font-size: 11px;
+}
+
+.color-unlock {
+  color: var(--color-text-muted);
+  text-align: right;
+  font-size: 9px;
+  line-height: 1.2;
+  max-width: 55%;
+}
+
+/* ---- Color Values ---- */
+
+.color-values {
+  display: flex;
+  gap: var(--space-sm);
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.color-values .color-hex {
+  color: var(--color-gold);
+}
+
+/* ---- Purchase Availability ---- */
+
+.color-purchase {
+  display: flex;
+  gap: var(--space-sm);
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 10px;
+}
+
+.color-purchase-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--color-text-muted);
+}
+
+.color-purchase-item.available {
+  color: var(--color-success);
+}
+
+.color-purchase-item.unavailable {
+  color: var(--color-text-muted);
+  opacity: 0.3;
+}
+
+/* ---- No Results ---- */
+
+.color-no-results {
+  text-align: center;
+  padding: var(--space-3xl);
+  color: var(--color-text-muted);
+}
+
+/* ---- Car Lightbox ---- */
+
+.car-lightbox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 9999;
+  cursor: default;
+}
+
+.car-lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 40px;
+  color: #fff;
+  cursor: pointer;
+  z-index: 10001;
+  transition: color var(--transition-fast);
+  line-height: 1;
+}
+
+.car-lightbox-close:hover {
+  color: var(--color-gold);
+}
+
+.car-lightbox-prev,
+.car-lightbox-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 60px;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  z-index: 10001;
+  user-select: none;
+  padding: 20px 10px;
+  transition: color var(--transition-fast);
+  line-height: 1;
+}
+
+.car-lightbox-prev:hover,
+.car-lightbox-next:hover {
+  color: #fff;
+}
+
+.car-lightbox-prev { left: 10px; }
+.car-lightbox-next { right: 10px; }
+
+.car-lightbox-img {
+  max-width: 90vw;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 40px rgba(0,0,0,0.5);
+}
+
+.car-lightbox-info {
+  margin-top: 12px;
+  color: #fff;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Car image hint on card swatch */
+.car-img-hint {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 12px;
+  opacity: 0.6;
+  background: rgba(0,0,0,0.3);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+

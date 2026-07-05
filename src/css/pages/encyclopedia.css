@@ -14,6 +14,27 @@
   max-width: 360px;
 }
 
+.encyclopedia-controls .search-input input {
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.04);
+  border: none;
+  padding: 6px 16px 6px 40px;
+  font-size: var(--font-size-caption);
+  color: var(--color-text-primary);
+  transition: background var(--transition-fast);
+}
+
+.encyclopedia-controls .search-input input:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.encyclopedia-controls .search-input input:focus {
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+  outline: 2px solid var(--color-gold);
+  outline-offset: -2px;
+}
+
 .encyclopedia-controls select {
   min-width: 120px;
 }
@@ -22,58 +43,236 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-caption);
   color: var(--color-text-muted);
   cursor: pointer;
   white-space: nowrap;
   padding: 6px 10px;
-  border-radius: 6px;
-  border: var(--border-thin);
+  border-radius: var(--radius-sm);
   background: var(--color-bg-tertiary);
   user-select: none;
+  opacity: 0.8;
 }
-.filter-checkbox input { accent-color: #ff4444; }
+.filter-checkbox input { accent-color: var(--color-gold); }
+
+/* Filter chips */
+.filter-chips {
+  display: flex;
+  gap: 4px;
+}
+
+.filter-chip {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  user-select: none;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.filter-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.filter-chip.active {
+  background: var(--color-gold);
+  color: var(--color-text-inverse);
+}
+
+/* ===== Layout: Brand Sidebar + Main ===== */
+
+.encyclopedia-layout {
+  display: flex;
+  gap: var(--space-xl);
+  align-items: flex-start;
+}
+
+.brand-sidebar {
+  width: 90px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  overflow-x: visible;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px var(--space-sm) 4px 4px;
+}
+
+.brand-sidebar::-webkit-scrollbar {
+  width: 2px;
+}
+
+.brand-item {
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  position: relative;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.brand-item:hover {
+  transform: scale(1.06);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.brand-item.active {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 1px;
+}
+
+.brand-item .brand-name {
+  display: block;
+  font-size: 10px;
+  color: #ccc;
+  text-align: center;
+  padding: 0 2px 4px;
+  line-height: 1.2;
+  word-break: keep-all;
+}
+
+.brand-item.active .brand-name {
+  color: var(--color-gold);
+  font-weight: var(--font-weight-medium);
+}
+
+.brand-item img {
+  width: 100%;
+  display: block;
+  object-fit: contain;
+  padding: 3px 6px;
+}
+
+.brand-item .brand-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  padding: 4px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* ===== Type Sidebar ===== */
+
+.type-sidebar {
+  width: 80px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  overflow-x: visible;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px 4px 4px 4px;
+}
+
+.type-item {
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: transform var(--transition-fast);
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.type-item:hover {
+  transform: scale(1.06);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.type-item.active {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 1px;
+}
+
+.type-item img {
+  width: 100%;
+  display: block;
+  object-fit: contain;
+  padding: 3px 6px;
+}
+
+.type-item .type-name {
+  display: block;
+  font-size: 10px;
+  color: #ccc;
+  text-align: center;
+  padding: 0 2px 4px;
+  line-height: 1.2;
+  word-break: keep-all;
+}
+
+.type-item.active .type-name {
+  color: var(--color-gold);
+  font-weight: var(--font-weight-medium);
+}
+
+.type-item .type-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  padding: 4px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.encyclopedia-main {
+  flex: 1;
+  min-width: 0;
+}
 
 .results-count {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-caption);
   color: var(--color-text-muted);
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-lg);
+  opacity: 0.7;
 }
+
+/* Vehicle Grid */
 
 .vehicle-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-lg);
 }
 
-/* Vehicle Card */
+/* Vehicle Card — Cover style (Steam Deck / PS Store game cover) */
 
 .vehicle-card {
   overflow: hidden;
   cursor: pointer;
-  transition: border-color var(--transition-normal), transform var(--transition-normal), box-shadow var(--transition-normal);
   position: relative;
-}
-
-.vehicle-card {
   border-radius: var(--radius-lg);
-  transition: border-color var(--transition-normal), transform var(--transition-normal), box-shadow var(--transition-normal), border-radius var(--transition-spring);
+  background: var(--color-bg-secondary);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .vehicle-card:hover {
-  border-color: var(--color-glass-border-hover);
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-card-hover), var(--border-glow);
-  border-radius: var(--radius-xl);
-}
-
-.vehicle-card:hover .card-image-placeholder {
-  transform: scale(1.05);
+  transform: translateY(-6px) scale(1.03);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.35),
+    0 0 80px rgba(212, 168, 67, 0.06),
+    0 0 0 1px rgba(212, 168, 67, 0.15);
 }
 
 .card-image {
-  height: 130px;
-  background: var(--color-bg-tertiary);
+  width: 100%;
+  height: 220px;
+  background: var(--color-bg-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -81,6 +280,7 @@
   position: relative;
 }
 
+/* Image blends into card background — no visible borders */
 .card-image-placeholder {
   width: 100%;
   height: 100%;
@@ -89,13 +289,12 @@
   justify-content: center;
   color: var(--color-text-muted);
   font-size: 2.5rem;
-  transition: transform var(--transition-normal);
 }
 
 .card-image-placeholder svg {
-  width: 48px;
-  height: 48px;
-  opacity: 0.4;
+  width: 56px;
+  height: 56px;
+  opacity: 0.25;
 }
 
 .card-thumb-img {
@@ -103,37 +302,41 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   opacity: 0;
-  transition: opacity 300ms, transform var(--transition-normal);
+  transition: opacity 400ms var(--ease-soft), transform var(--transition-normal);
   z-index: 1;
 }
 
 .vehicle-card:hover .card-thumb-img {
-  transform: scale(1.05);
+  transform: scale(1.06);
 }
 
 .card-thumb-img.img-error {
   display: none;
 }
 
+/* Card body — below image */
 .card-body {
-  padding: var(--space-md);
+  position: relative;
+  z-index: 3;
+  padding: var(--space-sm) var(--space-md);
 }
 
 .card-name {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-base);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-bottom: var(--space-xs);
+  margin-bottom: 2px;
 }
 
 .card-brand {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-caption);
   color: var(--color-text-muted);
+  opacity: 0.7;
   margin-bottom: var(--space-sm);
 }
 
@@ -145,18 +348,23 @@
 }
 
 .card-price {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   color: var(--color-gold);
   font-family: var(--font-mono);
+  font-weight: var(--font-weight-medium);
 }
 
 .card-owned-badge {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-caption);
   color: var(--color-success);
 }
 
-.card-owned-badge i {
-  margin-right: 2px;
+/* Badge container repositioned */
+.card-image .badge-container {
+  position: absolute;
+  top: var(--space-sm);
+  left: var(--space-sm);
+  z-index: 3;
 }
 
 /* No results */

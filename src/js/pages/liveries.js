@@ -31,7 +31,6 @@ GTA.Liveries = (function () {
 
   function renderPage(container) {
     container.innerHTML =
-      '<h1 style="margin-bottom:var(--space-sm)">涂装对照表</h1>' +
       '<p style="color:var(--color-text-muted);margin-bottom:var(--space-md)">由 尾立沙拉furret 制作，原始 PDF 嵌入展示</p>' +
       '<div class="livery-pdf-wrap">' +
         '<embed src="../../assets/liveries.pdf" type="application/pdf" width="100%" height="800px" style="border:none;border-radius:var(--radius-md)">' +

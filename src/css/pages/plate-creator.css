@@ -23,24 +23,21 @@
 }
 
 .plate-style-card {
-  background: var(--color-glass-bg);
-  border: 1px solid var(--color-glass-border);
+  background: var(--color-bg-tertiary);
   border-radius: var(--radius-lg);
   padding: var(--space-sm);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
   text-align: center;
   position: relative;
 }
 
 .plate-style-card:hover {
-  border-color: var(--color-glass-border-hover);
-  background: var(--color-glass-bg-alt);
+  background: var(--color-bg-elevated);
 }
 
 .plate-style-card.selected {
-  border-color: var(--color-gold);
-  box-shadow: var(--shadow-gold);
+  box-shadow: 0 0 0 1px var(--color-gold);
 }
 
 .plate-style-card .style-preview {
@@ -72,8 +69,7 @@
 }
 
 .plate-preview-wrapper {
-  background: var(--color-glass-bg);
-  border: 1px solid var(--color-glass-border);
+  background: var(--color-bg-tertiary);
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
   display: flex;

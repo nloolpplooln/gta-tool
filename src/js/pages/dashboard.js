@@ -20,6 +20,8 @@ GTA.Dashboard = (function () {
       await GTA.db.ready();
       var stats = await StatsCalc.getDashboardStats();
 
+      // Load player name
+      loadPlayerName();
       // Update stat cards
       updateStatCards(stats);
       // Update recent additions
@@ -32,6 +34,18 @@ GTA.Dashboard = (function () {
     }
   }
 
+  async function loadPlayerName() {
+    try {
+      var setting = await GTA.db.settings.get('playerName');
+      var el = document.getElementById('dashboard-player-name');
+      if (el && setting && setting.value) {
+        el.textContent = setting.value;
+      } else if (el) {
+        el.textContent = 'GTA 玩家';
+      }
+    } catch (e) {}
+  }
+
   function updateStatCards(stats) {
     var ownedEl = document.getElementById('stat-owned');
     var assetsEl = document.getElementById('stat-assets');
@@ -41,19 +55,10 @@ GTA.Dashboard = (function () {
     if (ownedEl) {
       ownedEl.textContent = stats.ownedCount;
     }
-    var ownedLabel = document.getElementById('stat-owned-label');
-    if (ownedLabel) {
-      ownedLabel.textContent = '拥有载具 / 总计 ' + stats.totalCount;
-    }
     if (assetsEl) {
       assetsEl.textContent = Utils.formatCurrency(stats.totalValue);
       if (stats.modsValue > 0) {
         assetsEl.setAttribute('title', '购车 ' + Utils.formatCurrency(stats.vehicleValue) + ' + 改装 ' + Utils.formatCurrency(stats.modsValue));
-        var parentCard = assetsEl.closest('.stat-card');
-        if (parentCard) {
-          var label = parentCard.querySelector('.stat-card-label');
-          if (label) label.textContent = '购车 ' + Utils.formatCurrency(stats.vehicleValue) + ' + 改装 ' + Utils.formatCurrency(stats.modsValue);
-        }
       }
     }
     if (discontinuedEl) discontinuedEl.textContent = stats.discontinuedCount;
@@ -81,10 +86,13 @@ GTA.Dashboard = (function () {
         GTA.Router.navigate('vehicle/' + vehicle.id);
       });
 
+      var thumb = vehicle.thumbnail || '';
       item.innerHTML =
-        (Catalog.isDiscontinued(vehicle.name) ? '<span class="badge badge-discontinued">绝版</span>' : '') +
-        '<span style="flex:1">' + Utils.escapeHtml(vehicle.name) + '</span>' +
-        '<span style="color:var(--color-gold);font-family:var(--font-mono);font-size:var(--font-size-xs)">' + Utils.formatCurrency(vehicle.price_buy) + '</span>' +
+        (thumb ? '<img class="addition-thumb" src="' + thumb + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' : '<div class="addition-thumb" style="display:flex;align-items:center;justify-content:center;font-size:1.2rem;opacity:0.3;">🏎️</div>') +
+        '<div class="addition-info">' +
+          '<div class="addition-name">' + Utils.escapeHtml(vehicle.name) + (Catalog.isDiscontinued(vehicle.name) ? ' <span class="badge badge-discontinued">绝版</span>' : '') + '</div>' +
+          '<div class="addition-meta">' + Utils.escapeHtml(vehicle.brand) + ' · ' + Utils.formatCurrency(vehicle.price_buy) + '</div>' +
+        '</div>' +
         '<span class="addition-date">' + Utils.formatDate(rec.addedAt) + '</span>';
 
       container.appendChild(item);

@@ -30,47 +30,283 @@ GTA.Garage = (function () {
       if (!currentGarageId && garages.length > 0) {
         currentGarageId = garages[0].id;
       }
-      renderSidebar();
-      renderGarageContent();
+      renderNavBar();
+      renderGarageGrid();
+      renderDropdown();
     });
 
-    document.getElementById('btn-add-garage').addEventListener('click', showAddGarageModal);
+    // Menu button
+    var menuBtn = document.getElementById('btn-menu-garage');
+    if (menuBtn) {
+      menuBtn.onclick = function (e) {
+        e.stopPropagation();
+        showGarageMenu();
+      };
+    }
+
+    // Prev/Next
+    var prevBtn = document.getElementById('btn-prev-garage');
+    var nextBtn = document.getElementById('btn-next-garage');
+    if (prevBtn) prevBtn.onclick = function () { navigateGarage(-1); };
+    if (nextBtn) prevBtn.onclick = function () { navigateGarage(1); };
+
+    // Dropdown toggle
+    var dropdownMenu = document.getElementById('garage-dropdown-menu');
+    var dropdownBtn = document.getElementById('btn-garage-dropdown');
+    if (dropdownBtn && dropdownMenu) {
+      dropdownBtn.onclick = function (e) {
+        e.stopPropagation();
+        var open = dropdownMenu.style.display === 'block';
+        dropdownMenu.style.display = open ? 'none' : 'block';
+        if (!open) renderDropdown();
+      };
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('#btn-garage-dropdown') || e.target.closest('#garage-dropdown-menu')) return;
+      if (dropdownMenu) dropdownMenu.style.display = 'none';
+    });
 
     // Global search
     var searchInput = document.getElementById('garage-search-input');
     if (searchInput) {
       var debouncedSearch = Utils.debounce(function () {
         var term = searchInput.value.trim();
-        if (term) {
-          performGlobalSearch(term);
-        } else {
-          hideSearchResults();
-        }
+        if (term) { performGlobalSearch(term); } else { hideSearchResults(); }
       }, 200);
-
       searchInput.addEventListener('input', debouncedSearch);
       searchInput.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-          this.value = '';
-          hideSearchResults();
-        }
-      });
-      searchInput.addEventListener('focus', function () {
-        if (this.value.trim()) {
-          performGlobalSearch(this.value.trim());
-        }
+        if (e.key === 'Escape') { this.value = ''; hideSearchResults(); }
       });
     }
 
-    // Click outside to close search panel
+    // Click outside search
     document.addEventListener('click', function (e) {
-      if (!e.target.closest('#garage-global-search')) {
-        hideSearchResults();
-      }
+      if (!e.target.closest('#garage-global-search')) hideSearchResults();
     });
   }
 
   function destroy() {}
+
+  function getCurrentGarage() {
+    return garages.find(function (g) { return g.id === currentGarageId; });
+  }
+
+  function navigateGarage(dir) {
+    var idx = -1;
+    for (var i = 0; i < garages.length; i++) {
+      if (garages[i].id === currentGarageId) { idx = i; break; }
+    }
+    if (idx === -1) return;
+    var newIdx = (idx + dir + garages.length) % garages.length;
+    currentGarageId = garages[newIdx].id;
+    renderNavBar();
+    renderGarageGrid();
+    renderDropdown();
+  }
+
+  function renderNavBar() {
+    var g = getCurrentGarage();
+    var nameEl = document.getElementById('garage-nav-name');
+    if (nameEl && g) nameEl.textContent = g.name;
+  }
+
+  function renderDropdown() {
+    var menu = document.getElementById('garage-dropdown-menu');
+    if (!menu) return;
+    var html = '';
+    garages.forEach(function (g) {
+      html += '<div class="garage-dropdown-item' + (g.id === currentGarageId ? ' active' : '') + '" data-id="' + g.id + '">' +
+        Utils.escapeHtml(g.name) + ' (' + (g._count || 0) + ')</div>';
+    });
+    html += '<div class="garage-dropdown-item" data-action="add" style="color:var(--color-gold)">+ 新建车库</div>';
+    menu.innerHTML = html;
+
+    menu.querySelectorAll('.garage-dropdown-item').forEach(function (item) {
+      item.addEventListener('click', function (e) {
+        e.stopPropagation();
+        menu.style.display = 'none';
+        var action = this.getAttribute('data-action');
+        if (action === 'add') { showAddGarageModal(); return; }
+        var gid = parseInt(this.getAttribute('data-id'));
+        if (gid && gid !== currentGarageId) {
+          currentGarageId = gid;
+          renderNavBar();
+          renderGarageGrid();
+          renderDropdown();
+        }
+      });
+    });
+  }
+
+  function showGarageMenu() {
+    var items = [
+      { label: '新建车库', action: 'add', cls: '' },
+      { label: '添加车辆', action: 'add-vehicle', cls: '' },
+      { label: '重命名车库', action: 'rename', cls: '' },
+      { label: '删除车库', action: 'delete', cls: 'danger' }
+    ];
+    var html = '<div style="display:flex;flex-direction:column;gap:2px;">';
+    items.forEach(function (item) {
+      html += '<div class="menu-action-item' + (item.cls ? ' ' + item.cls : '') + '" data-action="' + item.action + '">' + item.label + '</div>';
+    });
+    html += '</div>';
+
+    GTA.Modal.show({ title: '车库管理', body: html, showCancel: false, confirmText: '关闭' });
+
+    setTimeout(function () {
+      document.querySelectorAll('.menu-action-item[data-action]').forEach(function (el) {
+        el.addEventListener('click', function () {
+          GTA.Modal.hide(true);
+          var action = this.getAttribute('data-action');
+          if (action === 'add') showAddGarageModal();
+          else if (action === 'add-vehicle') showAddVehicleModal();
+          else if (action === 'rename') showRenameGarageModal();
+          else if (action === 'delete') showDeleteGarageModal();
+        });
+      });
+    }, 100);
+  }
+
+
+  async function showAddVehicleModal() {
+    await GTA.db.ready();
+    var owned = await GTA.db.ownedVehicles.toArray();
+    var ownedIds = new Set(owned.map(function (r) { return r.vehicleId; }));
+    var existing = await GTA.db.garageVehicles.where({ garageId: currentGarageId }).toArray();
+    var existingIds = new Set(existing.map(function (r) { return r.vehicleId; }));
+
+    var allVehicles = Catalog.getAll();
+    var available = allVehicles.filter(function (v) { return ownedIds.has(v.id); });
+
+    if (available.length === 0) {
+      GTA.Toast.info('没有已收藏的车辆，请先从百科添加');
+      return;
+    }
+
+    var html = '<div class="add-vehicle-list" style="max-height:350px;overflow-y:auto;">';
+    available.forEach(function (v) {
+      var inGarage = existingIds.has(v.id);
+      html += '<div class="add-vehicle-item' + (inGarage ? ' already-owned' : '') + '" data-vid="' + v.id + '">' +
+        (Catalog.isDiscontinued(v.name) ? '<span class="badge badge-discontinued">绝版</span> ' : '') +
+        Utils.escapeHtml(v.name) +
+        ' <span style="color:var(--color-gold);font-size:11px;">' + Utils.formatCurrency(v.price_buy) + '</span>' +
+        (inGarage ? ' <span style="font-size:10px;opacity:0.5;">✓</span>' : '') +
+      '</div>';
+    });
+    html += '</div>';
+
+    GTA.Modal.show({ title: '添加车辆到「' + Utils.escapeHtml(getCurrentGarage().name) + '」', body: html, showCancel: false, confirmText: '关闭' });
+
+    setTimeout(function () {
+      document.querySelectorAll('.add-vehicle-item:not(.already-owned)').forEach(function (item) {
+        item.addEventListener('click', async function () {
+          if (this.classList.contains('added')) return;
+          this.classList.add('added');
+          var vid = this.getAttribute('data-vid');
+          var current = await GTA.db.garageVehicles.where({ garageId: currentGarageId }).toArray();
+          var nextSort = current.length > 0 ? Math.max.apply(null, current.map(function (r) { return r.sortOrder || 0; })) + 1 : 0;
+          await GTA.db.garageVehicles.add({ garageId: currentGarageId, vehicleId: vid, sortOrder: nextSort });
+          this.style.opacity = '0.4';
+          this.innerHTML += ' ✓';
+          GTA.Toast.success('已添加');
+          renderGarageGrid();
+        });
+      });
+    }, 100);
+  }
+
+  function showRenameGarageModal() {
+    var g = getCurrentGarage();
+    if (!g) return;
+    var html = '<input class="form-input" id="rename-input" value="' + Utils.escapeHtml(g.name) + '" maxlength="30">';
+    GTA.Modal.show({ title: '重命名车库', body: html, confirmText: '保存',
+      onConfirm: async function () {
+        var input = document.getElementById('rename-input');
+        if (input && input.value.trim()) {
+          await GTA.db.garages.update(currentGarageId, { name: input.value.trim() });
+          await loadGarages();
+          renderNavBar();
+          renderDropdown();
+          GTA.Toast.success('已重命名');
+        }
+      }
+    });
+  }
+
+  function showDeleteGarageModal() {
+    if (garages.length <= 1) { GTA.Toast.warning('至少保留一个车库'); return; }
+    var g = getCurrentGarage();
+    GTA.Modal.show({ title: '删除车库',
+      body: '<p>确定删除「' + Utils.escapeHtml(g ? g.name : '') + '」吗？</p>',
+      confirmText: '删除',
+      onConfirm: async function () {
+        await GTA.db.garages.delete(currentGarageId);
+        await GTA.db.garageVehicles.where({ garageId: currentGarageId }).delete();
+        await loadGarages();
+        currentGarageId = garages[0].id;
+        renderNavBar();
+        renderGarageGrid();
+        renderDropdown();
+        GTA.Toast.success('已删除');
+      }
+    });
+  }
+
+  function renderGarageGrid() {
+    var grid = document.getElementById('garage-grid');
+    if (!grid) return;
+    var g = getCurrentGarage();
+
+    GTA.db.garageVehicles.where({ garageId: currentGarageId }).toArray().then(function (records) {
+      if (records.length === 0) {
+        grid.innerHTML = '<div class="garage-empty">车库为空，点击右上角菜单添加车辆</div>';
+        return;
+      }
+      var html = '';
+      records.forEach(function (rec) {
+        var v = Catalog.getById(rec.vehicleId);
+        if (!v) return;
+        var thumb = v.thumbnail || (v.model_name ? 'https://cdn-gta-images.antwen.cn/images/' + v.model_name.toLowerCase() + '/main.jpg' : '');
+        html += '<div class="garage-vehicle" data-vid="' + v.id + '" data-recid="' + rec.id + '">' +
+          (thumb ? '<img src="' + thumb + '" alt="' + Utils.escapeHtml(v.name) + '" loading="lazy" onerror="this.style.opacity=\'0.3\'">' : '<div style="display:flex;align-items:center;justify-content:center;height:100%;opacity:0.2;font-size:2rem;">🏎️</div>') +
+          '<div class="vehicle-name">' + Utils.escapeHtml(v.name) + '</div>' +
+          '<div class="vehicle-actions">' +
+            '<button class="vehicle-action-btn remove" title="移出车库" data-action="remove" data-recid="' + rec.id + '">✕</button>' +
+          '</div>' +
+        '</div>';
+      });
+      grid.innerHTML = html;
+
+      // Bind click to navigate
+      grid.querySelectorAll('.garage-vehicle').forEach(function (card) {
+        card.addEventListener('click', function (e) {
+          if (e.target.closest('.vehicle-action-btn')) return;
+          var vid = this.getAttribute('data-vid');
+          if (vid) GTA.Router.navigate('vehicle/' + vid);
+        });
+      });
+
+      // Bind remove buttons
+      grid.querySelectorAll('.vehicle-action-btn[data-action="remove"]').forEach(function (btn) {
+        btn.addEventListener('click', async function (e) {
+          e.stopPropagation();
+          var recid = parseInt(this.getAttribute('data-recid'));
+          await GTA.db.garageVehicles.delete(recid);
+          GTA.Toast.success('已移出车库');
+          renderGarageGrid();
+        });
+      });
+    });
+
+    // Update counts
+    GTA.db.garageVehicles.where({ garageId: currentGarageId }).count().then(function (count) {
+      if (g) g._count = count;
+    });
+  }
+
+  // ===== Original showAddGarageModal kept for compatibility =====
 
   async function loadGarages() {
     await GTA.db.ready();
@@ -86,8 +322,10 @@ GTA.Garage = (function () {
   }
 
   // ==================== SIDEBAR RENDERING ====================
+  function renderSidebar() { /* deprecated — using nav bar instead */ }
+  function renderGarageContent() { renderNavBar(); renderGarageGrid(); renderDropdown(); }
 
-  function renderSidebar() {
+  function renderSidebarOld() {
     var listContainer = document.getElementById('garage-list');
     if (!listContainer) return;
 
@@ -95,26 +333,33 @@ GTA.Garage = (function () {
 
     garages.forEach(function (g) {
       var item = document.createElement('div');
-      item.className = 'garage-sidebar-item' + (g.id === currentGarageId ? ' active' : '');
+      item.className = 'garage-preview-card' + (g.id === currentGarageId ? ' active' : '');
       item.setAttribute('draggable', 'true');
       item.setAttribute('data-garage-id', g.id);
-      item.title = '拖拽排序 · 也可拖入车辆';
+      item.title = '点击查看 · 拖拽排序';
 
-      item.innerHTML = '<span class="sidebar-drag-handle">⋮⋮</span>' +
-        '<span class="sidebar-item-name">' + Utils.escapeHtml(g.name) + '</span>' +
-        '<span class="sidebar-item-count">0</span>';
+      item.innerHTML =
+        '<div class="garage-preview-cover">' +
+          '<div class="garage-preview-cover-placeholder">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>' +
+          '</div>' +
+        '</div>' +
+        '<div class="garage-preview-info">' +
+          '<span class="garage-preview-name">' + Utils.escapeHtml(g.name) + '</span>' +
+          '<span class="garage-preview-count"><span class="preview-count-value">0</span> 辆</span>' +
+        '</div>' +
+        '<div class="garage-preview-drag">拖拽排序</div>';
 
       // Click to switch garage
       item.addEventListener('click', function (e) {
-        if (item.classList.contains('sidebar-just-dropped')) {
-          item.classList.remove('sidebar-just-dropped');
+        if (item.classList.contains('card-just-dropped')) {
+          item.classList.remove('card-just-dropped');
           return;
         }
-        if (e.target.closest('.sidebar-drag-handle')) return;
         currentGarageId = g.id;
         clearSearchInput();
         renderSidebar();
-        renderGarageContent();
+        renderGarageGrid();
         GTA.Router.navigate('garage/' + g.id);
       });
 
@@ -166,7 +411,7 @@ GTA.Garage = (function () {
       // --- Sidebar item: drop ---
       item.addEventListener('drop', async function (e) {
         e.preventDefault();
-        item.classList.add('sidebar-just-dropped');
+        item.classList.add('card-just-dropped');
         clearSidebarHighlights();
 
         if (dragState.type === 'vehicle') {
@@ -202,7 +447,7 @@ GTA.Garage = (function () {
   }
 
   function clearSidebarHighlights() {
-    document.querySelectorAll('.garage-sidebar-item').forEach(function (item) {
+    document.querySelectorAll('.garage-preview-card').forEach(function (item) {
       item.classList.remove('sidebar-drag-above', 'sidebar-drag-below', 'sidebar-drop-target', 'sidebar-potential-target');
     });
   }
@@ -248,11 +493,11 @@ GTA.Garage = (function () {
   // ==================== SIDEBAR COUNTS ====================
 
   async function updateSidebarCounts() {
-    var items = document.querySelectorAll('.garage-sidebar-item');
+    var items = document.querySelectorAll('.garage-preview-card');
     for (var i = 0; i < items.length; i++) {
       if (garages[i]) {
         var count = await GTA.db.garageVehicles.where('garageId').equals(garages[i].id).count();
-        var countSpan = items[i].querySelector('.sidebar-item-count');
+        var countSpan = items[i].querySelector('.preview-count-value');
         if (countSpan) countSpan.textContent = count;
       }
     }
@@ -260,7 +505,7 @@ GTA.Garage = (function () {
 
   // ==================== GARAGE CONTENT ====================
 
-  async function renderGarageContent() {
+  async function renderGarageContentOld() {
     var content = document.getElementById('garage-content');
     if (!content) return;
 
@@ -549,7 +794,7 @@ GTA.Garage = (function () {
     try {
       await GTA.db.garageVehicles.delete(recordId);
       GTA.Toast.info('已从车库移除');
-      renderGarageContent();
+      renderGarageGrid();
       GTA.EventBus.emit('garage:changed', { garageId: currentGarageId });
     } catch (e) {
       console.error('[Garage] Remove error:', e);
@@ -573,8 +818,9 @@ GTA.Garage = (function () {
         });
         if (existing) {
           currentGarageId = existing.id;
-            renderSidebar();
-          renderGarageContent();
+          renderNavBar();
+          renderGarageGrid();
+          renderDropdown();
           GTA.Toast.info('已切换到现有车库「' + existing.name + '」');
           return;
         }
@@ -588,8 +834,7 @@ GTA.Garage = (function () {
           });
           currentGarageId = id;
             await loadGarages();
-          renderSidebar();
-          renderGarageContent();
+          renderNavBar(); renderGarageGrid(); renderDropdown();
           GTA.Toast.success('车库已创建');
         } catch (e) {
           console.error('[Garage] Create error:', e);
@@ -626,8 +871,7 @@ GTA.Garage = (function () {
         try {
           await GTA.db.garages.update(currentGarageId, { name: name });
           await loadGarages();
-          renderSidebar();
-          renderGarageContent();
+          renderNavBar(); renderGarageGrid(); renderDropdown();
           GTA.Toast.success('已重命名');
         } catch (e) {
           GTA.Toast.error('重命名失败');
@@ -655,94 +899,12 @@ GTA.Garage = (function () {
       await loadGarages();
       currentGarageId = targetId;
       renderSidebar();
-      renderGarageContent();
+      renderGarageGrid();
       GTA.EventBus.emit('garage:changed', { garageId: targetId });
     } catch (e) {
       console.error('[Garage] Merge error:', e);
       GTA.Toast.error('合并失败');
     }
-  }
-
-  function showDeleteGarageModal() {
-    var garage = garages.find(function (g) { return g.id === currentGarageId; });
-    if (!garage) return;
-
-    GTA.Modal.show({
-      title: '删除车库',
-      body: '<p>确定要删除 <strong>' + Utils.escapeHtml(garage.name) + '</strong> 吗？</p><p class="text-sm text-muted">车库中的车辆不会被删除，仅移除车库布局。</p>',
-      confirmText: '确认删除',
-      cancelText: '取消',
-      onConfirm: async function () {
-        try {
-          await GTA.db.garages.delete(currentGarageId);
-          await loadGarages();
-          currentGarageId = garages.length > 0 ? garages[0].id : null;
-            renderSidebar();
-          renderGarageContent();
-          GTA.Toast.info('车库已删除');
-        } catch (e) {
-          GTA.Toast.error('删除失败');
-        }
-      }
-    });
-  }
-
-  async function showAddVehicleModal() {
-    var allVehicles = Catalog.getAll();
-    var owned = await GTA.db.ownedVehicles.toArray();
-    var ownedIds = new Set(owned.map(function (r) { return r.vehicleId; }));
-
-    var available = allVehicles.filter(function (v) {
-      return ownedIds.has(v.id);
-    });
-
-    if (available.length === 0) {
-      GTA.Toast.info('没有已收藏的车辆，请先从百科添加');
-      return;
-    }
-
-    var optionsHtml = '<div class="add-vehicle-list" style="max-height:350px;overflow-y:auto;">';
-    available.forEach(function (v) {
-      optionsHtml +=
-        '<div class="add-vehicle-item" data-vehicle-id="' + v.id + '">' +
-          (Catalog.isDiscontinued(v.name) ? '<span class="badge badge-discontinued">绝版</span>' : '') +
-          '<span>' + Utils.escapeHtml(v.name) + '</span>' +
-          '<span style="margin-left:auto;color:var(--color-gold);font-size:var(--font-size-xs)">' + Utils.formatCurrency(v.price_buy) + '</span>' +
-        '</div>';
-    });
-    optionsHtml += '</div>';
-
-    GTA.Modal.show({
-      title: '添加载具到车库',
-      body: optionsHtml,
-      confirmText: '关闭',
-      showCancel: false
-    });
-
-    setTimeout(function () {
-      document.querySelectorAll('.add-vehicle-item').forEach(function (item) {
-        item.addEventListener('click', async function () {
-          var vehicleId = this.getAttribute('data-vehicle-id');
-          try {
-            var maxSort = 0;
-            var records = await GTA.db.garageVehicles.where('garageId').equals(currentGarageId).toArray();
-            if (records.length > 0) {
-              maxSort = Math.max.apply(null, records.map(function (r) { return r.sortOrder || 0; })) + 1;
-            }
-            await GTA.db.garageVehicles.add({
-              garageId: currentGarageId,
-              vehicleId: vehicleId,
-              sortOrder: maxSort
-            });
-            GTA.Toast.success('已添加');
-            renderGarageContent();
-            GTA.EventBus.emit('garage:changed', { garageId: currentGarageId });
-          } catch (e) {
-            GTA.Toast.error('添加失败');
-          }
-        });
-      });
-    }, 100);
   }
 
   // ==================== CUSTOM VEHICLE CARD EDIT ====================
@@ -838,7 +1000,7 @@ GTA.Garage = (function () {
               customImagePhotoId: selectedPhotoId || 0
             });
             GTA.Toast.success('已保存');
-            renderGarageContent();
+            renderGarageGrid();
           } catch (e) {
             GTA.Toast.error('保存失败');
           }
@@ -882,7 +1044,7 @@ GTA.Garage = (function () {
               await GTA.db.garageVehicles.update(recordId, { customImage: '', customImagePhotoId: 0 });
               GTA.Toast.info('图片已移除');
               GTA.Modal.hide();
-              renderGarageContent();
+              renderGarageGrid();
             });
           }
         }
@@ -1028,9 +1190,8 @@ GTA.Garage = (function () {
         highlightVehicleId = null;
         hideSearchResults();
         document.getElementById('garage-search-input').value = '';
-        renderSidebar();
-        renderGarageContent();
-        GTA.Router.navigate('garage/' + gid);
+        renderNavBar();
+        renderGarageGrid();
       });
     });
 
@@ -1042,9 +1203,8 @@ GTA.Garage = (function () {
         highlightVehicleId = vid;
         hideSearchResults();
         document.getElementById('garage-search-input').value = '';
-        renderSidebar();
-        renderGarageContent();
-        GTA.Router.navigate('garage/' + gid);
+        renderNavBar();
+        renderGarageGrid();
       });
     });
   }
@@ -1061,8 +1221,15 @@ GTA.Garage = (function () {
   }
 
   GTA.EventBus.on('garage:changed', function () {
-    loadGarages().then(function () { renderSidebar(); });
+    loadGarages().then(function () { renderNavBar(); renderGarageGrid(); renderDropdown(); });
   });
 
-  return { init: init, destroy: destroy };
+  return {
+    init: init,
+    destroy: destroy,
+    _refreshDropdown: renderDropdown,
+    _openMenu: showGarageMenu,
+    _prevGarage: function () { navigateGarage(-1); },
+    _nextGarage: function () { navigateGarage(1); }
+  };
 })();

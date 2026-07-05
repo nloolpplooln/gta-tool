@@ -6,6 +6,24 @@ GTA.VehicleDetail = (function () {
   var Catalog = GTA.VehicleCatalog;
   var currentVehicleId = null;
   var currentVehicle = null;
+  var blacklistData = null;
+  var partsRestrictData = null;
+  var streetCarColorsData = null;
+
+  async function loadDataFiles() {
+    try {
+      var resp = await fetch('../../vehicle-blacklist.json');
+      blacklistData = await resp.json();
+    } catch (e) { blacklistData = { blacklist_models: [] }; }
+    try {
+      var resp = await fetch('../../vehicle-parts-restrictions.json');
+      partsRestrictData = await resp.json();
+    } catch (e) { partsRestrictData = {}; }
+    try {
+      var resp = await fetch('../../street-car-colors.json');
+      streetCarColorsData = await resp.json();
+    } catch (e) { streetCarColorsData = []; }
+  }
 
   // Safe render wrapper — catches errors in optional render blocks
   function safeRender(fn, label) {
@@ -31,6 +49,12 @@ GTA.VehicleDetail = (function () {
 
     render();
     updateOwnershipButton();
+    GTA.VehicleCard.loadStreetCarModels().then(function () {
+      updateStreetCarBadge();
+    });
+    loadDataFiles().then(function () {
+      renderExtraSections();
+    });
   }
 
   function destroy() {
@@ -45,69 +69,93 @@ GTA.VehicleDetail = (function () {
     var v = currentVehicle;
 
     container.innerHTML =
-      '<div class="detail-left">' +
-        '<div class="detail-image-large" style="position:relative;background:var(--color-bg-tertiary);display:flex;align-items:center;justify-content:center;overflow:hidden;border:var(--border-thin);border-radius:var(--radius-lg);height:240px;">' +
-          '<svg id="vehicle-image-placeholder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:80px;height:80px;opacity:0.3;flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><path d="M21 15l-5-5L5 21"/></svg>' +
-          (v.thumbnail ? '<img src="' + v.thumbnail + '" alt="" id="vehicle-image-preview" onerror="this.style.display=\'none\'" onload="this.style.opacity=\'1\'">' : (v.model_name ? '<img src="https://cdn-gta-images.antwen.cn/images/' + v.model_name.toLowerCase() + '/main.jpg" alt="" id="vehicle-image-preview" onerror="this.style.display=\'none\'" onload="this.style.opacity=\'1\'">' : '')) +
+      // ── Hero Image (50vh) ──
+      '<div class="detail-hero-image" style="position:relative;">' +
+        '<div class="hero-img-placeholder">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><path d="M21 15l-5-5L5 21"/></svg>' +
         '</div>' +
-        '<div class="ownership-toggle" id="ownership-toggle"></div>' +
-        '<div class="detail-garage-info" id="detail-garage-info"></div>' +
+        (v.thumbnail ? '<img src="' + v.thumbnail + '" alt="" id="vehicle-image-preview" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity 220ms;z-index:2;" onerror="this.style.display=\'none\'" onload="this.style.opacity=\'1\'">' : (v.model_name ? '<img src="https://cdn-gta-images.antwen.cn/images/' + v.model_name.toLowerCase() + '/main.jpg" alt="" id="vehicle-image-preview" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity 220ms;z-index:2;" onerror="this.style.display=\'none\'" onload="this.style.opacity=\'1\'">' : '')) +
       '</div>' +
 
-      '<div class="detail-right">' +
-        '<div class="vehicle-title">' +
-          '<h2>' + Utils.escapeHtml(v.name) + '</h2>' +
-          (Catalog.isDiscontinued(v.name) ? '<span class="badge badge-discontinued">绝版</span>' : '') +
+      // ── Hero Info Bar ──
+      '<div class="detail-hero-info">' +
+        '<div class="detail-hero-info-left">' +
+          '<h1 class="detail-title">' + Utils.escapeHtml(v.name) +
+            (Catalog.isDiscontinued(v.name) ? ' <span class="badge badge-discontinued">绝版</span>' : '') +
+          '</h1>' +
+          '<div class="detail-meta-bar">' +
+            '<span class="detail-meta-item">' + Utils.escapeHtml(v.brand) + '</span>' +
+            '<span class="detail-meta-divider"></span>' +
+            '<span class="detail-meta-item">' + Utils.escapeHtml(v.type) + '</span>' +
+            (v.seats ? '<span class="detail-meta-divider"></span><span class="detail-meta-item">' + v.seats + ' 座</span>' : '') +
+            (v.dlc ? '<span class="detail-meta-divider"></span><span class="detail-meta-item">' + v.dlc + '</span>' : '') +
+          '</div>' +
         '</div>' +
-        '<div class="vehicle-meta">' +
-          (v.model_name ? '<span class="badge">模型: ' + Utils.escapeHtml(v.model_name) + '</span>' : '') +
-          '<span class="badge">' + Utils.escapeHtml(v.brand) + '</span>' +
-          '<span class="badge">' + Utils.escapeHtml(v.type) + '</span>' +
-          (v.seats ? '<span class="badge">' + v.seats + ' 座</span>' : '') +
+        '<div class="detail-hero-info-right">' +
+          '<span class="detail-hero-price">' + Utils.formatCurrency(v.price_buy) + '</span>' +
+          '<div class="detail-hero-specs">' +
+            (v.performance ? '<div class="detail-hero-spec"><span class="detail-hero-spec-value">' + (v.performance.speed || '-') + '</span><span class="detail-hero-spec-label">速度</span></div>' : '') +
+            (v.specs && v.specs.top_speed ? '<div class="detail-hero-spec"><span class="detail-hero-spec-value">' + v.specs.top_speed + '</span><span class="detail-hero-spec-label">极速</span></div>' : '') +
+            '<div class="detail-hero-spec" id="hero-collection-status"><span class="detail-hero-spec-value">-</span><span class="detail-hero-spec-label">收藏</span></div>' +
+          '</div>' +
+          '<div class="ownership-toggle" id="ownership-toggle"></div>' +
+        '</div>' +
+      '</div>' +
+
+      // ── Content Below Fold ──
+      '<div class="detail-content-below">' +
+        // Left column
+        '<div>' +
+          // Performance bars
+          '<div class="performance-section">' +
+            '<h3>性能数据</h3>' +
+            renderPerformanceBars(v.performance) +
+          '</div>' +
+
+          // Specs table
+          (v.specs ? renderSpecsTable(v.specs) : '') +
+
+          // Release info
+          (v.release ? renderReleaseInfo(v.release) : '') +
+
+          // Upgrades
+          (v.upgrades && v.upgrades.length > 0 ? renderUpgrades(v.upgrades) : '') +
+
+          // Imani Tech
+          (v.imani_tech && v.imani_tech.length > 0 ? renderImaniTech(v.imani_tech) : '') +
         '</div>' +
 
-        // --- Basic properties ---
-        '<div class="vehicle-properties">' +
-          '<div class="property-item"><span class="property-label">直购价</span><span class="property-value price">' + Utils.formatCurrency(v.price_buy) + '</span></div>' +
-          '<div class="property-item"><span class="property-label">核载人数</span><span class="property-value">' + (v.seats || '-') + '</span></div>' +
-          '<div class="property-item"><span class="property-label">上架版本</span><span class="property-value">' + (v.dlc || '原版') + '</span></div>' +
+        // Right column
+        '<div>' +
+          // Game description
+          (v.description ?
+            '<div class="performance-section">' +
+              '<h3>游戏描述</h3>' +
+              '<blockquote style="margin:0;padding:var(--space-sm) var(--space-md);border-left:3px solid var(--color-gold);background:rgba(255,255,255,0.02);font-size:var(--font-size-sm);line-height:1.7;color:var(--color-text-secondary);">' +
+                '<p style="margin:0;">"' + Utils.escapeHtml(v.description) + '"</p>' +
+                (v.shop_source ? '<cite style="display:block;margin-top:var(--space-xs);font-style:normal;color:var(--color-gold);">' + Utils.escapeHtml(v.shop_source) + '</cite>' : '') +
+              '</blockquote>' +
+            '</div>' : '') +
+
+          // Tags
+          safeRender(() => renderTagsBlock(v), 'tags') +
+
+          // Based on (real car)
+          safeRender(() => renderBasedOnBlock(v), 'basedOn') +
+
+          // Armor
+          safeRender(() => renderArmorBlock(v), 'armor') +
+
+          // Garage info
+          '<div class="detail-garage-info" id="detail-garage-info"></div>' +
         '</div>' +
 
-        // --- Game description (from merged Xiaoheihe data) ---
-        (v.description ?
-          '<div class="performance-section" style="margin-top:0;">' +
-            '<blockquote style="margin:0;padding:var(--space-sm) var(--space-md);border-left:3px solid var(--color-gold);background:rgba(255,255,255,0.03);font-size:var(--font-size-sm);line-height:1.7;color:var(--color-text-secondary);">' +
-              '<p style="margin:0;">"' + Utils.escapeHtml(v.description) + '"</p>' +
-              (v.shop_source ? '<cite style="display:block;margin-top:var(--space-xs);font-style:normal;color:var(--color-gold);">' + Utils.escapeHtml(v.shop_source) + '</cite>' : '') +
-            '</blockquote>' +
-          '</div>' : '') +
-
-        // --- Performance bars ---
-        '<div class="performance-section">' +
-          '<h3>性能数据</h3>' +
-          renderPerformanceBars(v.performance) +
-        '</div>' +
-
-        // --- Detailed specs ---
-        (v.specs ? renderSpecsTable(v.specs) : '') +
-
-        // --- Release info ---
-        (v.release ? renderReleaseInfo(v.release) : '') +
-
-        // --- Upgrades ---
-        (v.upgrades && v.upgrades.length > 0 ? renderUpgrades(v.upgrades) : '') +
-
-        // --- Imani Tech ---
-        (v.imani_tech && v.imani_tech.length > 0 ? renderImaniTech(v.imani_tech) : '') +
-
-        // --- Antwen enriched data (safe rendering guards) ---
-        safeRender(() => renderArmorBlock(v), 'armor') +
-        safeRender(() => renderBasedOnBlock(v), 'basedOn') +
-        safeRender(() => renderTagsBlock(v), 'tags') +
+        // Full-width: Modifications
         safeRender(() => renderModificationsBlock(v), 'mods') +
         safeRender(() => renderLiveriesBlock(v), 'liveries') +
         safeRender(() => renderScreenshotsBlock(v), 'screenshots') +
 
+        // Quick links — full width
         '<div class="detail-quick-links">' +
           '<button class="btn btn-secondary" id="btn-go-album">车辆相册</button>' +
           '<button class="btn btn-secondary" id="btn-go-mods">改装记录</button>' +
@@ -375,7 +423,7 @@ GTA.VehicleDetail = (function () {
       html += '<div style="background:var(--color-glass-bg);border:1px solid var(--color-sidebar-border);border-radius:var(--radius-sm);overflow:hidden;text-align:center;">';
       if (imgUrl) {
         html += '<div style="width:100%;aspect-ratio:16/9;background:var(--color-bg-tertiary);overflow:hidden;">' +
-          '<img src="' + imgUrl + '" alt="' + Utils.escapeHtml(l.name) + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;height:100%;color:var(--color-text-muted);font-size:10px;\\\'>无预览</div>\'">' +
+          '<img src="' + imgUrl + '" alt="' + Utils.escapeHtml(l.name) + '" loading="lazy" style="width:100%;height:100%;object-fit:contain;" onerror="this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;height:100%;color:var(--color-text-muted);font-size:10px;\\\'>无预览</div>\'">' +
         '</div>';
       }
       html += '<div style="padding:var(--space-xs);">' +
@@ -410,7 +458,7 @@ GTA.VehicleDetail = (function () {
       var imgId = 'ss-img-' + i + '-' + (currentVehicleId || 'x');
       html += '<div style="background:var(--color-glass-bg);border:1px solid var(--color-sidebar-border);border-radius:var(--radius-sm);overflow:hidden;cursor:pointer;" onclick="var el=document.getElementById(\'' + imgId + '\');el.style.display=el.style.display===\'none\'?\'block\':\'none\';var fb=document.getElementById(\'' + imgId + '-fb\');if(fb)fb.style.display=fb.style.display===\'none\'?\'flex\':\'none\';">';
       html += '<div style="aspect-ratio:16/9;background:var(--color-bg-tertiary);overflow:hidden;position:relative;">' +
-        '<img src="' + img.url + '" alt="' + img.label + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;height:100%;color:var(--color-text-muted);font-size:var(--font-size-xs);\\\'>加载失败</div>\'">' +
+        '<img src="' + img.url + '" alt="' + img.label + '" loading="lazy" style="width:100%;height:100%;object-fit:contain;" onerror="this.parentElement.innerHTML=\'<div style=\\\'display:flex;align-items:center;justify-content:center;height:100%;color:var(--color-text-muted);font-size:var(--font-size-xs);\\\'>加载失败</div>\'">' +
       '</div>' +
       '<div style="padding:var(--space-xs);font-size:var(--font-size-xs);color:var(--color-text-muted);text-align:center;">' + img.label + '</div>' +
       // Fullscreen overlay
@@ -694,6 +742,111 @@ GTA.VehicleDetail = (function () {
       console.error('[VehicleDetail] Error loading garage info:', e);
       container.innerHTML = '';
     }
+  }
+
+  function updateStreetCarBadge() {
+    if (!currentVehicle || !GTA.VehicleCard.isStreetCar) return;
+    if (GTA.VehicleCard.isStreetCar(currentVehicle)) {
+      var titleEl = document.querySelector('.detail-title');
+      if (titleEl) {
+        titleEl.insertAdjacentHTML('beforeend', ' <span class="badge badge-street-car">街车</span>');
+      }
+    }
+  }
+
+  function renderExtraSections() {
+    if (!currentVehicle) return;
+    var extra = [];
+
+    // Blacklist
+    if (blacklistData && blacklistData.blacklist_models) {
+      var model = (currentVehicle.model_name || '').toLowerCase();
+      if (blacklistData.blacklist_models.indexOf(model) !== -1) {
+        extra.push(renderBlacklistWarning());
+      }
+    }
+
+    // Parts restrictions
+    if (partsRestrictData && currentVehicle.model_name) {
+      var parts = partsRestrictData[currentVehicle.model_name.toUpperCase()];
+      if (parts) {
+        extra.push(renderPartsRestrictions(parts));
+      }
+    }
+
+    // Street car colors
+    if (streetCarColorsData && currentVehicle.model_name) {
+      var colors = streetCarColorsData.find(function (c) {
+        return c.model_name.toUpperCase() === currentVehicle.model_name.toUpperCase();
+      });
+      if (colors && colors.color_rows && colors.color_rows.length > 0) {
+        extra.push(renderStreetCarColors(colors));
+      }
+    }
+
+    if (extra.length === 0) return;
+
+    // Append after detail-content-below
+    var below = document.querySelector('.detail-content-below');
+    if (below) {
+      below.insertAdjacentHTML('beforeend', '<div class="detail-full-width">' + extra.join('') + '</div>');
+    }
+  }
+
+  function renderBlacklistWarning() {
+    return '<div class="blacklist-warning" style="margin-top:var(--space-lg);">' +
+      '<h3>⚠️ 载具黑名单</h3>' +
+      '<p>此载具因模型特殊原因被列入黑名单，部分功能可能受限。</p>' +
+    '</div>';
+  }
+
+  function renderPartsRestrictions(parts) {
+    var html = '<div class="performance-section" style="margin-top:var(--space-lg);">' +
+      '<h3>隐藏配件位 (' + parts.total_slots + ' 槽位)</h3>';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;">';
+    parts.restrictions.forEach(function (r) {
+      html += '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:var(--font-size-sm);">' +
+        '<span class="parts-slot">槽位 ' + r.slot + '</span>' +
+        '<span style="color:var(--color-text-secondary)">' + Utils.escapeHtml(r.part) + '</span>' +
+      '</div>';
+    });
+    html += '</div></div>';
+    return html;
+  }
+
+  function renderStreetCarColors(colors) {
+    var html = '<div class="street-car-colors">' +
+      '<div class="performance-section"><h3>街车稀有配色 (' + colors.color_rows.length + ' 种)</h3></div>' +
+      '<div class="street-color-table">' +
+        '<div class="street-color-header"><span>主色</span><span>副色</span><span>珠光</span><span>获取</span></div>';
+
+    colors.color_rows.forEach(function (row) {
+      var primary = row.primary || {};
+      var secondary = row.secondary || {};
+      var pearlescent = row.pearlescent || {};
+
+      html += '<div class="street-color-row">' +
+        '<div class="color-cell" style="background:' + (primary.hex || '#333') + ';">' +
+          '<div class="color-cell-text"><span class="color-cell-name" style="color:' + (isLightColor(primary.hex) ? '#000' : '#fff') + ';">' + (primary.name_cn || primary.name || '-') + '</span></div>' +
+        '</div>' +
+        '<div class="color-cell" style="background:' + (secondary.hex || '#333') + ';">' +
+          '<div class="color-cell-text"><span class="color-cell-name" style="color:' + (isLightColor(secondary.hex) ? '#000' : '#fff') + ';">' + (secondary.name_cn || secondary.name || '-') + '</span></div>' +
+        '</div>' +
+        '<div class="color-cell-text" style="padding:8px;font-size:11px;color:var(--color-text-secondary);">' + (pearlescent.name_cn || pearlescent.name || '-') + '</div>' +
+        '<div class="color-cell-text" style="padding:8px;font-size:11px;color:var(--color-text-secondary);">' + (primary.unlock || '-') + '</div>' +
+      '</div>';
+    });
+
+    html += '</div></div>';
+    return html;
+  }
+
+  function isLightColor(hex) {
+    if (!hex) return false;
+    var r = parseInt(hex.slice(1, 3), 16) || 0;
+    var g = parseInt(hex.slice(3, 5), 16) || 0;
+    var b = parseInt(hex.slice(5, 7), 16) || 0;
+    return (r * 299 + g * 587 + b * 114) / 1000 > 150;
   }
 
   return { init: init, destroy: destroy };

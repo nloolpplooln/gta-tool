@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog, desktopCapturer, screen, Menu, sess
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
+const { autoUpdater } = require('electron-updater');
 const SteamProfile = require('./src/main/steam-profile');
 const RockstarProfile = require('./src/main/rockstar-profile');
 
@@ -120,12 +121,14 @@ async function createWindow() {
   }
 
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
+    width: 1280,
+    height: 800,
     minWidth: 1280,
-    minHeight: 720,
+    minHeight: 800,
+    maxWidth: 1280,
+    maxHeight: 800,
     title: 'VaultGTA',
-    backgroundColor: '#07070d',
+    backgroundColor: '#0B0B0B',
     frame: false,
     show: false,
     webPreferences: {
@@ -327,9 +330,77 @@ ipcMain.handle('rockstar:getAvatar', async () => {
   return await RockstarProfile.getRockstarAvatar();
 });
 
+// ===== Auto Updater =====
+
+// Configure autoUpdater to check GitHub Releases
+autoUpdater.setFeedURL({
+  provider: 'github',
+  owner: 'nloolpplooln',
+  repo: 'gta-tool'
+});
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = true;
+
+autoUpdater.on('checking-for-update', () => {
+  console.log('[Updater] Checking for updates...');
+  mainWindow && mainWindow.webContents.send('update:status', { status: 'checking', message: '正在检查更新...' });
+});
+
+autoUpdater.on('update-available', (info) => {
+  console.log('[Updater] Update available:', info.version);
+  mainWindow && mainWindow.webContents.send('update:status', { status: 'available', message: '发现新版本 v' + info.version, version: info.version });
+});
+
+autoUpdater.on('update-not-available', () => {
+  console.log('[Updater] Already up to date');
+  mainWindow && mainWindow.webContents.send('update:status', { status: 'latest', message: '已是最新版本' });
+});
+
+autoUpdater.on('download-progress', (progress) => {
+  var pct = Math.round(progress.percent);
+  mainWindow && mainWindow.webContents.send('update:status', { status: 'downloading', message: '下载中 ' + pct + '%', percent: pct });
+});
+
+autoUpdater.on('update-downloaded', () => {
+  console.log('[Updater] Update downloaded, ready to install');
+  mainWindow && mainWindow.webContents.send('update:status', { status: 'downloaded', message: '更新已下载，点击重启安装' });
+});
+
+autoUpdater.on('error', (err) => {
+  console.error('[Updater] Error:', err.message);
+  mainWindow && mainWindow.webContents.send('update:status', { status: 'error', message: '更新出错: ' + err.message });
+});
+
+// Manual check for updates (triggered from settings page)
+ipcMain.handle('app:checkUpdate', async () => {
+  try {
+    await autoUpdater.checkForUpdates();
+    return true;
+  } catch (e) {
+    console.error('[Updater] Check failed:', e.message);
+    return false;
+  }
+});
+
+// Install update and restart
+ipcMain.handle('app:installUpdate', () => {
+  autoUpdater.quitAndInstall();
+});
+
+// Get current app version
+ipcMain.handle('app:getVersion', () => {
+  return app.getVersion();
+});
+
 // ===== App Lifecycle =====
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createWindow();
+  // Auto-check for updates after app starts (silent, only notifies if update available)
+  setTimeout(() => {
+    autoUpdater.checkForUpdates().catch(() => {});
+  }, 5000);
+});
 
 app.on('window-all-closed', () => {
   if (serverProcess) serverProcess.kill();

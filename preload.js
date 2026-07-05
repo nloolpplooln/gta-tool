@@ -56,5 +56,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onProtocolUrl: function (cb) { ipcRenderer.on('auth:protocol-url', function (_e, url) { cb(url); }); },
 
   // ===== Open URL in default browser =====
-  openExternal: function (url) { return ipcRenderer.invoke('app:openExternal', url); }
+  openExternal: function (url) { return ipcRenderer.invoke('app:openExternal', url); },
+
+  // ===== Auto Updater =====
+  checkUpdate: function () { return ipcRenderer.invoke('app:checkUpdate'); },
+  installUpdate: function () { return ipcRenderer.invoke('app:installUpdate'); },
+  getVersion: function () { return ipcRenderer.invoke('app:getVersion'); },
+  onUpdateStatus: function (cb) { ipcRenderer.on('update:status', function (_e, data) { cb(data); }); }
 });

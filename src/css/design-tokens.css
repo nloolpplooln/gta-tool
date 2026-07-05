@@ -2,65 +2,69 @@
 
 :root {
   /* ===== COLOR PALETTE ===== */
-  --color-bg-primary: #07070d;
-  --color-bg-secondary: #0d0d16;
-  --color-bg-tertiary: #14141f;
-  --color-bg-elevated: #16161f;
+  --color-bg-primary: #0B0B0B;
+  --color-bg-secondary: #131313;
+  --color-bg-tertiary: #181818;
+  --color-bg-elevated: #1a1a1a;
 
-  /* Glass morphism — lighter opacity for true blur visibility */
-  --color-glass-bg: rgba(15, 15, 30, 0.55);
-  --color-glass-bg-alt: rgba(15, 15, 30, 0.35);
-  --color-glass-gradient: linear-gradient(135deg, rgba(20, 20, 40, 0.6), rgba(12, 12, 25, 0.5));
-  --color-glass-border: rgba(212, 168, 67, 0.12);
-  --color-glass-border-hover: rgba(212, 168, 67, 0.35);
-  --color-glass-blur: 16px;
+  /* Glass morphism */
+  --color-glass-bg: rgba(19, 19, 19, 0.65);
+  --color-glass-bg-alt: rgba(19, 19, 19, 0.4);
+  --color-glass-gradient: linear-gradient(135deg, rgba(24, 24, 24, 0.7), rgba(19, 19, 19, 0.5));
+  --color-surface-gradient: linear-gradient(165deg, #1a1a1a 0%, #181818 40%, #161616 100%);
+  --color-glass-border: rgba(212, 168, 67, 0.10);
+  --color-glass-border-hover: rgba(212, 168, 67, 0.30);
+  --color-glass-blur: 20px;
 
-  --color-gold: #d4a843;
-  --color-gold-light: #f0d68a;
+  --color-gold: #D4A843;
+  --color-gold-light: #e8c96e;
   --color-gold-dark: #a67c2e;
-  --color-gold-glow: rgba(212, 168, 67, 0.35);
+  --color-gold-glow: rgba(212, 168, 67, 0.25);
   --color-gold-subtle: rgba(212, 168, 67, 0.06);
 
-  --color-text-primary: #e8e8f0;
-  --color-text-secondary: #9090aa;
-  --color-text-muted: #555570;
-  --color-text-inverse: #07070d;
+  --color-text-primary: #e8e8e8;
+  --color-text-secondary: #8a8a8a;
+  --color-text-muted: #555555;
+  --color-text-inverse: #0B0B0B;
 
-  --color-accent-common: #4a9eff;
-  --color-accent-rare: #9b59b6;
-  --color-accent-legendary: #ffd700;
+  /* Unified accent — gold variants only, no second accent color */
+  --color-accent-common: #b8983f;
+  --color-accent-rare: #c9a84a;
+  --color-accent-legendary: #d4a843;
 
   --color-success: #2ecc71;
-  --color-warning: #f39c12;
+  --color-warning: #f0a818;
   --color-danger: #e74c3c;
-  --color-info: #3498db;
+  --color-info: #d4a843;
 
-  --color-border-subtle: rgba(255, 255, 255, 0.04);
+  --color-border-subtle: rgba(255, 255, 255, 0.03);
 
-  --color-sidebar-bg: rgba(7, 7, 13, 0.95);
-  --color-sidebar-border: rgba(212, 168, 67, 0.08);
-  --color-sidebar-hover: rgba(212, 168, 67, 0.06);
-  --color-sidebar-active: rgba(212, 168, 67, 0.12);
+  --color-sidebar-bg: rgba(11, 11, 11, 0.95);
+  --color-sidebar-border: rgba(212, 168, 67, 0.06);
+  --color-sidebar-hover: rgba(212, 168, 67, 0.04);
+  --color-sidebar-active: rgba(212, 168, 67, 0.10);
 
   /* ===== TYPOGRAPHY ===== */
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'Cascadia Code', 'Fira Code', 'Consolas', 'JetBrains Mono', monospace;
 
-  --font-size-xs: 0.6875rem;
-  --font-size-sm-plus: 0.75rem;
-  --font-size-sm: 0.8125rem;
-  --font-size-base: 0.9375rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.5rem;
-  --font-size-2xl: 2.25rem;
-  --font-size-3xl: 3rem;
+  --font-size-xs: 0.6875rem;      /* 11px */
+  --font-size-sm-plus: 0.75rem;   /* 12px */
+  --font-size-sm: 0.8125rem;      /* 13px */
+  --font-size-caption: 0.875rem;  /* 14px — captions, reduced opacity */
+  --font-size-base: 1rem;         /* 16px — body */
+  --font-size-lg: 1.125rem;       /* 18px */
+  --font-size-xl: 1.5rem;         /* 24px */
+  --font-size-2xl: 2.25rem;       /* 36px */
+  --font-size-3xl: 3rem;          /* 48px — numbers */
+  --font-size-4xl: 3.5rem;        /* 56px — page titles */
 
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  --line-height-tight: 1.2;
+  --line-height-tight: 1.15;
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.75;
 
@@ -80,37 +84,39 @@
   /* ===== BORDERS ===== */
   --radius-sm: 4px;
   --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius-2xl: 24px;
   --radius-full: 9999px;
 
   --border-thin: 1px solid var(--color-glass-border);
   --border-gold: 1px solid var(--color-gold);
-  --border-glow: 0 0 16px var(--color-gold-glow);
 
-  /* ===== SHADOWS ===== */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.35);
-  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.4);
-  --shadow-gold: 0 0 24px var(--color-gold-glow);
-  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 0 1px var(--color-glass-border);
-  --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--color-glass-border-hover);
+  /* ===== SHADOWS — low contrast, ambient, soft bloom ===== */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.18);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.25);
+  --shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.3);
+  --shadow-gold: 0 0 40px rgba(212, 168, 67, 0.08);
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.15);
+  --shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(212, 168, 67, 0.12);
 
-  /* ===== EASING CURVES ===== */
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Ambient glow tokens */
+  --glow-soft: 0 0 80px rgba(212, 168, 67, 0.04);
+  --glow-text: 0 0 48px rgba(212, 168, 67, 0.1);
 
-  /* ===== TRANSITIONS ===== */
-  --transition-fast: 150ms var(--ease-out);
-  --transition-normal: 250ms var(--ease-out);
-  --transition-slow: 400ms var(--ease-out);
-  --transition-spring: 350ms var(--ease-spring);
+  /* ===== EASING CURVES — premium, Framer Motion-inspired ===== */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);       /* snappy deceleration */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);    /* standard */
+  --ease-soft: cubic-bezier(0.25, 0.1, 0.25, 1);    /* gentle, no bounce */
+
+  /* ===== TRANSITIONS — all 220ms ===== */
+  --transition-fast: 220ms var(--ease-out);
+  --transition-normal: 220ms var(--ease-out);
+  --transition-slow: 220ms var(--ease-out);
 
   /* ===== LAYOUT ===== */
-  --sidebar-width: 240px;
+  --sidebar-width: clamp(90px, 9vw, 130px);
   --content-max-width: 1200px;
   --header-height: 60px;
 
