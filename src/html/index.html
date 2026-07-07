@@ -388,7 +388,67 @@
     <!-- ===== PLATE CREATOR ===== -->
     <section class="page-section" data-page="plate-creator">
       <div class="page-header"><h1>GTA Online 车牌定制</h1></div>
-      <iframe src="../../license-plate-creator.html" style="width:100%;height:calc(100vh - 80px);border:none;display:block;background:transparent;" allowtransparency="true"></iframe>
+      <div class="plate-app" id="plate-app">
+        <!-- Loading -->
+        <div class="plate-loading" id="plate-loader">
+          <span class="plate-loading-text">加载车牌底图中...</span>
+        </div>
+        <!-- Style Grid -->
+        <p class="plate-sec-label">选择车牌样式</p>
+        <div class="plate-style-grid" id="plate-style-grid"></div>
+        <!-- Debug Panel -->
+        <details class="plate-debug-panel" id="plate-debug-panel">
+          <summary class="plate-debug-toggle">🔧 字体调试面板（字号 / 位置）</summary>
+          <div class="plate-debug-grid">
+            <div class="plate-debug-item">
+              <label>字号 <span id="plate-val-fontsize">540</span>px</label>
+              <input type="range" id="plate-rng-fontsize" min="100" max="800" value="540" step="2">
+            </div>
+            <div class="plate-debug-item">
+              <label>水平位置 X <span id="plate-val-textx">0.50</span></label>
+              <input type="range" id="plate-rng-textx" min="0.20" max="0.80" value="0.50" step="0.005">
+            </div>
+            <div class="plate-debug-item">
+              <label>垂直位置 Y <span id="plate-val-texty">0.595</span></label>
+              <input type="range" id="plate-rng-texty" min="0.20" max="0.80" value="0.595" step="0.001">
+            </div>
+          </div>
+        </details>
+        <!-- Preview -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <p class="plate-sec-label" style="margin-bottom:0;">实时预览</p>
+          <label class="plate-toggle-label">
+            <span>2D</span>
+            <span class="plate-toggle-track" id="plate-toggle-track">
+              <span class="plate-toggle-thumb"></span>
+            </span>
+            <span>3D</span>
+          </label>
+        </div>
+        <div class="plate-preview-box">
+          <canvas id="plate-2d-canvas" width="2048" height="1024" style="display:none;"></canvas>
+          <div id="plate-3d-container"></div>
+        </div>
+        <!-- Input -->
+        <p class="plate-sec-label">输入车牌号码</p>
+        <div class="plate-input-row">
+          <div class="plate-input-wrap">
+            <input type="text" id="plate-text-input" maxlength="8" placeholder="ABC1234" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+          </div>
+          <span class="plate-cnt" id="plate-char-cnt">0/8</span>
+        </div>
+        <div class="plate-hints">
+          <span>仅支持 A-Z、0-9、空格，最多 8 个字符</span>
+          <span>导出为 2048×1024 原图分辨率 PNG</span>
+        </div>
+        <div class="plate-actions">
+          <button class="plate-btn plate-btn-sec" id="plate-btn-reset">重置</button>
+          <button class="plate-btn plate-btn-pri" id="plate-btn-export">导出原图 PNG (2048×1024)</button>
+        </div>
+        <!-- Hidden canvases -->
+        <canvas id="plate-texture-canvas" width="2048" height="1024" style="position:absolute;left:-9999px;top:0;"></canvas>
+        <canvas id="plate-export-canvas" width="2048" height="1024" style="display:none;"></canvas>
+      </div>
     </section>
 
     <!-- ===== COLORS ===== -->
@@ -429,6 +489,8 @@
 <script src="/vendor/supabase/supabase.js"></script>
 
 <!-- ===== VENDOR SCRIPTS ===== -->
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
 <script src="../../vendor/dexie.js"></script>
 <script src="../../vendor/html2canvas.min.js"></script>
 

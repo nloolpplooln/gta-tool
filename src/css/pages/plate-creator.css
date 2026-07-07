@@ -1,168 +1,90 @@
-/* ===== VaultGTA - License Plate Creator Page ===== */
+/* ===== License Plate Creator ===== */
 
-/*
- * Kapra Neue Pro Ex Light Rounded — TypoForge Studio
- *   1. Local system install (auto-detected)
- *   2. Drop .woff2 to assets/fonts/KapraNeuePro-ExLightRounded.woff2
- *   3. Adobe Fonts: @import url("https://use.typekit.net/YOUR_KIT_ID.css");
- */
-@font-face {
-  font-family: 'PlateFont';
-  src: url('../../assets/fonts/2d54d35469b51f0fbcb0f63cb068820b.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
+.plate-app { width: 100%; max-width: 780px; margin: 0 auto; }
+
+.plate-sec-label {
+  font-size: 0.8rem; font-weight: 500; color: var(--color-text-muted);
+  margin-bottom: 12px; opacity: 0.8; letter-spacing: 0.03em;
 }
 
-/* ===== Styles Grid ===== */
-.plate-styles-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-sm-plus);
-  margin-bottom: var(--space-lg);
+.plate-style-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: var(--space-md); margin-bottom: 24px;
 }
+@media (max-width: 600px) { .plate-style-grid { grid-template-columns: repeat(2,1fr); } }
 
 .plate-style-card {
-  background: var(--color-bg-tertiary);
-  border-radius: var(--radius-lg);
-  padding: var(--space-sm);
-  cursor: pointer;
-  transition: background var(--transition-fast), box-shadow var(--transition-fast);
-  text-align: center;
-  position: relative;
+  background: var(--color-glass-bg-alt);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 14px; padding: 10px; cursor: pointer; text-align: center;
+  transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s;
+}
+.plate-style-card:hover { border-color: rgba(212,168,67,0.25); transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+.plate-style-card.selected { border-color: #D4A843; box-shadow: 0 0 0 1px rgba(212,168,67,0.3); }
+.plate-style-card canvas { width: 100%; height: auto; border-radius: 4px; margin-bottom: 8px; display: block; }
+.plate-style-card .name { font-size: 0.7rem; color: var(--color-text-muted); }
+.plate-style-card.selected .name { color: #D4A843; }
+
+.plate-preview-box {
+  background: var(--color-glass-bg-alt);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 14px; padding: 20px; display: flex; justify-content: center;
+  margin-bottom: 24px; overflow: hidden;
+}
+#plate-3d-container { width: 100%; max-width: 700px; aspect-ratio: 2/1; cursor: grab; }
+#plate-3d-container:active { cursor: grabbing; }
+#plate-3d-container canvas { display: block; width: 100% !important; height: 100% !important; border-radius: 4px; }
+#plate-2d-canvas { width: 100%; max-width: 700px; aspect-ratio: 2/1; border-radius: 4px; }
+
+.plate-toggle-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.75rem; color: var(--color-text-muted); }
+.plate-toggle-track { width: 40px; height: 22px; background: #d4a843; border-radius: 11px; position: relative; transition: background 0.2s; }
+.plate-toggle-track.off { background: #555570; }
+.plate-toggle-thumb { position: absolute; top: 2px; left: 20px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: left 0.2s; }
+.plate-toggle-track.off .plate-toggle-thumb { left: 2px; }
+
+.plate-input-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.plate-input-wrap { flex: 1; }
+.plate-input-wrap input {
+  width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; color: #fff;
+  font-size: 1.5rem; letter-spacing: 4px; text-transform: uppercase; text-align: center; outline: none;
+  transition: border-color 0.22s, background 0.22s;
+}
+.plate-input-wrap input:focus { border-color: #D4A843; background: rgba(255,255,255,0.06); }
+.plate-input-wrap input::placeholder { color: rgba(255,255,255,0.1); letter-spacing: 4px; }
+.plate-cnt { font-family: Consolas,monospace; font-size: 0.8rem; color: #555; min-width: 32px; text-align: right; }
+.plate-cnt.full { color: #D4A843; }
+
+.plate-hints { font-size: 0.75rem; color: var(--color-text-muted); display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 20px; opacity: 0.6; }
+.plate-actions { display: flex; justify-content: center; gap: 10px; }
+.plate-btn { padding: 10px 24px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.22s; border: none; }
+.plate-btn-pri { background: #D4A843; color: #0B0B0B; }
+.plate-btn-pri:hover { background: #e8c96e; }
+.plate-btn-sec { background: rgba(255,255,255,0.04); color: #e8e8e8; border: 1px solid rgba(255,255,255,0.06); }
+.plate-btn-sec:hover { border-color: rgba(212,168,67,0.3); color: #D4A843; }
+
+.plate-debug-panel {
+  background: rgba(19,19,19,0.4); backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.04); border-radius: 14px;
+  padding: 0 14px; margin-bottom: 20px;
+}
+.plate-debug-panel[open] { padding-bottom: 14px; }
+.plate-debug-toggle { cursor: pointer; padding: 10px 0; font-size: 0.8rem; font-weight: 600; color: #D4A843; user-select: none; outline: none; }
+.plate-debug-toggle::marker { font-size: 0.7rem; }
+.plate-debug-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+@media (max-width: 600px) { .plate-debug-grid { grid-template-columns: 1fr; } }
+.plate-debug-item label { display: flex; justify-content: space-between; font-size: 0.7rem; color: #8a8a8a; margin-bottom: 4px; }
+.plate-debug-item label span { color: #D4A843; font-family: Consolas,monospace; }
+.plate-debug-item input[type="range"] {
+  width: 100%; height: 4px; -webkit-appearance: none; appearance: none;
+  background: rgba(255,255,255,0.08); border-radius: 2px; outline: none; cursor: pointer;
+}
+.plate-debug-item input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+  background: #D4A843; cursor: pointer; border: none;
 }
 
-.plate-style-card:hover {
-  background: var(--color-bg-elevated);
-}
-
-.plate-style-card.selected {
-  box-shadow: 0 0 0 1px var(--color-gold);
-}
-
-.plate-style-card .style-preview {
-  width: 100%;
-  height: 36px;
-  border-radius: 4px;
-  margin-bottom: var(--space-xs);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Anton', 'SignPainter-HouseScript', 'Arial Black', sans-serif;
-  font-size: 0.85rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-
-.plate-style-card .style-name {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-}
-
-.plate-style-card.selected .style-name {
-  color: var(--color-gold);
-}
-
-/* ===== Preview Section ===== */
-.plate-preview-section {
-  margin-bottom: var(--space-lg);
-}
-
-.plate-preview-wrapper {
-  background: var(--color-bg-tertiary);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xl);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.plate-canvas-wrap {
-  position: relative;
-  width: 460px;
-  max-width: 100%;
-}
-
-.plate-canvas-wrap canvas {
-  width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 4px;
-}
-
-/* ===== Input Section ===== */
-.plate-input-section {
-  margin-bottom: var(--space-md);
-}
-
-.plate-input-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm-plus);
-}
-
-.plate-input-wrapper {
-  flex: 1;
-  position: relative;
-}
-
-.plate-input-wrapper input {
-  width: 100%;
-  padding: 14px 16px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid var(--color-glass-border);
-  border-radius: var(--radius-md);
-  color: #fff;
-  font-family: 'Anton', 'SignPainter-HouseScript', 'Arial Black', sans-serif;
-  font-size: 1.5rem;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  text-align: center;
-  outline: none;
-  transition: border-color var(--transition-fast);
-}
-
-.plate-input-wrapper input:focus {
-  border-color: var(--color-gold);
-  box-shadow: 0 0 0 2px var(--color-gold-glow);
-}
-
-.plate-input-wrapper input::placeholder {
-  color: rgba(255,255,255,0.15);
-  letter-spacing: 4px;
-}
-
-.plate-char-counter {
-  font-family: var(--font-mono);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  min-width: 36px;
-  text-align: right;
-}
-
-.plate-char-counter.full {
-  color: var(--color-gold);
-}
-
-/* ===== Hints ===== */
-.plate-hints {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  display: flex;
-  gap: var(--space-md-plus);
-  flex-wrap: wrap;
-  margin-bottom: var(--space-lg);
-}
-
-.plate-hints span {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-/* ===== Actions ===== */
-.plate-actions {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-sm-plus);
-}
+.plate-loading { display: flex; align-items: center; justify-content: center; padding: 60px 0; color: #D4A843; font-size: 1.1rem; }
+.plate-loading.done { display: none; }

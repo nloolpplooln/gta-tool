@@ -184,7 +184,8 @@ GTA.App = (function () {
       try {
         var imgUrl = await api.getBackgroundImagePath();
         if (imgUrl && img) {
-          img.style.backgroundImage = 'url(' + imgUrl + ')';
+          var cb = imgUrl.indexOf('?') === -1 ? '?t=' + Date.now() : '&t=' + Date.now();
+          img.style.backgroundImage = 'url(' + imgUrl + cb + ')';
           img.style.display = 'block';
           if (video) video.style.display = 'none';
           return;
@@ -255,7 +256,8 @@ GTA.App = (function () {
       var img = document.getElementById('bg-image');
       if (!img) return;
       if (video) video.style.display = 'none';
-      img.style.backgroundImage = 'url(' + url + ')';
+      var cacheBust = url.indexOf('?') === -1 ? '?t=' + Date.now() : '&t=' + Date.now();
+      img.style.backgroundImage = 'url(' + url + cacheBust + ')';
       img.style.display = 'block';
     },
     resetImage: function () {
