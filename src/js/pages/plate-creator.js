@@ -3,14 +3,15 @@ window.GTA = window.GTA || {};
 GTA.PlateCreator = (function() {
   'use strict';
 
+  var BASE = '../../';
   var PLATES = [
-    { id: 'las-venturas',      name: '拉斯文加斯',     img: 'assets/plate-bg/拉斯文加斯.png',     textColor: '#1a3a7a', textArea: {} },
-    { id: 'e-cola',            name: '易可乐',         img: 'assets/plate-bg/易可乐.png',         textColor: '#ffffff', textArea: {} },
-    { id: 'ls-troublemakers',  name: '洛圣都捣蛋者队',  img: 'assets/plate-bg/洛圣都捣蛋者队.png',  textColor: '#EDAF1F', textArea: {} },
-    { id: 'ls-car-club',       name: '洛圣都车友会',    img: 'assets/plate-bg/洛圣都车友会.png',    textColor: '#000000', textArea: {} },
-    { id: 'sprunk',            name: '霜碧',           img: 'assets/plate-bg/霜碧.png',           textColor: '#ffffff', textArea: {} },
-    { id: 'ls-tremors',        name: '洛圣都颤栗队',    img: 'assets/plate-bg/洛圣都颤栗队.png',    textColor: '#ffffff', textArea: {} },
-    { id: 'liberty-city',      name: '自由市',         img: 'assets/plate-bg/自由市.png',         textColor: '#00086F', textArea: {} }
+    { id: 'las-venturas',      name: '拉斯文加斯',     img: BASE + 'assets/plate-bg/拉斯文加斯.png',     textColor: '#1a3a7a', textArea: {} },
+    { id: 'e-cola',            name: '易可乐',         img: BASE + 'assets/plate-bg/易可乐.png',         textColor: '#ffffff', textArea: {} },
+    { id: 'ls-troublemakers',  name: '洛圣都捣蛋者队',  img: BASE + 'assets/plate-bg/洛圣都捣蛋者队.png',  textColor: '#EDAF1F', textArea: {} },
+    { id: 'ls-car-club',       name: '洛圣都车友会',    img: BASE + 'assets/plate-bg/洛圣都车友会.png',    textColor: '#000000', textArea: {} },
+    { id: 'sprunk',            name: '霜碧',           img: BASE + 'assets/plate-bg/霜碧.png',           textColor: '#ffffff', textArea: {} },
+    { id: 'ls-tremors',        name: '洛圣都颤栗队',    img: BASE + 'assets/plate-bg/洛圣都颤栗队.png',    textColor: '#ffffff', textArea: {} },
+    { id: 'liberty-city',      name: '自由市',         img: BASE + 'assets/plate-bg/自由市.png',         textColor: '#00086F', textArea: {} }
   ];
 
   var W = 2048, H = 1024;
