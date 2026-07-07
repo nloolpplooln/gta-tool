@@ -53,6 +53,7 @@ GTA.Settings = (function () {
       '<p>当前版本：<span id="update-current-version">v' + (GTA.APP_VERSION || '未知') + '</span></p>' +
       '<div class="settings-row">' +
         '<button class="btn btn-primary" id="btn-check-update">检查更新</button>' +
+        '<button class="btn btn-primary" id="btn-download-update" style="display:none">下载更新</button>' +
         '<button class="btn btn-success" id="btn-install-update" style="display:none">重启安装更新</button>' +
       '</div>' +
       '<p class="text-muted" style="margin-top:var(--space-sm)" id="update-status"></p>' +
@@ -498,12 +499,12 @@ GTA.Settings = (function () {
 
   function bindUpdate() {
     var btnCheck = document.getElementById('btn-check-update');
+    var btnDownload = document.getElementById('btn-download-update');
     var btnInstall = document.getElementById('btn-install-update');
     var statusEl = document.getElementById('update-status');
     var versionEl = document.getElementById('update-current-version');
     var api = window.electronAPI;
 
-    // Show current version
     if (api && api.getVersion && versionEl) {
       api.getVersion().then(function (v) {
         if (v) {
@@ -517,19 +518,29 @@ GTA.Settings = (function () {
     if (btnCheck) {
       btnCheck.addEventListener('click', async function () {
         if (!api || !api.checkUpdate) {
-          statusEl.textContent = '仅在桌面应用中可用';
-          statusEl.style.color = 'var(--color-text-muted)';
+          if (statusEl) { statusEl.textContent = '仅在桌面应用中可用'; statusEl.style.color = 'var(--color-text-muted)'; }
           return;
         }
         btnCheck.disabled = true;
-        statusEl.textContent = '正在检查更新...';
-        statusEl.style.color = 'var(--color-text-muted)';
+        if (statusEl) { statusEl.textContent = '正在检查更新...'; statusEl.style.color = 'var(--color-text-muted)'; }
         try {
           await api.checkUpdate();
         } catch (e) {
-          statusEl.textContent = '检查更新失败';
-          statusEl.style.color = 'var(--color-danger)';
+          if (statusEl) { statusEl.textContent = '检查更新失败'; statusEl.style.color = 'var(--color-danger)'; }
           btnCheck.disabled = false;
+        }
+      });
+    }
+
+    if (btnDownload) {
+      btnDownload.addEventListener('click', async function () {
+        btnDownload.disabled = true;
+        if (statusEl) { statusEl.textContent = '正在下载更新...'; statusEl.style.color = 'var(--color-text-muted)'; }
+        try {
+          await api.downloadUpdate();
+        } catch (e) {
+          if (statusEl) { statusEl.textContent = '下载失败'; statusEl.style.color = 'var(--color-danger)'; }
+          btnDownload.disabled = false;
         }
       });
     }
@@ -540,30 +551,33 @@ GTA.Settings = (function () {
       });
     }
 
-    // Listen for update status from main process
     if (api && api.onUpdateStatus) {
       api.onUpdateStatus(function (data) {
         if (statusEl) {
           statusEl.textContent = data.message;
-          if (data.status === 'error') {
-            statusEl.style.color = 'var(--color-danger)';
-          } else if (data.status === 'downloaded') {
-            statusEl.style.color = 'var(--color-success)';
-          } else if (data.status === 'latest') {
-            statusEl.style.color = 'var(--color-success)';
-          } else {
-            statusEl.style.color = 'var(--color-text-muted)';
-          }
+          if (data.status === 'error') statusEl.style.color = 'var(--color-danger)';
+          else if (data.status === 'downloaded') statusEl.style.color = 'var(--color-success)';
+          else if (data.status === 'latest') statusEl.style.color = 'var(--color-success)';
+          else statusEl.style.color = 'var(--color-text-muted)';
+          if (btnCheck) btnCheck.disabled = false;
+        }
+        if (data.status === 'available') {
+          if (btnDownload) { btnDownload.style.display = ''; btnDownload.disabled = false; }
+          if (btnCheck) btnCheck.style.display = 'none';
+          if (btnInstall) btnInstall.style.display = 'none';
+        }
+        if (data.status === 'downloading') {
+          if (btnDownload) btnDownload.style.display = 'none';
+          if (btnCheck) btnCheck.style.display = 'none';
         }
         if (data.status === 'downloaded') {
-          if (btnCheck) btnCheck.style.display = 'none';
           if (btnInstall) btnInstall.style.display = '';
-        }
-        if (data.status === 'available' || data.status === 'downloading') {
+          if (btnDownload) btnDownload.style.display = 'none';
           if (btnCheck) btnCheck.style.display = 'none';
         }
         if (data.status === 'error' || data.status === 'latest') {
           if (btnCheck) { btnCheck.style.display = ''; btnCheck.disabled = false; }
+          if (btnDownload) btnDownload.style.display = 'none';
           if (btnInstall) btnInstall.style.display = 'none';
         }
       });

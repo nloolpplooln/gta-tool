@@ -401,6 +401,17 @@ ipcMain.handle('app:checkUpdate', async () => {
   }
 });
 
+// Download update (triggered after user sees "available" notification)
+ipcMain.handle('app:downloadUpdate', async () => {
+  try {
+    await autoUpdater.downloadUpdate();
+    return true;
+  } catch (e) {
+    console.error('[Updater] Download failed:', e.message);
+    return false;
+  }
+});
+
 // Install update and restart
 ipcMain.handle('app:installUpdate', () => {
   autoUpdater.quitAndInstall();

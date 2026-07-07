@@ -41,6 +41,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // ===== Auto Updater =====
   checkUpdate: function () { return ipcRenderer.invoke('app:checkUpdate'); },
+  downloadUpdate: function () { return ipcRenderer.invoke('app:downloadUpdate'); },
   installUpdate: function () { return ipcRenderer.invoke('app:installUpdate'); },
   getVersion: function () { return ipcRenderer.invoke('app:getVersion'); },
   onUpdateStatus: function (cb) { ipcRenderer.on('update:status', function (_e, data) { cb(data); }); }

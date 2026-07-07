@@ -16,3 +16,8 @@ settings.local.json
 xhh_*.html
 *.tmp
 assets/video/
+.agents/
+.claude/
+_build_colors.py
+skills-lock.json
+src/data/
