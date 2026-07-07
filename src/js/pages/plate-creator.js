@@ -34,13 +34,12 @@ GTA.PlateCreator = (function() {
       if (charCnt) charCnt.textContent = '7/8';
       bindSliders();
       updateToggleUI();
+      // Always show style grid immediately
+      renderStyleGrid();
+      renderAll();
+      // Init 3D async
       requestAnimationFrame(function() {
-        initThreeJS();
-        var fs = getFontSize();
-        document.fonts.load(fs + 'px PlateFont').then(function() {
-          renderStyleGrid();
-          renderAll();
-        });
+        try { initThreeJS(); } catch(e) { console.warn('[Plate] 3D init failed:', e); }
       });
     });
     bindEvents();
