@@ -42,6 +42,7 @@ GTA.PlateCreator = (function() {
 
     if (!elGrid) return;
 
+    _tries = 0;
     preloadImages(function() {
       if (elLoader) elLoader.classList.add('done');
       if (elInput) { elInput.value = 'ABC1234'; }
@@ -63,7 +64,7 @@ GTA.PlateCreator = (function() {
   function destroy() {
     if (renderer3d) { try { renderer3d.dispose(); } catch(e){} renderer3d = null; }
     scene3d = null; camera3d = null; plateMesh = null; plateTex = null;
-    inited = false; loadedImgs = {}; selIdx = 0;
+    inited = false; loadedImgs = {}; selIdx = 0; _tries = 0;
     if (animFrame3d) { cancelAnimationFrame(animFrame3d); animFrame3d = null; }
   }
 
@@ -136,7 +137,7 @@ GTA.PlateCreator = (function() {
   /* ===== Events ===== */
   function bindAll() {
     if (elToggle) elToggle.onclick = function() {
-      if (renderer3d) {
+      if (renderer3d && el3d) {
         if (el3d.style.display === 'block') show2D(); else show3D();
       }
     };
@@ -193,16 +194,24 @@ GTA.PlateCreator = (function() {
   var _tries = 0;
 
   function try3D() {
-    if (typeof THREE === 'undefined') { _tries++; if (_tries < 5) setTimeout(try3D, 500); return; }
+    if (typeof THREE === 'undefined') {
+      _tries++;
+      if (_tries < 10) { setTimeout(try3D, 600); return; }
+      console.warn('[PlateCreator] THREE.js not loaded after 10 retries'); return;
+    }
     if (!el3d) return;
     var w = el3d.clientWidth || el3d.offsetWidth || 0;
-    if (w < 50) { _tries++; if (_tries < 8) { setTimeout(try3D, 300); return; } return; }
+    if (w < 50) { _tries++; if (_tries < 10) { setTimeout(try3D, 400); return; } return; }
+    // Check WebGL support
+    var testCanvas = document.createElement('canvas');
+    var gl = testCanvas.getContext('webgl') || testCanvas.getContext('experimental-webgl');
+    if (!gl) { console.warn('[PlateCreator] WebGL not available'); return; }
     init3D();
   }
 
   function init3D() {
     try {
-      renderer3d = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer3d = new THREE.WebGLRenderer({ antialias: true, alpha: true, canvas: document.createElement('canvas') });
       renderer3d.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       var rw = el3d.clientWidth || 700, rh = el3d.clientHeight || 350;
       renderer3d.setSize(rw, rh);
