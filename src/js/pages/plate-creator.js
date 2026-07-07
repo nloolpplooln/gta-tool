@@ -15,7 +15,7 @@ GTA.PlateCreator = (function() {
   ];
 
   var W = 2048, H = 1024;
-  var selIdx = 0, plateText = 'ABC1234', loadedImages = {}, is3DMode = true;
+  var selIdx = 0, plateText = 'ABC1234', loadedImages = {}, is3DMode = false;
   var renderer3d, scene3d, camera3d, plateMesh, plateTexture, controls3d;
   var animFrame, initialized = false;
 
@@ -37,8 +37,11 @@ GTA.PlateCreator = (function() {
       // Always show style grid + 2D immediately
       renderStyleGrid();
       renderAll();
-      // Init 3D after layout settles (container must have dimensions)
-      setTimeout(function() { tryInit3D(); }, 200);
+      // 2D visible by default; try 3D after layout settles
+      setTimeout(function() {
+        tryInit3D();
+        updateToggleUI();
+      }, 300);
       // Re-render with PlateFont once loaded
       if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(function() { renderStyleGrid(); renderAll(); });
@@ -125,19 +128,19 @@ GTA.PlateCreator = (function() {
     plateMesh.rotation.x = -0.08;
     scene3d.add(plateMesh);
 
-    controls3d = new THREE.OrbitControls(camera3d, renderer3d.domElement);
-    controls3d.target.set(0, 0, 0);
-    controls3d.enableDamping = true;
-    controls3d.dampingFactor = 0.15;
-    controls3d.rotateSpeed = 0.4;
-    controls3d.zoomSpeed = 0.8;
-    controls3d.minDistance = 3.5;
-    controls3d.maxDistance = 14;
-    controls3d.minPolarAngle = Math.PI / 3;
-    controls3d.maxPolarAngle = Math.PI * 2 / 3;
-    controls3d.minAzimuthAngle = -Math.PI / 3;
-    controls3d.maxAzimuthAngle = Math.PI / 3;
-    controls3d.update();
+    // Simple mouse drag rotation (no OrbitControls dependency)
+    var isDragging = false, prevX = 0, prevY = 0;
+    var rotX = -0.08, rotY = 0;
+    var dom = renderer3d.domElement;
+    dom.addEventListener('mousedown', function(e) { isDragging = true; prevX = e.clientX; prevY = e.clientY; });
+    dom.addEventListener('mousemove', function(e) {
+      if (!isDragging) return;
+      rotY += (e.clientX - prevX) * 0.005;
+      rotX += (e.clientY - prevY) * 0.005;
+      rotX = Math.max(-Math.PI/3, Math.min(Math.PI/3, rotX));
+      prevX = e.clientX; prevY = e.clientY;
+    });
+    window.addEventListener('mouseup', function() { isDragging = false; });
 
     window.addEventListener('resize', function() {
       if (!renderer3d || !threeContainer) return;
@@ -151,7 +154,7 @@ GTA.PlateCreator = (function() {
 
   function animate() {
     animFrame = requestAnimationFrame(animate);
-    if (controls3d) controls3d.update();
+    if (plateMesh) { plateMesh.rotation.x = rotX; plateMesh.rotation.y = rotY; }
     if (renderer3d && scene3d && camera3d) renderer3d.render(scene3d, camera3d);
   }
 
@@ -161,13 +164,15 @@ GTA.PlateCreator = (function() {
 
   function updateToggleUI() {
     if (!toggleTrack) return;
-    if (is3DMode) {
+    if (is3DMode && renderer3d) {
+      // 3D ready
       if (threeContainer) threeContainer.style.display = 'block';
       if (preview2dCanvas) preview2dCanvas.style.display = 'none';
       toggleTrack.classList.remove('off');
     } else {
+      // Fallback to 2D
       if (threeContainer) threeContainer.style.display = 'none';
-      if (preview2dCanvas) { preview2dCanvas.style.display = 'block'; preview2dCanvas.style.width = '100%'; preview2dCanvas.style.maxWidth = '700px'; preview2dCanvas.style.aspectRatio = '2/1'; }
+      if (preview2dCanvas) { preview2dCanvas.style.display = 'block'; preview2dCanvas.style.width = ''; preview2dCanvas.style.maxWidth = ''; preview2dCanvas.style.aspectRatio = ''; }
       toggleTrack.classList.add('off');
     }
   }
