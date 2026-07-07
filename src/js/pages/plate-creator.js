@@ -89,10 +89,17 @@ GTA.PlateCreator = (function() {
   /* === Three.js Setup === */
   var _tries3d = 0;
   function tryInit3D() {
-    if (!threeContainer || !THREE) return;
+    if (typeof THREE === 'undefined') { console.warn('[Plate] THREE not loaded'); return; }
+    if (!threeContainer) { console.warn('[Plate] no container'); return; }
     var w = threeContainer.clientWidth || threeContainer.offsetWidth || 0;
-    if (w < 50 && _tries3d < 5) { _tries3d++; setTimeout(tryInit3D, 150); return; }
+    if (w < 50) {
+      _tries3d++;
+      if (_tries3d < 8) { setTimeout(tryInit3D, 200); return; }
+      console.warn('[Plate] container too small after retries:', w);
+      return;
+    }
     initThreeJS();
+    updateToggleUI();
   }
 
   function initThreeJS() {
