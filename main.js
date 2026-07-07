@@ -351,11 +351,10 @@ ipcMain.handle('rockstar:getAvatar', async () => {
 
 // ===== Auto Updater =====
 
-// Configure autoUpdater to check GitHub Releases
+// Configure autoUpdater — COS CDN (fast in China)
 autoUpdater.setFeedURL({
-  provider: 'github',
-  owner: 'nloolpplooln',
-  repo: 'gta-tool'
+  provider: 'generic',
+  url: 'https://vaultgta-1450184665.cos.ap-shanghai.myqcloud.com/updates/'
 });
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
