@@ -123,7 +123,7 @@ GTA.PlateCreator = (function() {
 
   /* ===== 2D / 3D Toggle ===== */
   function show2D() {
-    if (el3d) el3d.style.display = 'none';
+    if (el3d && renderer3d) el3d.style.display = 'none';
     if (el2dCanvas) { el2dCanvas.style.display = 'block'; el2dCanvas.style.width = '100%'; el2dCanvas.style.maxWidth = '700px'; }
     if (elToggle) elToggle.classList.add('off');
   }
