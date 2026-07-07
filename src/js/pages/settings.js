@@ -14,6 +14,7 @@ GTA.Settings = (function () {
         renderBrandHero() +
         renderPlayerName() +
         renderTheme() +
+        renderCloudSync() +
         renderAutoUpdate() +
         renderDataActions() +
         renderBackgroundVideo() +
@@ -47,6 +48,18 @@ GTA.Settings = (function () {
         '<button class="btn btn-success" id="btn-install-update" style="display:none">重启安装更新</button>' +
       '</div>' +
       '<p class="text-muted" style="margin-top:var(--space-sm)" id="update-status"></p>' +
+    '</div>';
+  }
+
+  function renderCloudSync() {
+    return '<div class="settings-card">' +
+      '<h3>云端同步</h3>' +
+      '<p style="color:var(--color-text-muted);margin-bottom:var(--space-md)" id="cloud-status">请先登录后使用云端功能</p>' +
+      '<div class="settings-row">' +
+        '<button class="btn btn-primary" id="btn-cloud-upload">上传到云端</button>' +
+        '<button class="btn btn-secondary" id="btn-cloud-download">从云端下载</button>' +
+      '</div>' +
+      '<p class="text-muted" style="margin-top:var(--space-sm)">上传将推送本地数据到云端，下载将云端数据合并到本地。</p>' +
     '</div>';
   }
 
@@ -607,6 +620,11 @@ GTA.Settings = (function () {
 
     bindUpdate();
     bindTheme();
+
+    var btnUpload = document.getElementById('btn-cloud-upload');
+    var btnDownload = document.getElementById('btn-cloud-download');
+    if (btnUpload) btnUpload.addEventListener('click', function () { GTA.SupabaseService.upload(); });
+    if (btnDownload) btnDownload.addEventListener('click', function () { GTA.SupabaseService.download(); });
 
     var btnSelectBg = document.getElementById('btn-select-bg-video');
     var btnResetBg = document.getElementById('btn-reset-bg-video');
