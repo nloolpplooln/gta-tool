@@ -194,26 +194,39 @@ GTA.PlateCreator = (function() {
   var _tries = 0;
 
   function try3D() {
+    var stEl = document.getElementById('plate-3d-status');
+    if (!el3d) return;
     if (typeof THREE === 'undefined') {
       _tries++;
       if (_tries < 10) { setTimeout(try3D, 600); return; }
-      console.warn('[PlateCreator] THREE.js not loaded after 10 retries'); return;
+      if (stEl) stEl.textContent = '3D 引擎加载超时，已切换至 2D 模式';
+      return;
     }
-    if (!el3d) return;
     var w = el3d.clientWidth || el3d.offsetWidth || 0;
-    if (w < 50) { _tries++; if (_tries < 10) { setTimeout(try3D, 400); return; } return; }
-    // Check WebGL support
+    if (w < 50) {
+      _tries++;
+      if (_tries < 15) { setTimeout(try3D, 400); return; }
+      if (stEl) stEl.textContent = '预览区域未就绪，已切换至 2D 模式';
+      return;
+    }
     var testCanvas = document.createElement('canvas');
     var gl = testCanvas.getContext('webgl') || testCanvas.getContext('experimental-webgl');
-    if (!gl) { console.warn('[PlateCreator] WebGL not available'); return; }
+    if (!gl) {
+      if (stEl) stEl.textContent = 'WebGL 不可用，已切换至 2D 模式';
+      return;
+    }
     init3D();
   }
 
   function init3D() {
     try {
-      renderer3d = new THREE.WebGLRenderer({ antialias: true, alpha: true, canvas: document.createElement('canvas') });
+      // Clear status text
+      var st = document.getElementById('plate-3d-status');
+      if (st) st.remove();
+
+      renderer3d = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer3d.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      var rw = el3d.clientWidth || 700, rh = el3d.clientHeight || 350;
+      var rw = Math.max(el3d.clientWidth, 700), rh = Math.max(el3d.clientHeight, 350);
       renderer3d.setSize(rw, rh);
       el3d.appendChild(renderer3d.domElement);
 
