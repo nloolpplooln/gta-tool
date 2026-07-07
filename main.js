@@ -438,9 +438,6 @@ ipcMain.handle('app:getVersion', () => {
 
 // ===== App Lifecycle =====
 
-// Disable GPU hardware acceleration to prevent black/white screen crashes on Windows
-app.disableHardwareAcceleration();
-
 app.whenReady().then(() => {
   createWindow();
   // Auto-check for updates after app starts (silent, only notifies if update available)
