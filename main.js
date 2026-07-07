@@ -135,7 +135,8 @@ async function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       webSecurity: true,
-      enableWebSQL: false
+      enableWebSQL: false,
+      backgroundThrottling: false
     }
   });
 
@@ -150,6 +151,20 @@ async function createWindow() {
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+
+  // Crash recovery — reload if renderer crashes
+  mainWindow.webContents.on('render-process-gone', (event, details) => {
+    console.error('[App] Renderer crashed:', details.reason);
+    if (details.reason === 'crashed' || details.reason === 'oom') {
+      mainWindow.webContents.reload();
+    }
+  });
+
+  // Detect unresponsive state
+  mainWindow.on('unresponsive', () => {
+    console.warn('[App] Window unresponsive, reloading...');
+    mainWindow.webContents.reload();
   });
 }
 
@@ -422,6 +437,9 @@ ipcMain.handle('app:getVersion', () => {
 });
 
 // ===== App Lifecycle =====
+
+// Disable GPU hardware acceleration to prevent black/white screen crashes on Windows
+app.disableHardwareAcceleration();
 
 app.whenReady().then(() => {
   createWindow();
