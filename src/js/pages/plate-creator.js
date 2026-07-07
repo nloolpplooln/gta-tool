@@ -34,13 +34,15 @@ GTA.PlateCreator = (function() {
       if (charCnt) charCnt.textContent = '7/8';
       bindSliders();
       updateToggleUI();
-      // Always show style grid immediately
+      // Always show style grid + 2D immediately
       renderStyleGrid();
       renderAll();
-      // Init 3D async
-      requestAnimationFrame(function() {
-        try { initThreeJS(); } catch(e) { console.warn('[Plate] 3D init failed:', e); }
-      });
+      // Init 3D after layout settles (container must have dimensions)
+      setTimeout(function() { tryInit3D(); }, 200);
+      // Re-render with PlateFont once loaded
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function() { renderStyleGrid(); renderAll(); });
+      }
     });
     bindEvents();
     initialized = true;
@@ -82,6 +84,14 @@ GTA.PlateCreator = (function() {
   function getPlateFont() { return '"PlateFont","Anton","Arial Black",sans-serif'; }
 
   /* === Three.js Setup === */
+  var _tries3d = 0;
+  function tryInit3D() {
+    if (!threeContainer || !THREE) return;
+    var w = threeContainer.clientWidth || threeContainer.offsetWidth || 0;
+    if (w < 50 && _tries3d < 5) { _tries3d++; setTimeout(tryInit3D, 150); return; }
+    initThreeJS();
+  }
+
   function initThreeJS() {
     if (!threeContainer || !THREE) return;
     renderer3d = new THREE.WebGLRenderer({ antialias: true, alpha: true });
