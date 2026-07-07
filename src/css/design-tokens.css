@@ -117,6 +117,28 @@
 
   /* ===== LAYOUT ===== */
   --sidebar-width: clamp(90px, 9vw, 130px);
+}
+
+/* ===== THEME: Los Santos Blue ===== */
+[data-theme="blue"] {
+  --color-gold: #3b7dd8;
+  --color-gold-light: #5b9df8;
+  --color-gold-dark: #2a5da8;
+  --color-gold-glow: rgba(59, 125, 216, 0.25);
+  --color-gold-subtle: rgba(59, 125, 216, 0.06);
+  --color-glass-border: rgba(59, 125, 216, 0.10);
+  --color-glass-border-hover: rgba(59, 125, 216, 0.30);
+}
+
+/* ===== THEME: Liberty City Purple ===== */
+[data-theme="purple"] {
+  --color-gold: #8b3bd8;
+  --color-gold-light: #ab5bf8;
+  --color-gold-dark: #6b2ba8;
+  --color-gold-glow: rgba(139, 59, 216, 0.25);
+  --color-gold-subtle: rgba(139, 59, 216, 0.06);
+  --color-glass-border: rgba(139, 59, 216, 0.10);
+  --color-glass-border-hover: rgba(139, 59, 216, 0.30);
   --content-max-width: 1200px;
   --header-height: 60px;
 

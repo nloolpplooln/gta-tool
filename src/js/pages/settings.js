@@ -13,37 +13,27 @@ GTA.Settings = (function () {
       '<div class="settings-grid">' +
         renderBrandHero() +
         renderPlayerName() +
+        renderTheme() +
         renderAutoUpdate() +
-        renderCloudSync() +
         renderDataActions() +
         renderBackgroundVideo() +
         renderDisclaimer() +
       '</div>';
 
     loadPlayerName();
-    loadDisplayName();
     updateBgStatus();
     bindButtons();
   }
 
   function renderPlayerName() {
     return '<div class="settings-card">' +
-      '<h3>玩家昵称</h3>' +
-      '<p>设置你的游戏内玩家名称，将显示在分享卡片上。</p>' +
+      '<h3>玩家名称</h3>' +
+      '<p>将显示在侧边栏和分享卡片上。</p>' +
       '<div class="settings-row">' +
-        '<input type="text" class="form-input" id="settings-player-name" placeholder="输入玩家名称" maxlength="30">' +
+        '<input type="text" class="form-input" id="settings-player-name" placeholder="输入你的玩家名称" maxlength="30">' +
         '<button class="btn btn-primary" id="btn-save-name">保存</button>' +
       '</div>' +
       '<p class="text-muted" style="margin-top:var(--space-xs)" id="settings-name-status"></p>' +
-    '</div>' +
-    '<div class="settings-card">' +
-      '<h3>显示名称（账号）</h3>' +
-      '<p>修改你的账号显示名称，会显示在侧边栏。需要登录后使用。</p>' +
-      '<div class="settings-row">' +
-        '<input type="text" class="form-input" id="settings-display-name" placeholder="输入显示名称" maxlength="30">' +
-        '<button class="btn btn-primary" id="btn-save-display-name">保存</button>' +
-      '</div>' +
-      '<p class="text-muted" style="margin-top:var(--space-xs)" id="settings-display-name-status"></p>' +
     '</div>';
   }
 
@@ -60,15 +50,24 @@ GTA.Settings = (function () {
     '</div>';
   }
 
-  function renderCloudSync() {
+  function renderTheme() {
     return '<div class="settings-card">' +
-      '<h3>云端同步</h3>' +
-      '<p style="color:var(--color-text-muted);margin-bottom:var(--space-md)" id="cloud-status">请先登录后使用云端功能</p>' +
-      '<div class="settings-row">' +
-        '<button class="btn btn-primary" id="btn-cloud-upload">上传到云端</button>' +
-        '<button class="btn btn-secondary" id="btn-cloud-download">从云端下载</button>' +
+      '<h3>主题配色</h3>' +
+      '<p>切换软件整体色调风格。</p>' +
+      '<div class="theme-preset-grid" id="theme-preset-grid">' +
+        '<div class="theme-preset-item active" data-theme="black-gold" title="黑金（默认）">' +
+          '<span class="theme-swatch" style="background:linear-gradient(135deg,#1a1a1a,#d4a843);"></span>' +
+          '<span class="theme-label">黑金</span>' +
+        '</div>' +
+        '<div class="theme-preset-item" data-theme="blue" title="洛圣都蓝">' +
+          '<span class="theme-swatch" style="background:linear-gradient(135deg,#0d1528,#3b7dd8);"></span>' +
+          '<span class="theme-label">洛圣都蓝</span>' +
+        '</div>' +
+        '<div class="theme-preset-item" data-theme="purple" title="自由市紫">' +
+          '<span class="theme-swatch" style="background:linear-gradient(135deg,#1a0d28,#8b3bd8);"></span>' +
+          '<span class="theme-label">自由市紫</span>' +
+        '</div>' +
       '</div>' +
-      '<p class="text-muted" style="margin-top:var(--space-sm)">上传将推送本地数据到云端，下载将云端数据合并到本地。</p>' +
     '</div>';
   }
 
@@ -588,9 +587,6 @@ GTA.Settings = (function () {
     var btnSaveName = document.getElementById('btn-save-name');
     if (btnSaveName) btnSaveName.addEventListener('click', savePlayerName);
 
-    var btnSaveDisplayName = document.getElementById('btn-save-display-name');
-    if (btnSaveDisplayName) btnSaveDisplayName.addEventListener('click', saveDisplayName);
-
     var btnExportJSON = document.getElementById('btn-export-json');
     if (btnExportJSON) btnExportJSON.addEventListener('click', exportJSON);
 
@@ -610,12 +606,7 @@ GTA.Settings = (function () {
     if (btnClear) btnClear.addEventListener('click', clearAllData);
 
     bindUpdate();
-
-    updateCloudStatus();
-    var btnUpload = document.getElementById('btn-cloud-upload');
-    var btnDownload = document.getElementById('btn-cloud-download');
-    if (btnUpload) btnUpload.addEventListener('click', function () { GTA.SupabaseService.upload(); });
-    if (btnDownload) btnDownload.addEventListener('click', function () { GTA.SupabaseService.download(); });
+    bindTheme();
 
     var btnSelectBg = document.getElementById('btn-select-bg-video');
     var btnResetBg = document.getElementById('btn-reset-bg-video');

@@ -234,23 +234,23 @@ GTA.PlateCreator = (function() {
       camera3d = new THREE.PerspectiveCamera(30, rw/rh, 0.1, 100);
       camera3d.position.set(0, 0, 8);
 
-      // Studio lighting
-      scene3d.add(new THREE.AmbientLight(0xffffff, 1.0));
-      var key = new THREE.DirectionalLight(0xffffff, 2.2);
-      key.position.set(3, 2, 5); scene3d.add(key);
-      var fill = new THREE.DirectionalLight(0xffffff, 0.8);
-      fill.position.set(-2, 0.5, 3); scene3d.add(fill);
-      var rim = new THREE.DirectionalLight(0xffffff, 1.2);
-      rim.position.set(0, -0.8, 3.5); scene3d.add(rim);
-      var top = new THREE.DirectionalLight(0xd4a843, 0.5);
-      top.position.set(0, 4, 1.5); scene3d.add(top);
+      // Side lighting — avoid direct front illumination
+      scene3d.add(new THREE.AmbientLight(0xffffff, 0.1));
+      var key = new THREE.DirectionalLight(0xffffff, 1.2);
+      key.position.set(6, 1.5, 3); scene3d.add(key);
+      var fill = new THREE.DirectionalLight(0xffffff, 0.15);
+      fill.position.set(-5, 0.5, 2); scene3d.add(fill);
+      var rim = new THREE.DirectionalLight(0xffffff, 0.5);
+      rim.position.set(0, -1.5, 2.5); scene3d.add(rim);
+      var top = new THREE.DirectionalLight(0xd4a843, 0.3);
+      top.position.set(0, 5, 0.5); scene3d.add(top);
 
       plateTex = new THREE.CanvasTexture(elTexCanvas);
       plateTex.colorSpace = THREE.SRGBColorSpace;
       plateTex.minFilter = THREE.LinearFilter;
       plateTex.magFilter = THREE.LinearFilter;
 
-      var mat = new THREE.MeshStandardMaterial({ map: plateTex, roughness: 0.2, metalness: 0.12 });
+      var mat = new THREE.MeshStandardMaterial({ map: plateTex, roughness: 0.35, metalness: 0.08 });
       plateMesh = new THREE.Mesh(new THREE.PlaneGeometry(4, 2), mat);
       plateMesh.rotation.x = -0.15;
       scene3d.add(plateMesh);
@@ -263,7 +263,9 @@ GTA.PlateCreator = (function() {
         if (!dragging || !plateMesh) return;
         plateMesh.rotation.y += (e.clientX - px) * 0.005;
         plateMesh.rotation.x += (e.clientY - py) * 0.005;
-        plateMesh.rotation.x = Math.max(-1.2, Math.min(1.2, plateMesh.rotation.x));
+        // Clamp: prevent flipping past front-facing view
+        plateMesh.rotation.y = Math.max(-1.2, Math.min(1.2, plateMesh.rotation.y));
+        plateMesh.rotation.x = Math.max(-1.0, Math.min(1.0, plateMesh.rotation.x));
         px = e.clientX; py = e.clientY;
       });
       window.addEventListener('mouseup', function() { dragging = false; });

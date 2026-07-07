@@ -53,6 +53,9 @@ GTA.App = (function () {
       // 8. Init background video (custom or default)
       initBackground();
 
+      // 9. Init theme
+      if (GTA.Theme) GTA.Theme.init();
+
       GTA.log('[App] Bootstrap complete!');
 
     } catch (err) {
@@ -230,6 +233,25 @@ GTA.App = (function () {
       img.style.display = 'block';
     }
   }
+
+  // ===== Theme System =====
+  GTA.Theme = {
+    apply: function(theme) {
+      document.documentElement.setAttribute('data-theme', theme === 'black-gold' ? '' : theme);
+      GTA.db.ready().then(function() {
+        GTA.db.settings.put({ key: 'theme', value: theme });
+      });
+    },
+    init: function() {
+      GTA.db.ready().then(function() {
+        return GTA.db.settings.get('theme');
+      }).then(function(entry) {
+        if (entry && entry.value) {
+          GTA.Theme.apply(entry.value);
+        }
+      }).catch(function() {});
+    }
+  };
 
   // Expose for settings page to refresh after selection
   GTA.BackgroundVideo = {

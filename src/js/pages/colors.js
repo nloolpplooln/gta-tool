@@ -119,8 +119,8 @@ GTA.Colors = (function () {
     });
     html += '</div>';
 
+    html += '<div id="color-results-area">';
     html += '<div class="color-results-count">显示 ' + filtered.length + ' / ' + allColors.length + ' 种颜色</div>';
-
     if (filtered.length === 0) {
       html += '<div class="color-no-results">没有找到匹配的颜色</div>';
     } else {
@@ -130,18 +130,18 @@ GTA.Colors = (function () {
       });
       html += '</div>';
     }
-
+    html += '</div>';
     html += '</div>';
 
     container.innerHTML = html;
 
-    // Bind search
+    // Bind search — update only results area, don't recreate input
     var searchInput = document.getElementById('color-search-input');
     if (searchInput) {
       if (searchQuery) searchInput.value = searchQuery;
       searchInput.addEventListener('input', Utils.debounce(function () {
         searchQuery = this.value;
-        render(container);
+        refreshResults(container);
       }, 200));
     }
 
@@ -150,14 +150,35 @@ GTA.Colors = (function () {
     chips.forEach(function (chip) {
       chip.addEventListener('click', function () {
         activeFilter = this.getAttribute('data-category');
-        render(container);
+        searchQuery = ''; var si = document.getElementById('color-search-input');
+        if (si) si.value = '';
+        refreshResults(container);
       });
     });
 
     // Bind card clicks for car lightbox
-    container.querySelectorAll('.color-card').forEach(function (card, idx) {
+    rebindCards(filtered);
+  }
+
+  function refreshResults(container) {
+    var filtered = filterColors();
+    var area = document.getElementById('color-results-area');
+    if (!area) return;
+    var html = '<div class="color-results-count">显示 ' + filtered.length + ' / ' + allColors.length + ' 种颜色</div>';
+    if (filtered.length === 0) {
+      html += '<div class="color-no-results">没有找到匹配的颜色</div>';
+    } else {
+      html += '<div class="color-card-grid">';
+      filtered.forEach(function (c, idx) { html += renderColorCard(c, idx); });
+      html += '</div>';
+    }
+    area.innerHTML = html;
+    rebindCards(filtered);
+  }
+
+  function rebindCards(filtered) {
+    document.querySelectorAll('.color-card').forEach(function (card, idx) {
       card.addEventListener('click', function (e) {
-        // Don't trigger if clicking a child interactive element
         openCarLightbox(filtered, idx);
       });
     });
