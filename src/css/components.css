@@ -120,14 +120,15 @@
 }
 
 .btn-ghost {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.05);
   color: var(--color-text-secondary);
-  border-color: transparent;
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .btn-ghost:hover {
   color: var(--color-gold);
   background: var(--color-gold-subtle);
+  border-color: rgba(212, 168, 67, 0.25);
 }
 
 .btn-sm {

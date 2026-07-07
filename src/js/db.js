@@ -4,27 +4,36 @@ window.GTA = window.GTA || {};
 GTA.db = (function () {
   var db = new Dexie('GTAVehicleTracker');
 
-  // Schema version 1
+  // Schema version 1 (original)
   db.version(1).stores({
-    // Owned vehicles: vehicleId is primary key
     ownedVehicles: '&vehicleId, addedAt',
-
-    // Modification records
     modifications: '++id, vehicleId, createdAt',
-
-    // Garage definitions
     garages: '++id, name, sortOrder, createdAt',
-
-    // Junction: garage <-> vehicle with ordering
     garageVehicles: '++id, garageId, vehicleId, sortOrder',
-
-    // Vehicle photos
     photos: '++id, vehicleId, uploadedAt, isCover',
-
-    // App settings (key-value)
     settings: '&key',
+    customVehicles: '&id, brand, type, name'
+  });
 
-    // User-added custom vehicles
+  // Schema version 2 — property slot system
+  db.version(2).stores({
+    ownedVehicles: '&vehicleId, addedAt',
+    modifications: '++id, vehicleId, createdAt',
+    garages: '++id, slotIndex, enabled, propertyName, propertyCategory, propertyType, slotCount, location, sortOrder, createdAt',
+    garageVehicles: '++id, garageId, vehicleId, sortOrder',
+    photos: '++id, vehicleId, uploadedAt, isCover',
+    settings: '&key',
+    customVehicles: '&id, brand, type, name'
+  });
+
+  // Schema version 3 — add floor field for multi-floor garages
+  db.version(3).stores({
+    ownedVehicles: '&vehicleId, addedAt',
+    modifications: '++id, vehicleId, createdAt',
+    garages: '++id, slotIndex, enabled, propertyName, propertyCategory, propertyType, slotCount, location, sortOrder, createdAt',
+    garageVehicles: '++id, garageId, vehicleId, sortOrder',
+    photos: '++id, vehicleId, uploadedAt, isCover',
+    settings: '&key',
     customVehicles: '&id, brand, type, name'
   });
 

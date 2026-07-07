@@ -104,16 +104,17 @@ GTA.VehicleDetail = (function () {
 
       // ── Content Below Fold ──
       '<div class="detail-content-below">' +
-        // Left column
+        // Left column — core info
         '<div>' +
-          // Performance bars
-          '<div class="performance-section">' +
-            '<h3>性能数据</h3>' +
-            renderPerformanceBars(v.performance) +
-          '</div>' +
-
-          // Specs table
-          (v.specs ? renderSpecsTable(v.specs) : '') +
+          // Game description
+          (v.description ?
+            '<div class="performance-section">' +
+              '<h3>游戏描述</h3>' +
+              '<blockquote style="margin:0;padding:var(--space-sm) var(--space-md);border-left:3px solid var(--color-gold);background:rgba(255,255,255,0.02);font-size:var(--font-size-sm);line-height:1.7;color:var(--color-text-secondary);">' +
+                '<p style="margin:0;">"' + Utils.escapeHtml(v.description) + '"</p>' +
+                (v.shop_source ? '<cite style="display:block;margin-top:var(--space-xs);font-style:normal;color:var(--color-gold);">' + Utils.escapeHtml(v.shop_source) + '</cite>' : '') +
+              '</blockquote>' +
+            '</div>' : '') +
 
           // Release info
           (v.release ? renderReleaseInfo(v.release) : '') +
@@ -125,17 +126,16 @@ GTA.VehicleDetail = (function () {
           (v.imani_tech && v.imani_tech.length > 0 ? renderImaniTech(v.imani_tech) : '') +
         '</div>' +
 
-        // Right column
+        // Right column — specs + meta
         '<div>' +
-          // Game description
-          (v.description ?
-            '<div class="performance-section">' +
-              '<h3>游戏描述</h3>' +
-              '<blockquote style="margin:0;padding:var(--space-sm) var(--space-md);border-left:3px solid var(--color-gold);background:rgba(255,255,255,0.02);font-size:var(--font-size-sm);line-height:1.7;color:var(--color-text-secondary);">' +
-                '<p style="margin:0;">"' + Utils.escapeHtml(v.description) + '"</p>' +
-                (v.shop_source ? '<cite style="display:block;margin-top:var(--space-xs);font-style:normal;color:var(--color-gold);">' + Utils.escapeHtml(v.shop_source) + '</cite>' : '') +
-              '</blockquote>' +
-            '</div>' : '') +
+          // Performance bars
+          '<div class="performance-section">' +
+            '<h3>性能数据</h3>' +
+            renderPerformanceBars(v.performance) +
+          '</div>' +
+
+          // Specs table
+          (v.specs ? renderSpecsTable(v.specs) : '') +
 
           // Tags
           safeRender(() => renderTagsBlock(v), 'tags') +
@@ -150,18 +150,18 @@ GTA.VehicleDetail = (function () {
           '<div class="detail-garage-info" id="detail-garage-info"></div>' +
         '</div>' +
 
-        // Full-width: Modifications
+        // Full-width: Modifications, Liveries, Screenshots
         safeRender(() => renderModificationsBlock(v), 'mods') +
         safeRender(() => renderLiveriesBlock(v), 'liveries') +
         safeRender(() => renderScreenshotsBlock(v), 'screenshots') +
+      '</div>' +
 
-        // Quick links — full width
-        '<div class="detail-quick-links">' +
-          '<button class="btn btn-secondary" id="btn-go-album">车辆相册</button>' +
-          '<button class="btn btn-secondary" id="btn-go-mods">改装记录</button>' +
-          '<button class="btn btn-secondary" id="btn-go-add-garage">加入车库</button>' +
-          '<button class="btn compare-add-btn" id="btn-compare"' + (GTA.CompareList && GTA.CompareList.get().indexOf(currentVehicleId) !== -1 ? ' disabled style="opacity:0.5" title="已加入对比"' : '') + '>对比</button>' +
-        '</div>' +
+      // Quick links — at the very bottom
+      '<div class="detail-quick-links">' +
+        '<button class="btn btn-secondary" id="btn-go-album">车辆相册</button>' +
+        '<button class="btn btn-secondary" id="btn-go-mods">改装记录</button>' +
+        '<button class="btn btn-secondary" id="btn-go-add-garage">加入车库</button>' +
+        '<button class="btn compare-add-btn" id="btn-compare"' + (GTA.CompareList && GTA.CompareList.get().indexOf(currentVehicleId) !== -1 ? ' disabled style="opacity:0.5" title="已加入对比"' : '') + '>对比</button>' +
       '</div>';
 
     // Bind buttons
@@ -620,11 +620,13 @@ GTA.VehicleDetail = (function () {
     try {
       await GTA.db.ready();
       var garages = await GTA.db.garages.toArray();
+      // Filter to only enabled garages
+      var enabledGarages = garages.filter(function (g) { return g.enabled !== false; });
 
-      if (garages.length === 0) {
+      if (enabledGarages.length === 0) {
         GTA.Modal.show({
           title: '没有车库',
-          body: '<p>还没有创建任何车库。</p><p>是否前往车库页面创建？</p>',
+          body: '<p>还没有启用任何车库。</p><p>是否前往车库页面启用？</p>',
           confirmText: '前往车库',
           cancelText: '取消',
           onConfirm: function () {
@@ -634,11 +636,13 @@ GTA.VehicleDetail = (function () {
         return;
       }
 
-      var optionsHtml = '<div class="add-vehicle-list">';
-      garages.forEach(function (g) {
+      var optionsHtml = '<input type="text" class="form-input" id="add-garage-search" placeholder="搜索车库名称..." style="margin-bottom:var(--space-sm);">';
+      optionsHtml += '<div class="add-vehicle-list" id="add-vehicle-list">';
+      enabledGarages.forEach(function (g) {
+        var displayName = g.location || g.propertyName || g.name || '未命名';
         optionsHtml +=
-          '<div class="add-vehicle-item" data-garage-id="' + g.id + '">' +
-            '<span>' + Utils.escapeHtml(g.name) + '</span>' +
+          '<div class="add-vehicle-item" data-garage-id="' + g.id + '" data-search-text="' + Utils.escapeHtml(displayName.toLowerCase()) + '">' +
+            '<span>' + Utils.escapeHtml(displayName) + '</span>' +
           '</div>';
       });
       optionsHtml += '</div>';
@@ -653,22 +657,28 @@ GTA.VehicleDetail = (function () {
 
       // Add click listeners after modal body is set
       setTimeout(function () {
-        var items = document.querySelectorAll('.add-vehicle-item');
+        var searchInput = document.getElementById('add-garage-search');
+        var listContainer = document.getElementById('add-vehicle-list');
+        var items = listContainer.querySelectorAll('.add-vehicle-item');
+
+        // Search filter
+        if (searchInput) {
+          searchInput.addEventListener('input', function () {
+            var q = this.value.toLowerCase().trim();
+            items.forEach(function (item) {
+              var text = item.getAttribute('data-search-text') || '';
+              item.style.display = !q || text.indexOf(q) !== -1 ? '' : 'none';
+            });
+          });
+          // Auto-focus
+          setTimeout(function () { searchInput.focus(); }, 50);
+        }
+
+        // Click to add
         items.forEach(function (item) {
-          item.addEventListener('click', async function () {
+          item.onclick = async function () {
             var garageId = parseInt(this.getAttribute('data-garage-id'));
             try {
-              // Check if already in garage
-              var existing = await GTA.db.garageVehicles
-                .where({ garageId: garageId, vehicleId: currentVehicleId })
-                .first();
-
-              if (existing) {
-                GTA.Toast.info('该载具已在此车库中');
-                return;
-              }
-
-              // Get max sortOrder
               var maxSort = await GTA.db.garageVehicles
                 .where('garageId').equals(garageId)
                 .toArray();
@@ -687,7 +697,7 @@ GTA.VehicleDetail = (function () {
               console.error('[VehicleDetail] Error adding to garage:', e);
               GTA.Toast.error('添加失败');
             }
-          });
+          };
         });
       }, 100);
 
@@ -721,8 +731,9 @@ GTA.VehicleDetail = (function () {
       } else {
         html += '<div class="detail-garage-list">';
         garageEntries.forEach(function (g) {
+          var displayName = g.location || g.propertyName || g.name || '未命名';
           html += '<a class="detail-garage-link" href="#/garage/' + g.id + '" data-garage-id="' + g.id + '">' +
-            Utils.escapeHtml(g.name) + '</a>';
+            Utils.escapeHtml(displayName) + '</a>';
         });
         html += '</div>';
       }
@@ -815,29 +826,55 @@ GTA.VehicleDetail = (function () {
   }
 
   function renderStreetCarColors(colors) {
+    var rareCount = colors.color_rows.filter(function(r) { return r.isRare; }).length;
     var html = '<div class="street-car-colors">' +
-      '<div class="performance-section"><h3>街车稀有配色 (' + colors.color_rows.length + ' 种)</h3></div>' +
+      '<div class="performance-section"><h3>街车配色 (' + colors.color_rows.length + ' 种' +
+        (rareCount > 0 ? '，<span style="color:var(--color-gold);">' + rareCount + ' 组含稀有</span>' : '') +
+      ')</h3></div>' +
       '<div class="street-color-table">' +
-        '<div class="street-color-header"><span>主色</span><span>副色</span><span>珠光</span><span>获取</span></div>';
+        '<div class="street-color-header"><span>主色</span><span>副色</span><span>珠光</span><span>轮毂色</span></div>';
 
     colors.color_rows.forEach(function (row) {
       var primary = row.primary || {};
       var secondary = row.secondary || {};
       var pearlescent = row.pearlescent || {};
+      var wheel = row.wheel || {};
+      var rowCls = row.isRare ? ' street-color-row-rare' : '';
 
-      html += '<div class="street-color-row">' +
-        '<div class="color-cell" style="background:' + (primary.hex || '#333') + ';">' +
-          '<div class="color-cell-text"><span class="color-cell-name" style="color:' + (isLightColor(primary.hex) ? '#000' : '#fff') + ';">' + (primary.name_cn || primary.name || '-') + '</span></div>' +
-        '</div>' +
-        '<div class="color-cell" style="background:' + (secondary.hex || '#333') + ';">' +
-          '<div class="color-cell-text"><span class="color-cell-name" style="color:' + (isLightColor(secondary.hex) ? '#000' : '#fff') + ';">' + (secondary.name_cn || secondary.name || '-') + '</span></div>' +
-        '</div>' +
-        '<div class="color-cell-text" style="padding:8px;font-size:11px;color:var(--color-text-secondary);">' + (pearlescent.name_cn || pearlescent.name || '-') + '</div>' +
-        '<div class="color-cell-text" style="padding:8px;font-size:11px;color:var(--color-text-secondary);">' + (primary.unlock || '-') + '</div>' +
+      function colorCell(c) {
+        if (!c || !c.hex) {
+          return '<div class="color-cell color-cell-empty"><div class="color-cell-text"><span class="color-cell-name" style="color:var(--color-text-muted)">-</span></div></div>';
+        }
+        var displayName = c.name_cn || c.name || '-';
+        var textColor = isLightColor(c.hex) ? '#000' : '#fff';
+        var rareCls = c.isRare ? ' rare' : '';
+        var rareTag = c.isRare ? '<div class="rare-tag">稀有</div>' : '';
+        return '<div class="color-cell' + rareCls + '" style="background:' + c.hex + ';cursor:pointer;" data-nav="colors?id=' + c.id + '" title="' + displayName + '">' +
+          '<div class="color-cell-text"><span class="color-cell-name" style="color:' + textColor + ';">' + displayName + '</span></div>' +
+          rareTag +
+        '</div>';
+      }
+
+      html += '<div class="street-color-row' + rowCls + '">' +
+        colorCell(primary) +
+        colorCell(secondary) +
+        colorCell(pearlescent) +
+        colorCell(wheel) +
       '</div>';
     });
 
     html += '</div></div>';
+
+    // Delegate click for color cells
+    setTimeout(function () {
+      document.querySelectorAll('.color-cell[data-nav]').forEach(function (cell) {
+        cell.addEventListener('click', function () {
+          var nav = this.getAttribute('data-nav');
+          if (nav) GTA.Router.navigate(nav);
+        });
+      });
+    }, 100);
+
     return html;
   }
 

@@ -16,11 +16,13 @@ GTA.Settings = (function () {
         renderAutoUpdate() +
         renderCloudSync() +
         renderDataActions() +
+        renderBackgroundVideo() +
         renderDisclaimer() +
       '</div>';
 
     loadPlayerName();
     loadDisplayName();
+    updateBgStatus();
     bindButtons();
   }
 
@@ -115,6 +117,45 @@ GTA.Settings = (function () {
       '<p>作者：GTA玩家 oolpploo</p>' +
       '<p class="text-muted">联系：2453133436@qq.com</p>' +
       '<p class="text-muted">版本 <span id="about-version">v' + (GTA.APP_VERSION || '10.27.0') + '</span></p>' +
+    '</div>';
+  }
+
+  function renderBackgroundVideo() {
+    return '<div class="settings-card">' +
+      '<h3>自定义背景</h3>' +
+      '<p style="color:var(--color-gold);font-size:var(--font-size-xs);margin-bottom:var(--space-sm);">💡 建议使用深色、低对比度、模糊/高斯风格的图片或视频，以确保文字清晰可读，获得最佳视觉体验。</p>' +
+
+      // Presets
+      '<div style="margin-bottom:var(--space-md);">' +
+        '<label style="font-size:var(--font-size-xs);color:var(--color-text-muted);margin-bottom:6px;display:block;">预设背景</label>' +
+        '<div class="bg-preset-grid" id="bg-preset-grid">' +
+          '<div class="bg-preset-item active" data-preset="default" style="background:linear-gradient(135deg, #0d0d1a 0%, #141428 50%, #0f0f1e 100%);" title="默认暗夜"></div>' +
+          '<div class="bg-preset-item" data-preset="ocean" style="background:linear-gradient(135deg, #0a1428 0%, #0f1f3d 40%, #0c1a30 100%);" title="深海"></div>' +
+          '<div class="bg-preset-item" data-preset="sunset" style="background:linear-gradient(135deg, #1e1410 0%, #2a1a18 40%, #1a1310 100%);" title="余晖"></div>' +
+          '<div class="bg-preset-item" data-preset="forest" style="background:linear-gradient(135deg, #0d1410 0%, #16241a 50%, #0e1612 100%);" title="森林"></div>' +
+          '<div class="bg-preset-item" data-preset="midnight" style="background:linear-gradient(135deg, #100d1e 0%, #1a1030 50%, #120e22 100%);" title="午夜"></div>' +
+        '</div>' +
+      '</div>' +
+
+      // Custom image
+      '<div class="settings-row" style="margin-bottom:var(--space-sm);">' +
+        '<button class="btn btn-primary" id="btn-select-bg-image">选择背景图片</button>' +
+        '<button class="btn btn-secondary" id="btn-remove-bg-image">移除图片</button>' +
+      '</div>' +
+
+      // Custom video
+      '<div class="settings-row" style="margin-bottom:var(--space-sm);">' +
+        '<button class="btn btn-primary" id="btn-select-bg-video">选择背景视频</button>' +
+        '<button class="btn btn-secondary" id="btn-reset-bg-video">恢复默认</button>' +
+      '</div>' +
+
+      // Brightness
+      '<div class="settings-row" style="align-items:center;gap:var(--space-md);">' +
+        '<label style="white-space:nowrap;font-size:var(--font-size-sm);color:var(--color-text-secondary);">背景亮度</label>' +
+        '<input type="range" id="bg-brightness-slider" min="10" max="100" value="35" style="flex:1;">' +
+        '<span id="bg-brightness-val" style="min-width:36px;text-align:right;font-size:var(--font-size-sm);">35%</span>' +
+      '</div>' +
+      '<p class="text-muted" style="margin-top:var(--space-xs)" id="bg-video-status">当前：默认背景</p>' +
     '</div>';
   }
 
@@ -346,18 +387,76 @@ GTA.Settings = (function () {
             for (var gi = 0; gi < raw.garages.length; gi++) {
               var g = raw.garages[gi];
               if (isOldFormat) {
-                var newId = await GTA.db.garages.add({ name: g.name, sortOrder: gi, createdAt: Date.now() + gi });
+                var newId = await GTA.db.garages.add({
+                  name: g.name,
+                  slotIndex: g.slotIndex !== undefined ? g.slotIndex : gi,
+                  enabled: g.enabled !== undefined ? g.enabled : true,
+                  propertyName: g.propertyName || g.name,
+                  propertyCategory: g.propertyCategory || '已导入',
+                  propertyType: g.propertyType || 'imported',
+                  slotCount: g.slotCount || 10,
+                  floors: g.floors || 1,
+                  floor: g.floor || 1,
+                  location: g.location || g.name,
+                  sortOrder: gi,
+                  createdAt: Date.now() + gi
+                });
                 garageNameToId[g._garageName || g.name] = newId;
               } else {
-                await GTA.db.garages.put({ id: g.id, name: g.name, sortOrder: g.sortOrder || gi, createdAt: g.createdAt || Date.now() });
-                garageNameToId[g.id] = g.id;
+                // Auto-merge: find matching preset by cleaned name
+                var importClean = (g.name || '').replace(/\s+/g, '').replace(/[，,、.\-－_—]/g, '').toLowerCase();
+                var existingGarages = await GTA.db.garages.toArray();
+                var merged = false;
+                // First try exact match on location/propertyName
+                for (var eg = 0; eg < existingGarages.length; eg++) {
+                  var eg2 = existingGarages[eg];
+                  var egClean = (eg2.location || eg2.propertyName || '').replace(/\s+/g, '').replace(/[，,、.\-－_—]/g, '').toLowerCase();
+                  if (importClean && egClean && importClean === egClean && importClean.length >= 3) {
+                    garageNameToId[g.id] = eg2.id;
+                    if (!eg2.enabled) { await GTA.db.garages.update(eg2.id, { enabled: true, location: g.name }); }
+                    merged = true;
+                    break;
+                  }
+                }
+                // Then try matching by type: find unused preset slot of same type
+                if (!merged) {
+                  var importCleanNoNum = importClean.replace(/\d+/g, '').replace(/[bB]层?|地下|车库/g, '');
+                  for (var eg3 = 0; eg3 < existingGarages.length; eg3++) {
+                    var eg4 = existingGarages[eg3];
+                    if (eg4.enabled) continue;
+                    var egClean2 = (eg4.propertyName || '').replace(/\s+/g, '').replace(/[，,、.\-－_—\d]/g, '').toLowerCase();
+                    if (importCleanNoNum && egClean2 && importCleanNoNum.indexOf(egClean2) >= 0 && egClean2.length >= 2) {
+                      garageNameToId[g.id] = eg4.id;
+                      await GTA.db.garages.update(eg4.id, { enabled: true, location: g.name });
+                      merged = true;
+                      break;
+                    }
+                  }
+                }
+                if (!merged) {
+                  var newId = await GTA.db.garages.add({
+                    name: g.name || g.propertyName || '未命名',
+                    slotIndex: g.slotIndex !== undefined ? g.slotIndex : gi,
+                    enabled: g.enabled !== undefined ? g.enabled : true,
+                    propertyName: g.propertyName || g.name || '未命名',
+                    propertyCategory: g.propertyCategory || '已导入',
+                    propertyType: g.propertyType || 'imported',
+                    slotCount: g.slotCount || 10,
+                    floors: g.floors || 1,
+                    floor: g.floor || 1,
+                    location: g.location || g.name || null,
+                    sortOrder: g.sortOrder || gi,
+                    createdAt: g.createdAt || Date.now()
+                  });
+                  garageNameToId[g.id] = newId;
+                }
               }
             }
           }
           if (raw.garageVehicles.length) {
             for (var gvi = 0; gvi < raw.garageVehicles.length; gvi++) {
               var gv = raw.garageVehicles[gvi];
-              var gid = isOldFormat ? garageNameToId[gv._garageName] : gv.garageId;
+              var gid = isOldFormat ? garageNameToId[gv._garageName] : (garageNameToId[gv.garageId] || gv.garageId);
               if (gid) await GTA.db.garageVehicles.add({ garageId: gid, vehicleId: gv.vehicleId, sortOrder: gv.sortOrder || 0 });
             }
           }
@@ -504,6 +603,64 @@ GTA.Settings = (function () {
     if (btnUpload) btnUpload.addEventListener('click', function () { GTA.SupabaseService.upload(); });
     if (btnDownload) btnDownload.addEventListener('click', function () { GTA.SupabaseService.download(); });
 
+    var btnSelectBg = document.getElementById('btn-select-bg-video');
+    var btnResetBg = document.getElementById('btn-reset-bg-video');
+    if (btnSelectBg) btnSelectBg.addEventListener('click', selectBgVideo);
+    if (btnResetBg) btnResetBg.addEventListener('click', resetBgVideo);
+
+    var btnSelectImg = document.getElementById('btn-select-bg-image');
+    var btnRemoveImg = document.getElementById('btn-remove-bg-image');
+    if (btnSelectImg) btnSelectImg.addEventListener('click', selectBgImage);
+    if (btnRemoveImg) btnRemoveImg.addEventListener('click', removeBgImage);
+
+    // Preset background clicks
+    var presetItems = document.querySelectorAll('.bg-preset-item');
+    // Sync active state from saved preset
+    GTA.db.ready().then(function () {
+      return GTA.db.settings.get('bgPreset');
+    }).then(function (entry) {
+      if (entry && entry.value) {
+        presetItems.forEach(function (el) {
+          el.classList.toggle('active', el.getAttribute('data-preset') === entry.value);
+        });
+      }
+    }).catch(function () {});
+    presetItems.forEach(function (item) {
+      item.addEventListener('click', function () {
+        var presetId = this.getAttribute('data-preset');
+        presetItems.forEach(function (el) { el.classList.remove('active'); });
+        this.classList.add('active');
+        if (GTA.BackgroundVideo && GTA.BackgroundVideo.setPreset) {
+          GTA.BackgroundVideo.setPreset(presetId);
+        }
+        updateBgStatus();
+      });
+    });
+
+    // Background brightness slider
+    var brightnessSlider = document.getElementById('bg-brightness-slider');
+    var brightnessVal = document.getElementById('bg-brightness-val');
+    if (brightnessSlider) {
+      // Load saved value
+      GTA.db.ready().then(function () {
+        return GTA.db.settings.get('bgBrightness');
+      }).then(function (entry) {
+        if (entry && entry.value) {
+          brightnessSlider.value = entry.value;
+          if (brightnessVal) brightnessVal.textContent = entry.value + '%';
+          applyBgBrightness(parseInt(entry.value, 10));
+        }
+      }).catch(function () {});
+      brightnessSlider.addEventListener('input', function () {
+        var val = parseInt(this.value, 10);
+        if (brightnessVal) brightnessVal.textContent = val + '%';
+        applyBgBrightness(val);
+        GTA.db.ready().then(function () {
+          GTA.db.settings.put({ key: 'bgBrightness', value: val });
+        });
+      });
+    }
+
     // Listen for sync loading state to disable buttons during sync
     GTA.EventBus.on('sync:loading', function (state) {
       if (btnUpload) btnUpload.disabled = (state.status === 'started');
@@ -524,7 +681,130 @@ GTA.Settings = (function () {
     }
   }
 
+  // ── Background Video ──
+
+  async function selectBgVideo() {
+    var api = window.electronAPI;
+    if (!api) { GTA.Toast.info('仅桌面版支持'); return; }
+    try {
+      var path = await api.selectBackgroundVideo();
+      if (path) {
+        if (GTA.BackgroundVideo) GTA.BackgroundVideo.setVideo(path);
+        GTA.Toast.success('背景视频已更新');
+        updateBgStatus();
+      }
+    } catch (e) {
+      GTA.Toast.error('选择视频失败：' + (e.message || e));
+    }
+  }
+
+  async function resetBgVideo() {
+    var api = window.electronAPI;
+    if (!api) return;
+    try {
+      await api.removeBackgroundVideo();
+      if (GTA.BackgroundVideo) GTA.BackgroundVideo.resetVideo();
+      GTA.Toast.success('已恢复默认背景');
+      updateBgStatus();
+    } catch (e) {
+      GTA.Toast.error('恢复失败：' + (e.message || e));
+    }
+  }
+
+  async function selectBgImage() {
+    var api = window.electronAPI;
+    if (!api) { GTA.Toast.info('仅桌面版支持'); return; }
+    try {
+      var path = await api.selectBackgroundImage();
+      if (path) {
+        if (GTA.BackgroundVideo) {
+          GTA.BackgroundVideo.setImage(path);
+          GTA.BackgroundVideo.clearPreset();
+        }
+        // Clear active preset
+        document.querySelectorAll('.bg-preset-item').forEach(function (el) { el.classList.remove('active'); });
+        GTA.Toast.success('背景图片已更新');
+        updateBgStatus();
+      }
+    } catch (e) {
+      GTA.Toast.error('选择图片失败：' + (e.message || e));
+    }
+  }
+
+  async function removeBgImage() {
+    var api = window.electronAPI;
+    if (!api) return;
+    try {
+      await api.removeBackgroundImage();
+      if (GTA.BackgroundVideo) GTA.BackgroundVideo.resetImage();
+      // Reset preset to default
+      document.querySelectorAll('.bg-preset-item').forEach(function (el) { el.classList.remove('active'); });
+      var defaultItem = document.querySelector('.bg-preset-item[data-preset="default"]');
+      if (defaultItem) defaultItem.classList.add('active');
+      GTA.Toast.success('已移除背景图片');
+      updateBgStatus();
+    } catch (e) {
+      GTA.Toast.error('移除失败：' + (e.message || e));
+    }
+  }
+
+  function updateBgStatus() {
+    var status = document.getElementById('bg-video-status');
+    if (!status) return;
+    var api = window.electronAPI;
+    if (!api) { status.textContent = '当前：默认背景（仅桌面版支持自定义）'; return; }
+    try {
+      Promise.all([
+        api.getBackgroundImagePath(),
+        api.getBackgroundVideoPath()
+      ]).then(function (results) {
+        var imgPath = results[0];
+        var vidPath = results[1];
+        if (imgPath) {
+          status.textContent = '当前：自定义图片';
+        } else if (vidPath) {
+          var name = vidPath.split(/[\\/]/).pop();
+          status.textContent = '当前：' + name;
+        } else {
+          // Check preset
+          GTA.db.ready().then(function () {
+            return GTA.db.settings.get('bgPreset');
+          }).then(function (entry) {
+            if (entry && entry.value && entry.value !== 'default') {
+              var names = { ocean: '深海', sunset: '余晖', forest: '森林', midnight: '午夜' };
+              status.textContent = '当前：预设 - ' + (names[entry.value] || entry.value);
+            } else {
+              status.textContent = '当前：默认背景';
+            }
+          }).catch(function () {
+            status.textContent = '当前：默认背景';
+          });
+        }
+      }).catch(function () {
+        status.textContent = '当前：默认背景';
+      });
+    } catch (e) { status.textContent = '当前：默认背景'; }
+  }
+
+  function applyBgBrightness(val) {
+    var overlay = document.getElementById('bg-overlay');
+    var video = document.getElementById('bg-video');
+    var img = document.getElementById('bg-image');
+    if (overlay) {
+      var opacity = Math.max(0, (0.8 - val / 100 * 0.78));
+      overlay.style.background = 'rgba(0, 0, 0, ' + opacity.toFixed(3) + ')';
+    }
+    if (video) {
+      var brightness = Math.min(1, (0.1 + val / 100 * 0.75));
+      video.style.filter = 'brightness(' + brightness.toFixed(3) + ') saturate(1)';
+    }
+    if (img) {
+      var brightness2 = Math.min(1, (0.15 + val / 100 * 0.7));
+      img.style.filter = 'brightness(' + brightness2.toFixed(3) + ')';
+    }
+  }
+
   function destroy() {}
 
-  return { init: init, destroy: destroy };
+  return { init: init, destroy: destroy, applyBgBrightness: applyBgBrightness };
 })();

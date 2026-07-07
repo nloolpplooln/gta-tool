@@ -16,39 +16,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Get app data path
   getAppPath: () => ipcRenderer.invoke('app:getPath'),
 
-  // ===== Garage Scanner Overlay =====
+  // ===== Custom Background Video =====
+  selectBackgroundVideo: () => ipcRenderer.invoke('bg:selectVideo'),
+  getBackgroundVideoPath: () => ipcRenderer.invoke('bg:getVideoPath'),
+  removeBackgroundVideo: () => ipcRenderer.invoke('bg:removeVideo'),
 
-  // Open the transparent overlay window
-  openOverlay: () => ipcRenderer.invoke('overlay:open'),
-
-  // Close the overlay window
-  closeOverlay: () => ipcRenderer.invoke('overlay:close'),
-
-  // Get overlay window bounds (x, y, width, height)
-  getOverlayBounds: () => ipcRenderer.invoke('overlay:getBounds'),
-
-  // ===== Screen Capture =====
-
-  // Capture the screen region under the overlay window
-  // Returns a base64 PNG data URL
-  captureScreen: () => ipcRenderer.invoke('capture:screen'),
-
-  // ===== Keyboard Simulation =====
-
-  // Send keyboard key(s) to the system (for game automation)
-  // key: 'DOWN' | 'UP' | 'ENTER' | etc.
-  // count: number of times to press
-  sendKey: (key, count) => ipcRenderer.invoke('key:send', key, count || 1),
+  // ===== Custom Background Image =====
+  selectBackgroundImage: () => ipcRenderer.invoke('bg:selectImage'),
+  getBackgroundImagePath: () => ipcRenderer.invoke('bg:getImagePath'),
+  removeBackgroundImage: () => ipcRenderer.invoke('bg:removeImage'),
+  setPresetBackground: (presetId) => ipcRenderer.invoke('bg:setPreset', presetId),
 
   // ===== Steam / Rockstar Profile Detection =====
-
-  // Auto-detect Steam display name from Steam client
   getSteamDisplayName: () => ipcRenderer.invoke('steam:getDisplayName'),
-
-  // Auto-detect Steam avatar from local cache
   getSteamAvatar: () => ipcRenderer.invoke('steam:getAvatar'),
-
-  // Auto-detect Rockstar Social Club avatar from local cache
   getRockstarAvatar: () => ipcRenderer.invoke('rockstar:getAvatar'),
 
   // ===== Protocol URL (magic-link login) =====

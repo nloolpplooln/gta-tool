@@ -17,8 +17,7 @@
   <link rel="stylesheet" href="../css/pages/dashboard.css">
   <link rel="stylesheet" href="../css/pages/encyclopedia.css">
   <link rel="stylesheet" href="../css/pages/vehicle-detail.css">
-  <link rel="stylesheet" href="../css/pages/scanner.css">
-  <link rel="stylesheet" href="../css/pages/garage.css">
+    <link rel="stylesheet" href="../css/pages/garage.css">
   <link rel="stylesheet" href="../css/pages/modifications.css">
   <link rel="stylesheet" href="../css/pages/album.css">
   <link rel="stylesheet" href="../css/pages/share.css">
@@ -36,6 +35,10 @@
   <video id="bg-video" autoplay muted loop playsinline>
     <source src="../../assets/video/background.mp4" type="video/mp4">
   </video>
+  <!-- Background Image (hidden when video is active) -->
+  <div id="bg-image"></div>
+  <!-- Dark overlay to ensure text readability over custom backgrounds -->
+  <div id="bg-overlay"></div>
 
   <!-- Window Controls — fixed at top-right of entire window -->
   <div class="win-controls" id="win-controls">
@@ -84,11 +87,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/><path d="M5.64 5.64l2.83 2.83m7.07 7.07l2.83 2.83M5.64 18.36l2.83-2.83m7.07-7.07l2.83-2.83"/></svg>
         DLC时间线
       </div>
-      <div class="nav-item" data-nav="scanner">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-        AI 扫描
-      </div>
-      <div class="nav-item" data-nav="liveries">
+            <div class="nav-item" data-nav="liveries">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
         涂装对照
       </div>
@@ -229,16 +228,6 @@
       <div class="detail-layout" id="vehicle-detail-content"></div>
     </section>
 
-    <!-- ===== SCANNER ===== -->
-    <section class="page-section" data-page="scanner">
-      <div class="page-header">
-        <h1>AI 扫描入库</h1>
-      </div>
-      <div class="scanner-container">
-        <div id="scan-panel-upload"></div>
-      </div>
-    </section>
-
     <!-- ===== GARAGE ===== -->
     <section class="page-section" data-page="garage">
       <div class="page-header">
@@ -246,24 +235,34 @@
         <div class="garage-header-actions">
           <div class="garage-global-search" id="garage-global-search">
             <input type="text" class="form-input" id="garage-search-input"
-              placeholder="搜索..." maxlength="60" autocomplete="off">
+              placeholder="搜索车辆或车库..." maxlength="60" autocomplete="off">
             <div class="search-results-panel" id="search-results-panel" style="display:none;"></div>
           </div>
-          <button class="btn btn-ghost btn-sm" id="btn-menu-garage" title="管理">⋮</button>
+          <button class="btn btn-ghost btn-sm" id="btn-manage-garages">管理资产</button>
         </div>
       </div>
 
-      <div class="garage-nav">
-        <button class="garage-nav-btn" id="btn-prev-garage" title="上一个车库">&lt;</button>
-        <div class="garage-nav-center" id="garage-nav-center">
-          <span class="garage-nav-name" id="garage-nav-name">默认车库</span>
-          <button class="garage-nav-dropdown" id="btn-garage-dropdown">▾</button>
-          <div class="garage-dropdown-menu" id="garage-dropdown-menu" style="display:none;"></div>
+      <!-- ===== Vehicle grid view (default) ===== -->
+      <div id="garage-vehicle-view">
+        <div class="garage-nav">
+          <button class="garage-nav-btn" id="btn-prev-garage" title="上一个车库">&lt;</button>
+          <div class="garage-nav-center" id="garage-nav-center">
+            <span class="garage-nav-name" id="garage-nav-name">默认车库</span>
+            <button class="garage-nav-dropdown" id="btn-garage-dropdown">▾</button>
+            <div class="garage-dropdown-menu" id="garage-dropdown-menu" style="display:none;"></div>
+          </div>
+          <button class="garage-nav-btn" id="btn-next-garage" title="下一个车库">&gt;</button>
         </div>
-        <button class="garage-nav-btn" id="btn-next-garage" title="下一个车库">&gt;</button>
+        <div class="garage-grid" id="garage-grid"></div>
       </div>
 
-      <div class="garage-grid" id="garage-grid"></div>
+      <!-- ===== Management view (cards, hidden by default) ===== -->
+      <div id="garage-manage-view" style="display:none;">
+        <div style="margin-bottom:20px;">
+          <button class="btn btn-ghost btn-sm" id="btn-back-to-garages">← 返回车库</button>
+        </div>
+        <div class="property-cards-grid" id="property-cards-grid"></div>
+      </div>
     </section>
 
     <!-- ===== MODIFICATIONS ===== -->
@@ -309,38 +308,63 @@
 
         <div class="share-card-wrapper">
           <div id="share-card-preview">
+            <!-- Background & Overlay generated by JS -->
             <div class="share-card-inner">
-              <div class="share-header">
-                <div class="share-title">GTA 载具收藏家</div>
-                <div class="share-subtitle">GRAND THEFT AUTO · LOS SANTOS VEHICLE TRACKER</div>
-                <div class="share-player" id="share-player-display">玩家 <span>---</span></div>
+              <!-- ① Logo / Branding -->
+              <div class="share-brand">
+                <div class="share-logo">VaultGTA</div>
+                <div class="share-tagline">Vehicle Collection Tracker</div>
               </div>
 
-              <div class="share-stats" id="share-stats">
-                <div class="share-stat-item">
-                  <span class="share-stat-value" id="share-owned">0</span>
-                  <span class="share-stat-label">拥有载具</span>
+              <!-- ② Title -->
+              <div class="share-hero">
+                <h2 class="share-hero-title">GTA 载具收藏家</h2>
+                <p class="share-hero-sub">GRAND THEFT AUTO · LOS SANTOS</p>
+                <div class="share-hero-player" id="share-player-display">—</div>
+              </div>
+
+              <!-- ③ 2×2 Statistics Grid -->
+              <div class="share-grid">
+                <div class="share-grid-card">
+                  <div class="share-grid-icon">🚗</div>
+                  <span class="share-grid-value" id="share-owned">--</span>
+                  <span class="share-grid-label">Owned Vehicles</span>
                 </div>
-                <div class="share-stat-item">
-                  <span class="share-stat-value" id="share-assets">$0</span>
-                  <span class="share-stat-label">总资产</span>
+                <div class="share-grid-card">
+                  <div class="share-grid-icon">📊</div>
+                  <span class="share-grid-value" id="share-progress-pct">--</span>
+                  <span class="share-grid-label">Collection Progress</span>
                 </div>
-                <div class="share-stat-item">
-                  <span class="share-stat-value" id="share-discontinued">0</span>
-                  <span class="share-stat-label">绝版载具</span>
+                <div class="share-grid-card">
+                  <div class="share-grid-icon">💰</div>
+                  <span class="share-grid-value" id="share-assets">--</span>
+                  <span class="share-grid-label">Garage Value</span>
                 </div>
-                <div class="share-stat-item">
-                  <span class="share-stat-value" id="share-garages">0</span>
-                  <span class="share-stat-label">车库数量</span>
+                <div class="share-grid-card">
+                  <div class="share-grid-icon">🏆</div>
+                  <span class="share-grid-value" id="share-discontinued">--</span>
+                  <span class="share-grid-label">Rare & Discontinued</span>
                 </div>
               </div>
 
+              <!-- ④ Progress Bar -->
+              <div class="share-progress-wrap">
+                <div class="share-progress-bar">
+                  <div class="share-progress-fill" id="share-progress-fill"></div>
+                </div>
+                <span class="share-progress-label" id="share-progress-text">0% Complete</span>
+              </div>
+
+              <!-- ⑤ Footer -->
               <div class="share-footer">
-                <div class="share-footer-text">
-                  由 <span>VaultGTA</span> 生成 · v10.26.1
-                </div>
+                <span class="share-footer-divider"></span>
+                <p class="share-footer-text">Generated by <strong>VaultGTA</strong> — Vehicle Collection Tracker</p>
               </div>
             </div>
+            <!-- Refresh wallpaper button (hover to show) -->
+            <button class="share-card-refresh" id="btn-refresh-wallpaper" title="换一张背景">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            </button>
           </div>
       </div>
     </section>
@@ -391,7 +415,7 @@
 
 <!-- ===== MODAL CONTAINER ===== -->
 <div id="modal-overlay" style="position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);">
-  <div id="modal-box" style="min-width:360px;max-width:560px;padding:24px;border-radius:var(--radius-xl);overflow:hidden;background:rgba(19,19,19,0.4);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.08);">
+  <div id="modal-box" style="min-width:360px;max-width:560px;padding:24px;border-radius:var(--radius-xl);overflow:visible;background:rgba(19,19,19,0.4);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.08);">
     <div class="flex-between mb-md">
       <h3 id="modal-title">Modal</h3>
       <button class="btn btn-icon" id="modal-close" style="font-size:18px;color:var(--color-text-muted);">✕</button>
@@ -407,7 +431,6 @@
 <!-- ===== VENDOR SCRIPTS ===== -->
 <script src="../../vendor/dexie.js"></script>
 <script src="../../vendor/html2canvas.min.js"></script>
-<script src="../../vendor/tesseract.min.js"></script>
 
 <!-- ===== APPLICATION SCRIPTS (dependency order) ===== -->
 <script src="../js/utils.js"></script>
@@ -417,12 +440,9 @@
 <script src="../js/services/auth-service.js"></script>
 <script src="../js/services/supabase-service.js"></script>
 <script src="../js/vehicle-catalog.js"></script>
-<script src="../js/fuzzy-match.js"></script>
-<script src="../js/ocr.js"></script>
 <script src="../js/image-store.js"></script>
 <script src="../js/share-card.js"></script>
 <script src="../js/perform-stats.js"></script>
-<script src="../js/screen-capture.js"></script>
 
 <script src="../js/components/navbar.js"></script>
 <script src="../js/components/vehicle-card.js"></script>
@@ -436,7 +456,6 @@
 <script src="../js/pages/dashboard.js"></script>
 <script src="../js/pages/encyclopedia.js"></script>
 <script src="../js/pages/vehicle-detail.js"></script>
-<script src="../js/pages/scanner.js"></script>
 <script src="../js/pages/garage.js"></script>
 <script src="../js/pages/modifications.js"></script>
 <script src="../js/pages/album.js"></script>

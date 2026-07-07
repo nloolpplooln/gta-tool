@@ -47,13 +47,9 @@ GTA.VehicleCard = (function () {
       '<div class="card-body">' +
         '<div class="card-name" title="' + Utils.escapeHtml(vehicle.name) + '">' + Utils.escapeHtml(vehicle.name) + '</div>' +
         '<div class="card-brand">' + Utils.escapeHtml(vehicle.brand) + ' · ' + Utils.escapeHtml(vehicle.type) + '</div>' +
-        (vehicle.specs && vehicle.specs.drive ? '<div style="font-size:10px;color:var(--color-text-muted);margin-bottom:4px;">' + vehicle.specs.layout + ' · ' + vehicle.specs.drive + '</div>' : '') +
-        '<div class="card-footer" style="display:flex;align-items:center;justify-content:space-between;">' +
+        '<div class="card-footer">' +
           '<span class="card-price">' + Utils.formatCurrency(vehicle.price_buy) + '</span>' +
-          '<span style="display:flex;align-items:center;gap:4px;">' +
-            '<button class="compare-add-btn" data-id="' + vehicle.id + '" title="加入对比" onclick="event.stopPropagation();var added=GTA.CompareList&&GTA.CompareList.add(\'' + vehicle.id + '\');if(added){GTA.Toast.success(\'已加入对比 (\'+GTA.CompareList.get().length+\'/\'+GTA.CompareList.max+\')\');this.disabled=true;this.style.opacity=\'0.5\'}else{GTA.Toast.warning(\'对比已满或已存在\')}">对比</button>' +
-            (isOwned ? '<span class="card-owned-badge">✅</span>' : '') +
-          '</span>' +
+          (isOwned ? '<span class="card-owned-badge">✓</span>' : '') +
         '</div>' +
       '</div>';
 

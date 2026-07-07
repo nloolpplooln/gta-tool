@@ -5,6 +5,34 @@ GTA.Router = (function () {
   var currentRoute = null;
   var currentPage = null;
   var currentController = null;
+  var previousPage = '';
+
+  // All pages get animation — direction by level
+  // Dashboard is home base (slide-down to enter, slide-up to leave)
+  // Encyclopedia is below dashboard
+  // Detail pages (vehicle, mods, album, etc.) are deeper
+  var DETAIL_PAGES = ['vehicle', 'mods', 'album', 'compare', 'colors', 'wiki-colors', 'liveries', 'dlc-timeline', 'plate-creator', 'settings'];
+
+  function getTransitionDir(from, to) {
+    if (!from) return 'fade';
+    if (from === to) return 'fade';
+    // Dashboard ↔ Encyclopedia — vertical
+    if (from === 'dashboard' && to === 'encyclopedia') return 'slide-up';
+    if (from === 'encyclopedia' && to === 'dashboard') return 'slide-down';
+    // From home base going deeper
+    if (from === 'dashboard') return 'slide-left';
+    if (to === 'dashboard') return 'slide-right';
+    // Encyclopedia is a hub — going to detail slides left, coming back slides right
+    if (from === 'encyclopedia') return 'slide-left';
+    if (to === 'encyclopedia') return 'slide-right';
+    // Detail pages — all slide-left going deeper, slide-right going back
+    if (DETAIL_PAGES.indexOf(to) !== -1) return 'slide-left';
+    if (DETAIL_PAGES.indexOf(from) !== -1) return 'slide-right';
+    // Garage ↔ anything
+    if (from === 'garage') return 'slide-right';
+    if (to === 'garage') return 'slide-left';
+    return 'slide-left';
+  }
 
   /**
    * Route definition table
@@ -32,12 +60,6 @@ GTA.Router = (function () {
       page: 'vehicle-detail',
       controller: GTA.VehicleDetail,
       parseParams: function (m) { return { id: m[1] }; }
-    },
-    {
-      pattern: /^#\/scanner$/,
-      page: 'scanner',
-      controller: GTA.Scanner,
-      parseParams: function () { return {}; }
     },
     {
       pattern: /^#\/garage$/,
@@ -185,19 +207,35 @@ GTA.Router = (function () {
           currentController.destroy();
         }
 
-        // Remove previous animations
+        var dir = getTransitionDir(currentPage, route.page);
+        previousPage = currentPage;
+
+        // Apply exit animation to current page
         var allSections = document.querySelectorAll('.page-section');
+        if (currentPage) {
+          var oldSection = document.querySelector('[data-page="' + currentPage + '"]');
+          if (oldSection) {
+            oldSection.classList.add('page-exit-' + dir);
+            oldSection.addEventListener('animationend', function handler() {
+              oldSection.classList.remove('active', 'page-exit-' + dir);
+              oldSection.removeEventListener('animationend', handler);
+            });
+          }
+        }
+        // Clean up any leftover animation classes from other pages
         allSections.forEach(function (s) {
-          s.classList.remove('active', 'page-enter', 'page-exit');
+          if (s.getAttribute('data-page') !== currentPage) {
+            s.classList.remove('page-enter-slide-left', 'page-enter-slide-right', 'page-enter-slide-up', 'page-enter-slide-down', 'page-enter-fade',
+              'page-exit-slide-left', 'page-exit-slide-right', 'page-exit-slide-up', 'page-exit-slide-down', 'page-exit-fade');
+          }
         });
 
         // Show target page with enter animation
         var targetSection = document.querySelector('[data-page="' + route.page + '"]');
         if (targetSection) {
-          targetSection.classList.add('active', 'page-enter');
-          // Clean up animation class after it finishes
+          targetSection.classList.add('active', 'page-enter-' + dir);
           targetSection.addEventListener('animationend', function handler() {
-            targetSection.classList.remove('page-enter');
+            targetSection.classList.remove('page-enter-' + dir);
             targetSection.removeEventListener('animationend', handler);
           });
         }

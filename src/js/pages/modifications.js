@@ -30,6 +30,13 @@ GTA.Modifications = (function () {
         return;
       }
       render();
+      // Back button
+      var backBtn = document.getElementById('mod-back-btn');
+      if (backBtn) {
+        backBtn.onclick = function () {
+          GTA.Router.navigate('vehicle/' + currentVehicleId);
+        };
+      }
     });
   }
 
@@ -131,7 +138,7 @@ GTA.Modifications = (function () {
       if (!items || items.length === 0) continue;
 
       html += '<div class="glass-card" style="margin-top:var(--space-xs);">';
-      html += '<details' + (i < 3 ? ' open' : '') + '>';
+      html += '<details>';
       html += '<summary style="cursor:pointer;font-weight:var(--font-weight-medium);color:var(--color-text-primary);padding:var(--space-xs) var(--space-sm);font-size:var(--font-size-sm);">' +
         Utils.escapeHtml(cat) + ' <span style="font-size:var(--font-size-xs);color:var(--color-text-muted);">(' + items.length + ' 项)</span>' +
       '</summary>';

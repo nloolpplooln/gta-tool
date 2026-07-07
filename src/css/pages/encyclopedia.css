@@ -10,16 +10,16 @@
 
 .encyclopedia-controls .search-input {
   flex: 1;
-  min-width: 200px;
-  max-width: 360px;
+  min-width: 240px;
+  max-width: 480px;
 }
 
 .encyclopedia-controls .search-input input {
   border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.04);
   border: none;
-  padding: 6px 16px 6px 40px;
-  font-size: var(--font-size-caption);
+  padding: 10px 20px 10px 48px;
+  font-size: var(--font-size-base);
   color: var(--color-text-primary);
   transition: background var(--transition-fast);
 }
@@ -86,12 +86,12 @@
 
 .encyclopedia-layout {
   display: flex;
-  gap: var(--space-xl);
+  gap: var(--space-md);
   align-items: flex-start;
 }
 
 .brand-sidebar {
-  width: 90px;
+  width: 64px;
   flex-shrink: 0;
   position: sticky;
   top: 0;
@@ -100,8 +100,8 @@
   overflow-x: visible;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 4px var(--space-sm) 4px 4px;
+  gap: 4px;
+  padding: 2px 2px 2px 2px;
 }
 
 .brand-sidebar::-webkit-scrollbar {
@@ -114,24 +114,28 @@
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   position: relative;
   background: rgba(255, 255, 255, 0.02);
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .brand-item:hover {
-  transform: scale(1.06);
   background: rgba(255, 255, 255, 0.04);
 }
 
 .brand-item.active {
-  outline: 2px solid var(--color-gold);
+  outline: 1.5px solid var(--color-gold);
   outline-offset: 1px;
 }
 
 .brand-item .brand-name {
   display: block;
-  font-size: 10px;
-  color: #ccc;
+  font-size: 9px;
+  color: #999;
   text-align: center;
-  padding: 0 2px 4px;
+  padding: 0 2px 2px;
   line-height: 1.2;
   word-break: keep-all;
 }
@@ -142,18 +146,18 @@
 }
 
 .brand-item img {
-  width: 100%;
+  width: 36px;
+  height: 32px;
   display: block;
   object-fit: contain;
-  padding: 3px 6px;
 }
 
 .brand-item .brand-label {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 44px;
-  font-size: var(--font-size-xs);
+  height: 100%;
+  font-size: 11px;
   color: var(--color-text-secondary);
   padding: 4px;
   text-align: center;
@@ -163,7 +167,7 @@
 /* ===== Type Sidebar ===== */
 
 .type-sidebar {
-  width: 80px;
+  width: 64px;
   flex-shrink: 0;
   position: sticky;
   top: 0;
@@ -172,8 +176,8 @@
   overflow-x: visible;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 4px 4px 4px 4px;
+  gap: 4px;
+  padding: 2px 2px 2px 2px;
 }
 
 .type-item {
@@ -181,32 +185,37 @@
   border-radius: var(--radius-sm);
   transition: transform var(--transition-fast);
   position: relative;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.02);
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .type-item:hover {
-  transform: scale(1.06);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .type-item.active {
-  outline: 2px solid var(--color-gold);
+  outline: 1.5px solid var(--color-gold);
   outline-offset: 1px;
 }
 
 .type-item img {
-  width: 100%;
+  width: 36px;
+  height: 32px;
   display: block;
   object-fit: contain;
-  padding: 3px 6px;
+  filter: invert(1);
 }
 
 .type-item .type-name {
   display: block;
-  font-size: 10px;
-  color: #ccc;
+  font-size: 9px;
+  color: #999;
   text-align: center;
-  padding: 0 2px 4px;
+  padding: 0 2px 2px;
   line-height: 1.2;
   word-break: keep-all;
 }
@@ -220,8 +229,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 44px;
-  font-size: var(--font-size-xs);
+  height: 100%;
+  font-size: 11px;
   color: var(--color-text-secondary);
   padding: 4px;
   text-align: center;
@@ -244,43 +253,39 @@
 
 .vehicle-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: var(--space-lg);
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-md);
 }
 
-/* Vehicle Card — Cover style (Steam Deck / PS Store game cover) */
+/* Vehicle Card — Minimal */
 
 .vehicle-card {
   overflow: hidden;
   cursor: pointer;
   position: relative;
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-secondary);
-  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
-  will-change: transform;
-  transform: translateZ(0);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
 }
 
 .vehicle-card:hover {
-  transform: translateY(-6px) scale(1.03);
-  box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.35),
-    0 0 80px rgba(212, 168, 67, 0.06),
-    0 0 0 1px rgba(212, 168, 67, 0.15);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(212, 168, 67, 0.15);
 }
 
 .card-image {
   width: 100%;
-  height: 220px;
-  background: var(--color-bg-secondary);
+  height: 160px;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   position: relative;
+  z-index: 0;
 }
 
-/* Image blends into card background — no visible borders */
 .card-image-placeholder {
   width: 100%;
   height: 100%;
@@ -288,13 +293,13 @@
   align-items: center;
   justify-content: center;
   color: var(--color-text-muted);
-  font-size: 2.5rem;
+  font-size: 2rem;
+  opacity: 0.35;
 }
 
 .card-image-placeholder svg {
-  width: 56px;
-  height: 56px;
-  opacity: 0.25;
+  width: 40px;
+  height: 40px;
 }
 
 .card-thumb-img {
@@ -304,40 +309,35 @@
   height: 100%;
   object-fit: contain;
   opacity: 0;
-  transition: opacity 400ms var(--ease-soft), transform var(--transition-normal);
+  transition: opacity 300ms;
   z-index: 1;
-}
-
-.vehicle-card:hover .card-thumb-img {
-  transform: scale(1.06);
 }
 
 .card-thumb-img.img-error {
   display: none;
 }
 
-/* Card body — below image */
 .card-body {
   position: relative;
   z-index: 3;
-  padding: var(--space-sm) var(--space-md);
+  padding: var(--space-xs) var(--space-sm) var(--space-sm);
 }
 
 .card-name {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
   color: var(--color-text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  margin-bottom: 2px;
+  margin-bottom: 0;
 }
 
 .card-brand {
-  font-size: var(--font-size-caption);
+  font-size: 10px;
   color: var(--color-text-muted);
-  opacity: 0.7;
-  margin-bottom: var(--space-sm);
+  opacity: 0.6;
+  margin-bottom: var(--space-xs);
 }
 
 .card-footer {
@@ -348,7 +348,7 @@
 }
 
 .card-price {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   color: var(--color-gold);
   font-family: var(--font-mono);
   font-weight: var(--font-weight-medium);
@@ -359,15 +359,12 @@
   color: var(--color-success);
 }
 
-/* Badge container repositioned */
 .card-image .badge-container {
   position: absolute;
-  top: var(--space-sm);
-  left: var(--space-sm);
+  top: var(--space-xs);
+  left: var(--space-xs);
   z-index: 3;
 }
-
-/* No results */
 
 .no-results {
   grid-column: 1 / -1;

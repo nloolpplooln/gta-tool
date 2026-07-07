@@ -6,6 +6,7 @@ GTA.Colors = (function () {
   var allColors = [];
   var activeFilter = 'all';
   var searchQuery = '';
+  var targetColorId = null;
   var lightboxIndex = -1;
   var lightboxItems = [];
 
@@ -35,6 +36,13 @@ GTA.Colors = (function () {
       }
     }
 
+    // Handle id param for direct color navigation
+    if (params && params.id) {
+      targetColorId = parseInt(params.id, 10);
+      activeFilter = 'all';
+      searchQuery = '';
+    }
+
     if (allColors.length === 0) {
       try {
         var resp = await fetch('../../gta-colors.json');
@@ -48,6 +56,21 @@ GTA.Colors = (function () {
 
     render(container);
     ensureCarLightbox();
+
+    // Scroll to target color after render
+    if (targetColorId !== null) {
+      setTimeout(function () {
+        var targetCard = document.querySelector('.color-card[data-color-id="' + targetColorId + '"]');
+        if (targetCard) {
+          targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          targetCard.classList.add('color-card-highlight');
+          setTimeout(function () {
+            targetCard.classList.remove('color-card-highlight');
+          }, 2000);
+        }
+        targetColorId = null;
+      }, 150);
+    }
   }
 
   function getCategories() {
@@ -163,7 +186,7 @@ GTA.Colors = (function () {
     var hasPearl = c.purchase && c.purchase.pearlescent;
     var hasCarImg = !!c.car_image;
 
-    return '<div class="color-card" data-idx="' + idx + '"' + (hasCarImg ? ' title="点击查看上车效果"' : '') + '>' +
+    return '<div class="color-card" data-color-id="' + c.id + '" data-idx="' + idx + '"' + (hasCarImg ? ' title="点击查看上车效果"' : '') + '>' +
       '<div class="' + swatchClass + '" style="' + swatchStyle + '">' +
         '<span class="color-id" style="color:' + (isChameleon ? '#fff' : idTextColor) + ';background:' + (isChameleon ? 'rgba(0,0,0,0.45)' : idBgColor) + ';">' + c.id + '</span>' +
         (hasCarImg ? '<span class="car-img-hint">🔍</span>' : '') +

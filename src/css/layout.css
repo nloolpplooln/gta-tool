@@ -381,11 +381,11 @@
   padding: var(--space-3xl);
   max-width: var(--content-max-width);
   margin: 0 auto;
-  animation: pageEnter 280ms var(--ease-out);
 }
 
 .page-section.active {
   display: block;
+  z-index: 1;
 }
 
 .page-header {

@@ -1,284 +1,164 @@
-/* ===== Share Card Page ===== */
+/* ===== Share Card — Premium Showcase ===== */
 
-.share-page {
-  max-width: 900px;
-  margin: 0 auto;
-}
+.share-page { max-width: 900px; margin: 0 auto; }
 
 .share-controls {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  margin-bottom: var(--space-xl);
-  flex-wrap: wrap;
+  display: flex; align-items: center; gap: var(--space-md);
+  margin-bottom: var(--space-xl); flex-wrap: wrap;
 }
+.share-controls .form-group { flex: 1; min-width: 200px; max-width: 300px; }
 
-.share-controls .form-group {
-  flex: 1;
-  min-width: 200px;
-  max-width: 300px;
-}
-
-/* ===== Share Card Preview ===== */
-
-.share-card-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-bottom: var(--space-xl);
-}
+/* ---- Card Wrapper ---- */
+.share-card-wrapper { display: flex; justify-content: center; margin-bottom: var(--space-xl); }
 
 #share-card-preview {
-  width: 800px;
-  min-height: 500px;
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  position: relative;
-  isolation: isolate;
-  box-shadow: var(--shadow-xl), 0 0 0 1px rgba(212, 168, 67, 0.1);
+  width: 800px; min-height: 500px;
+  border-radius: var(--radius-xl); overflow: hidden;
+  position: relative; isolation: isolate;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(212,168,67,0.08);
+  transition: box-shadow 300ms var(--ease-out), transform 300ms var(--ease-out);
 }
 
 /* ---- Background Layer ---- */
-
 .share-card-bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
+  position: absolute; inset: 0; z-index: 0; overflow: hidden;
   transition: opacity 600ms var(--ease-out);
 }
-
 .share-card-bg.loading { opacity: 0; }
 .share-card-bg.loaded { opacity: 1; }
-
 .share-card-bg-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  width: 100%; height: 100%; object-fit: cover; display: block;
 }
 
 /* ---- Dark Gradient Overlay ---- */
-
 .share-card-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
   background:
-    linear-gradient(135deg, rgba(11, 11, 11, 0.88) 0%, rgba(11, 11, 11, 0.55) 40%, rgba(11, 11, 11, 0.72) 100%),
-    radial-gradient(ellipse at 20% 0%, rgba(212, 168, 67, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 100%, rgba(212, 168, 67, 0.06) 0%, transparent 40%);
-  pointer-events: none;
+    linear-gradient(to bottom, rgba(14,14,14,0.75) 0%, rgba(14,14,14,0.25) 30%, rgba(14,14,14,0.55) 70%, rgba(14,14,14,0.85) 100%),
+    radial-gradient(ellipse at 30% 5%, rgba(212,168,67,0.06) 0%, transparent 50%);
 }
 
 /* ---- Content Layer ---- */
-
 .share-card-inner {
-  position: relative;
-  z-index: 2;
-  padding: var(--space-2xl);
-  display: flex;
-  flex-direction: column;
+  position: relative; z-index: 2;
+  padding: 48px 56px 36px;
+  display: flex; flex-direction: column;
   min-height: 500px;
 }
 
-/* ===== Share Header ===== */
-
-.share-header {
-  text-align: center;
-  margin-bottom: var(--space-xl);
+/* ===== ① Brand / Logo ===== */
+.share-brand {
+  display: flex; align-items: baseline; gap: 12px;
+  margin-bottom: 36px;
+}
+.share-logo {
+  font-size: 13px; font-weight: 700; letter-spacing: 0.15em;
+  color: var(--color-gold); text-transform: uppercase;
+}
+.share-tagline {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.40); text-transform: uppercase;
 }
 
-.share-title {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-gold);
-  letter-spacing: 0.06em;
-  margin-bottom: var(--space-sm);
+/* ===== ② Hero / Title ===== */
+.share-hero { margin-bottom: 32px; }
+.share-hero-title {
+  font-size: 28px; font-weight: 700; color: #FFFFFF;
+  margin: 0 0 4px; letter-spacing: 0.04em; line-height: 1.2;
+}
+.share-hero-sub {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.40); text-transform: uppercase;
+  margin: 0 0 14px;
+}
+.share-hero-player {
+  font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.72);
 }
 
-.share-subtitle {
-  font-size: var(--font-size-caption);
-  color: var(--color-text-secondary);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  opacity: 0.7;
-  margin-bottom: var(--space-md);
+/* ===== ③ 2×2 Stats Grid ===== */
+.share-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; margin-bottom: 24px;
+}
+.share-grid-card {
+  background: rgba(21,21,21,0.55);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px; padding: 20px 22px;
+  transition: transform 240ms var(--ease-out), box-shadow 240ms var(--ease-out);
+}
+.share-grid-card:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+.share-grid-icon { font-size: 20px; margin-bottom: 8px; opacity: 0.6; }
+.share-grid-value {
+  display: block; font-size: 44px; font-weight: 800; line-height: 1;
+  color: #FFFFFF; margin-bottom: 6px;
+}
+.share-grid-label {
+  font-size: 13px; font-weight: 500;
+  color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.04em;
 }
 
-.share-player {
-  font-size: var(--font-size-lg);
-  color: var(--color-text-primary);
-  margin-top: var(--space-sm);
-  font-weight: var(--font-weight-semibold);
+/* ===== ④ Progress Bar ===== */
+.share-progress-wrap {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 28px;
 }
-
-.share-player span {
-  color: var(--color-gold-light);
-}
-
-/* ===== Stats — Hero number first ===== */
-
-.share-stats {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-xl);
-  margin-bottom: var(--space-xl);
-}
-
-.share-stat-hero {
-  text-align: center;
-}
-
-.share-stat-primary {
-  font-size: 4rem;
-  font-weight: var(--font-weight-bold);
-  color: var(--color-gold);
-  display: block;
-  line-height: 1;
-  text-shadow: var(--glow-text);
-}
-
-.share-stat-progress {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  justify-content: center;
-  margin-top: var(--space-sm);
-}
-
 .share-progress-bar {
-  width: 120px;
-  height: 3px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-full);
-  overflow: hidden;
+  flex: 1; height: 4px; background: rgba(255,255,255,0.06);
+  border-radius: 2px; overflow: hidden;
 }
-
 .share-progress-fill {
-  height: 100%;
-  background: var(--color-gold);
-  border-radius: var(--radius-full);
-  transition: width 600ms var(--ease-out);
+  height: 100%; background: var(--color-gold); border-radius: 2px;
+  transition: width 600ms var(--ease-out); width: 0%;
+}
+.share-progress-label {
+  font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.50);
+  white-space: nowrap; min-width: 72px; text-align: right;
 }
 
-.share-progress-text {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  opacity: 0.7;
+/* ===== ⑤ Footer ===== */
+.share-footer { margin-top: auto; }
+.share-footer-divider {
+  display: block; height: 1px;
+  background: linear-gradient(to right, transparent, rgba(212,168,67,0.18), transparent);
+  margin-bottom: 16px;
 }
-
-.share-stat-row {
-  display: flex;
-  gap: var(--space-xl-plus);
-}
-
-.share-stat-item {
-  text-align: center;
-  padding: var(--space-lg) var(--space-xl);
-  background: rgba(24, 24, 24, 0.7);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-radius: var(--radius-lg);
-}
-
-.share-stat-value {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-gold);
-  display: block;
-  line-height: 1.2;
-}
-
-.share-stat-label {
-  font-size: var(--font-size-caption);
-  color: var(--color-text-muted);
-  opacity: 0.7;
-  margin-top: var(--space-xs);
-}
-
-/* ===== Card Footer ===== */
-
-.share-footer {
-  margin-top: auto;
-  text-align: center;
-  padding-top: var(--space-lg);
-  border-top: 1px solid rgba(212, 168, 67, 0.12);
-}
-
 .share-footer-text {
-  font-size: var(--font-size-caption);
-  color: var(--color-text-muted);
-  opacity: 0.7;
+  font-size: 11px; color: rgba(255,255,255,0.35); text-align: center; margin: 0;
 }
+.share-footer-text strong { color: rgba(255,255,255,0.55); font-weight: 600; }
 
-.share-footer-text span {
-  color: var(--color-gold);
-  font-weight: var(--font-weight-semibold);
-}
-
-/* ===== Star Rating ===== */
-
-.star-rating {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-xs);
-  margin-top: var(--space-sm);
-}
-
-.star-rating .star {
-  font-size: var(--font-size-xl);
-  color: var(--color-text-muted);
-  opacity: 0.3;
-}
-
-.star-rating .star.filled {
-  color: var(--color-gold);
-  opacity: 1;
-}
-
-/* ===== Download & Refresh Buttons ===== */
-
-.share-download {
-  text-align: center;
-  margin-top: var(--space-xl);
-  display: flex;
-  gap: var(--space-md);
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-/* ===== Wallpaper Refresh Button ===== */
-
+/* ===== Refresh Wallpaper Button ===== */
 .share-card-refresh {
-  position: absolute;
-  bottom: var(--space-md);
-  right: var(--space-md);
-  z-index: 10;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-full);
-  background: rgba(11, 11, 11, 0.7);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border: 1px solid rgba(212, 168, 67, 0.15);
+  position: absolute; bottom: 16px; right: 16px; z-index: 10;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: rgba(14,14,14,0.65);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(212,168,67,0.12);
   color: var(--color-gold);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
-  opacity: 0;
-  pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+  opacity: 0; pointer-events: none;
+}
+#share-card-preview:hover .share-card-refresh { opacity: 1; pointer-events: auto; }
+.share-card-refresh:hover { border-color: var(--color-gold); background: rgba(21,21,21,0.9); }
+
+/* ===== Download Area ===== */
+.share-download { text-align: center; margin-top: var(--space-xl); display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap; }
+
+/* ===== Animations ===== */
+.share-card-fade-in { animation: shareCardFadeIn 400ms var(--ease-out); }
+@keyframes shareCardFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-#share-card-preview:hover .share-card-refresh {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.share-card-refresh:hover {
-  border-color: var(--color-gold);
-  background: rgba(24, 24, 24, 0.85);
-  transform: rotate(30deg);
-}
+/* ===== Download mode — hide controls ===== */
+body.share-downloading .share-controls,
+body.share-downloading .share-download { display: none !important; }
+body.share-downloading .share-card-wrapper { margin-bottom: 0; }

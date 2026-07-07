@@ -15,6 +15,7 @@ const MIME = {
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.webp': 'image/webp',
+  '.bmp': 'image/bmp',
   '.wasm': 'application/wasm',
   '.traineddata': 'application/octet-stream',
   '.ico': 'image/x-icon',
@@ -367,8 +368,19 @@ http.createServer(async (req, res) => {
     return;
   }
 
-  // Static file serving
-  let filePath = path.join(ROOT, pathname);
+  // Static file serving — redirect custom-bg video/image to userData
+  var filePath;
+  if (pathname.indexOf('/assets/bg-img/') === 0) {
+    var osImg = require('os');
+    var userDataImg = process.env.USER_DATA || path.join(osImg.homedir(), 'AppData', 'Roaming', 'VaultGTA');
+    filePath = path.join(userDataImg, 'bg-image', path.basename(pathname));
+  } else if (pathname.indexOf('custom-bg') !== -1) {
+    var os = require('os');
+    var userData = process.env.USER_DATA || path.join(os.homedir(), 'AppData', 'Roaming', 'VaultGTA');
+    filePath = path.join(userData, 'bg-video', path.basename(pathname));
+  } else {
+    filePath = path.join(ROOT, pathname);
+  }
   if (filePath.endsWith('/')) filePath = path.join(filePath, 'index.html');
 
   const ext = path.extname(filePath).toLowerCase();

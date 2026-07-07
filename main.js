@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, desktopCapturer, screen, Menu, session, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, session, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
@@ -7,7 +7,6 @@ const SteamProfile = require('./src/main/steam-profile');
 const RockstarProfile = require('./src/main/rockstar-profile');
 
 let mainWindow = null;
-let overlayWindow = null;
 let serverProcess = null;
 
 const PORT = 3000;
@@ -93,7 +92,7 @@ function startServer() {
     var serverPath = path.join(__dirname, 'server.js');
     serverProcess = require('child_process').fork(serverPath, [], {
       silent: true,
-      env: Object.assign({}, process.env, { ELECTRON_RUN: '1' })
+      env: Object.assign({}, process.env, { ELECTRON_RUN: '1', USER_DATA: app.getPath('userData') })
     });
     serverProcess.stdout.on('data', function (data) {
       var msg = data.toString();
@@ -218,102 +217,122 @@ ipcMain.handle('app:getPath', () => {
   return app.getPath('userData');
 });
 
-// ===== Overlay Window =====
+// ===== Custom Background Video =====
 
-ipcMain.handle('overlay:open', async () => {
-  if (overlayWindow && !overlayWindow.isDestroyed()) {
-    overlayWindow.focus();
-    return true;
-  }
-  overlayWindow = new BrowserWindow({
-    width: 400,
-    height: 500,
-    x: 100,
-    y: 100,
-    transparent: true,
-    frame: false,
-    alwaysOnTop: true,
-    resizable: true,
-    skipTaskbar: true,
-    hasShadow: false,
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
-      contextIsolation: true,
-      nodeIntegration: false
-    }
+const BG_VIDEO_DIR = path.join(app.getPath('userData'), 'bg-video');
+const BG_VIDEO_FILE = 'custom-bg';
+
+// Select a video file and copy to userData/bg-video/
+ipcMain.handle('bg:selectVideo', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: '选择背景视频',
+    filters: [
+      { name: '视频文件', extensions: ['mp4', 'webm', 'mov', 'mkv', 'avi'] }
+    ],
+    properties: ['openFile']
   });
-  overlayWindow.loadFile(path.join(__dirname, 'garage-scanner-overlay.html'));
-  overlayWindow.setAlwaysOnTop(true, 'screen-saver');
-  overlayWindow.setVisibleOnAllWorkspaces(true);
-  return true;
-});
 
-ipcMain.handle('overlay:close', () => {
-  if (overlayWindow && !overlayWindow.isDestroyed()) {
-    overlayWindow.close();
-  }
-  overlayWindow = null;
-  return true;
-});
+  if (result.canceled || !result.filePaths.length) return null;
 
-ipcMain.handle('overlay:getBounds', () => {
-  if (overlayWindow && !overlayWindow.isDestroyed()) {
-    return overlayWindow.getBounds();
-  }
-  return null;
-});
+  const srcPath = result.filePaths[0];
+  const ext = path.extname(srcPath);
+  const destPath = path.join(BG_VIDEO_DIR, BG_VIDEO_FILE + ext);
 
-// ===== Screen Capture =====
+  if (!fs.existsSync(BG_VIDEO_DIR)) fs.mkdirSync(BG_VIDEO_DIR, { recursive: true });
 
-ipcMain.handle('capture:screen', async () => {
-  if (!overlayWindow || overlayWindow.isDestroyed()) return null;
+  // Remove any existing custom video
   try {
-    const bounds = overlayWindow.getBounds();
-    const primaryDisplay = screen.getPrimaryDisplay();
-    const { width, height } = primaryDisplay.size;
+    const existing = fs.readdirSync(BG_VIDEO_DIR).filter(f => f.startsWith(BG_VIDEO_FILE));
+    for (const f of existing) {
+      fs.unlinkSync(path.join(BG_VIDEO_DIR, f));
+    }
+  } catch (e) { /* ignore */ }
 
-    // Get full screen thumbnail
-    const sources = await desktopCapturer.getSources({
-      types: ['screen'],
-      thumbnailSize: { width, height }
-    });
-
-    if (!sources.length) return null;
-
-    var img = sources[0].thumbnail;
-    var imgSize = img.getSize();
-    var scaleX = imgSize.width / width;
-    var scaleY = imgSize.height / height;
-
-    // Return full PNG + crop rect — cropping done in renderer via browser Canvas
-    return {
-      dataUrl: img.toDataURL(),
-      imgWidth: imgSize.width,
-      imgHeight: imgSize.height,
-      cropX: Math.round(bounds.x * scaleX),
-      cropY: Math.round(bounds.y * scaleY),
-      cropW: Math.round(bounds.width * scaleX),
-      cropH: Math.round(bounds.height * scaleY)
-    };
-  } catch (e) {
-    console.error('[Capture] Error:', e);
-    return null;
-  }
+  fs.copyFileSync(srcPath, destPath);
+  return '/assets/video/' + BG_VIDEO_FILE + ext;
 });
 
-// ===== Keyboard Simulation (Windows PowerShell SendKeys) =====
+// Get current background video URL
+ipcMain.handle('bg:getVideoPath', async () => {
+  try {
+    const files = fs.readdirSync(BG_VIDEO_DIR).filter(f => f.startsWith(BG_VIDEO_FILE));
+    if (!files.length) return null;
+    return '/assets/video/' + files[0];
+  } catch (e) { return null; }
+});
 
-ipcMain.handle('key:send', async (_event, key, count) => {
-  return new Promise((resolve) => {
-    const cnt = count || 1;
-    const keyMap = { DOWN: 'DOWN', UP: 'UP', LEFT: 'LEFT', RIGHT: 'RIGHT', ENTER: 'ENTER', TAB: 'TAB', ESC: 'ESC' };
-    const vk = keyMap[key] || key;
-    const cmd = `powershell -Command "Add-Type -AssemblyName System.Windows.Forms; $w = New-Object -ComObject wscript.shell; for($i=0; $i -lt ${cnt}; $i++) { [System.Windows.Forms.SendKeys]::SendWait('{${vk}}'); Start-Sleep -Milliseconds 120 }"`;
-    exec(cmd, (err) => {
-      if (err) console.error('[SendKeys] Error:', err.message);
-      resolve(true);
-    });
+// Remove custom background video
+ipcMain.handle('bg:removeVideo', async () => {
+  try {
+    const files = fs.readdirSync(BG_VIDEO_DIR).filter(f => f.startsWith(BG_VIDEO_FILE));
+    for (const f of files) {
+      fs.unlinkSync(path.join(BG_VIDEO_DIR, f));
+    }
+  } catch (e) { /* ignore */ }
+});
+
+// ===== Custom Background Image =====
+
+const BG_IMG_DIR = path.join(app.getPath('userData'), 'bg-image');
+const BG_IMG_FILE = 'custom-bg-img';
+
+ipcMain.handle('bg:selectImage', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: '选择背景图片',
+    filters: [{ name: '图片文件', extensions: ['jpg', 'jpeg', 'png', 'webp', 'bmp'] }],
+    properties: ['openFile']
   });
+  if (result.canceled || !result.filePaths.length) return null;
+
+  const srcPath = result.filePaths[0];
+  const ext = path.extname(srcPath);
+  const destPath = path.join(BG_IMG_DIR, BG_IMG_FILE + ext);
+
+  if (!fs.existsSync(BG_IMG_DIR)) fs.mkdirSync(BG_IMG_DIR, { recursive: true });
+
+  try {
+    const existing = fs.readdirSync(BG_IMG_DIR).filter(f => f.startsWith(BG_IMG_FILE));
+    for (const f of existing) fs.unlinkSync(path.join(BG_IMG_DIR, f));
+  } catch (e) { /* ignore */ }
+
+  // Also clear video to avoid conflict
+  try {
+    const videoFiles = fs.readdirSync(BG_VIDEO_DIR).filter(f => f.startsWith(BG_VIDEO_FILE));
+    for (const f of videoFiles) fs.unlinkSync(path.join(BG_VIDEO_DIR, f));
+  } catch (e) { /* ignore */ }
+
+  fs.copyFileSync(srcPath, destPath);
+  return '/assets/bg-img/' + BG_IMG_FILE + ext;
+});
+
+ipcMain.handle('bg:getImagePath', async () => {
+  try {
+    const files = fs.readdirSync(BG_IMG_DIR).filter(f => f.startsWith(BG_IMG_FILE));
+    if (!files.length) return null;
+    return '/assets/bg-img/' + files[0];
+  } catch (e) { return null; }
+});
+
+ipcMain.handle('bg:removeImage', async () => {
+  try {
+    const files = fs.readdirSync(BG_IMG_DIR).filter(f => f.startsWith(BG_IMG_FILE));
+    for (const f of files) fs.unlinkSync(path.join(BG_IMG_DIR, f));
+  } catch (e) { /* ignore */ }
+});
+
+// ===== Preset Backgrounds =====
+
+ipcMain.handle('bg:setPreset', async (_event, presetId) => {
+  // Clear both video and image custom backgrounds
+  try {
+    const vFiles = fs.readdirSync(BG_VIDEO_DIR).filter(f => f.startsWith(BG_VIDEO_FILE));
+    for (const f of vFiles) fs.unlinkSync(path.join(BG_VIDEO_DIR, f));
+  } catch (e) {}
+  try {
+    const iFiles = fs.readdirSync(BG_IMG_DIR).filter(f => f.startsWith(BG_IMG_FILE));
+    for (const f of iFiles) fs.unlinkSync(path.join(BG_IMG_DIR, f));
+  } catch (e) {}
+  return presetId;
 });
 
 // ===== Steam / Rockstar Profile Detection =====

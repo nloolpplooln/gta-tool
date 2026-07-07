@@ -151,3 +151,29 @@
   color: var(--color-text-muted);
   opacity: 0.7;
 }
+
+/* ---- Background Presets ---- */
+
+.bg-preset-grid {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.bg-preset-item {
+  width: 72px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.bg-preset-item:hover {
+  transform: scale(1.08);
+}
+
+.bg-preset-item.active {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 12px rgba(212, 168, 67, 0.25);
+}

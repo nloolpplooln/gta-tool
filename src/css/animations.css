@@ -12,6 +12,49 @@
   to   { opacity: 0; transform: translateY(-10px); }
 }
 
+/* Direction-specific page transitions */
+
+@keyframes slideLeftIn {
+  from { opacity: 0; transform: translateX(60px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideLeftOut {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(-40px); }
+}
+@keyframes slideRightIn {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideRightOut {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(60px); }
+}
+@keyframes slideUpIn {
+  from { opacity: 0; transform: translateY(80px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUpOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-30px); }
+}
+@keyframes slideDownIn {
+  from { opacity: 0; transform: translateY(-40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideDownOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(60px); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
 @keyframes fadeInScale {
   from { opacity: 0; transform: scale(0.96); }
   to   { opacity: 1; transform: scale(1); }
@@ -114,14 +157,37 @@
   border-radius: var(--radius-md);
 }
 
-/* Page transition — 280ms, slightly slower than 220ms interactive */
+/* Page transition — 280ms, direction-aware */
 
-.page-enter {
-  animation: pageEnter 280ms var(--ease-out);
+.page-enter-fade {
+  animation: fadeIn 240ms var(--ease-out);
 }
-
-.page-exit {
-  animation: pageExit 280ms var(--ease-out) forwards;
+.page-exit-fade {
+  animation: fadeOut 240ms var(--ease-out) forwards;
+}
+.page-enter-slide-left {
+  animation: slideLeftIn 260ms var(--ease-out);
+}
+.page-exit-slide-left {
+  animation: slideLeftOut 260ms var(--ease-out) forwards;
+}
+.page-enter-slide-right {
+  animation: slideRightIn 260ms var(--ease-out);
+}
+.page-exit-slide-right {
+  animation: slideRightOut 260ms var(--ease-out) forwards;
+}
+.page-enter-slide-up {
+  animation: slideUpIn 280ms var(--ease-out);
+}
+.page-exit-slide-up {
+  animation: slideUpOut 280ms var(--ease-out) forwards;
+}
+.page-enter-slide-down {
+  animation: slideDownIn 280ms var(--ease-out);
+}
+.page-exit-slide-down {
+  animation: slideDownOut 280ms var(--ease-out) forwards;
 }
 
 /* Staggered entrance — Framer Motion style */

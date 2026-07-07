@@ -50,6 +50,9 @@ GTA.App = (function () {
       // 7. Auto-detect Steam name & R* avatar (non-blocking)
       detectProfileInfo();
 
+      // 8. Init background video (custom or default)
+      initBackground();
+
       GTA.log('[App] Bootstrap complete!');
 
     } catch (err) {
@@ -149,6 +152,131 @@ GTA.App = (function () {
       GTA.Toast.warning('R* 检测异常: ' + (e.message || e));
     }
   }
+
+  /**
+   * Load custom background (video, image, or preset) + saved brightness
+   */
+  async function initBackground() {
+    var api = window.electronAPI;
+    var video = document.getElementById('bg-video');
+    var img = document.getElementById('bg-image');
+
+    // Load saved brightness
+    try {
+      await GTA.db.ready();
+      var entry = await GTA.db.settings.get('bgBrightness');
+      if (entry && entry.value && GTA.Settings && GTA.Settings.applyBgBrightness) {
+        GTA.Settings.applyBgBrightness(entry.value);
+      }
+    } catch (e) {}
+
+    // Load saved preset
+    try {
+      var presetEntry = await GTA.db.settings.get('bgPreset');
+      if (presetEntry && presetEntry.value) {
+        applyPreset(presetEntry.value);
+        return;
+      }
+    } catch (e) {}
+
+    if (api) {
+      // Try image first (takes precedence over video)
+      try {
+        var imgUrl = await api.getBackgroundImagePath();
+        if (imgUrl && img) {
+          img.style.backgroundImage = 'url(' + imgUrl + ')';
+          img.style.display = 'block';
+          if (video) video.style.display = 'none';
+          return;
+        }
+      } catch (e) {}
+
+      try {
+        var videoUrl = await api.getBackgroundVideoPath();
+        if (videoUrl && video) {
+          video.src = videoUrl;
+          video.style.display = 'block';
+          if (img) img.style.display = 'none';
+          video.load();
+          return;
+        }
+      } catch (e) {
+        console.warn('[App] Failed to load custom video:', e.message);
+      }
+    }
+
+    // No custom background — hide both, CSS background shows
+    if (video) video.style.display = 'none';
+    if (img) img.style.display = 'none';
+  }
+
+  // Preset definitions (CSS-based, no external files needed)
+  var PRESETS = {
+    'default': 'linear-gradient(135deg, #0d0d1a 0%, #141428 50%, #0f0f1e 100%)',
+    'ocean': 'linear-gradient(135deg, #0a1428 0%, #0f1f3d 40%, #0c1a30 100%)',
+    'sunset': 'linear-gradient(135deg, #1e1410 0%, #2a1a18 40%, #1a1310 100%)',
+    'forest': 'linear-gradient(135deg, #0d1410 0%, #16241a 50%, #0e1612 100%)',
+    'midnight': 'linear-gradient(135deg, #100d1e 0%, #1a1030 50%, #120e22 100%)'
+  };
+
+  function applyPreset(presetId) {
+    var gradient = PRESETS[presetId] || PRESETS['default'];
+    var video = document.getElementById('bg-video');
+    var img = document.getElementById('bg-image');
+    if (video) video.style.display = 'none';
+    if (img) {
+      img.style.backgroundImage = gradient;
+      img.style.display = 'block';
+    }
+  }
+
+  // Expose for settings page to refresh after selection
+  GTA.BackgroundVideo = {
+    setVideo: function (url) {
+      var video = document.getElementById('bg-video');
+      var img = document.getElementById('bg-image');
+      if (!video) return;
+      if (img) img.style.display = 'none';
+      video.src = url;
+      video.style.display = 'block';
+      video.load();
+    },
+    resetVideo: function () {
+      var video = document.getElementById('bg-video');
+      var img = document.getElementById('bg-image');
+      if (!video) return;
+      video.removeAttribute('src');
+      video.style.display = 'none';
+      // Restore to default preset
+      applyPreset('default');
+    },
+    setImage: function (url) {
+      var video = document.getElementById('bg-video');
+      var img = document.getElementById('bg-image');
+      if (!img) return;
+      if (video) video.style.display = 'none';
+      img.style.backgroundImage = 'url(' + url + ')';
+      img.style.display = 'block';
+    },
+    resetImage: function () {
+      var img = document.getElementById('bg-image');
+      if (img) img.style.display = 'none';
+      applyPreset('default');
+    },
+    setPreset: function (presetId) {
+      applyPreset(presetId);
+      // Save to DB
+      GTA.db.ready().then(function () {
+        GTA.db.settings.put({ key: 'bgPreset', value: presetId });
+      });
+    },
+    clearPreset: function () {
+      GTA.db.ready().then(function () {
+        GTA.db.settings.delete('bgPreset');
+      });
+    },
+    PRESETS: PRESETS
+  };
 
   function showError(message) {
     var content = document.getElementById('app-content');
