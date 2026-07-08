@@ -56,8 +56,8 @@ GTA.Settings = (function () {
       '<h3>云端同步</h3>' +
       '<p style="color:var(--color-text-muted);margin-bottom:var(--space-md)" id="cloud-status">请先登录后使用云端功能</p>' +
       '<div class="settings-row">' +
-        '<button class="btn btn-primary" id="btn-cloud-upload">上传到云端</button>' +
-        '<button class="btn btn-secondary" id="btn-cloud-download">从云端下载</button>' +
+        '<button class="btn btn-primary" id="btn-cloud-upload" onclick="GTA.Settings._cloudUpload()">上传到云端</button>' +
+        '<button class="btn btn-secondary" id="btn-cloud-download" onclick="GTA.Settings._cloudDownload()">从云端下载</button>' +
       '</div>' +
       '<p class="text-muted" style="margin-top:var(--space-sm)">上传将推送本地数据到云端，下载将云端数据合并到本地。</p>' +
     '</div>';
@@ -116,7 +116,7 @@ GTA.Settings = (function () {
       '<h2 class="settings-brand-name">VaultGTA</h2>' +
       '<p class="settings-slogan">GTA Online 载具收藏管理工具</p>' +
       '<p class="settings-meta">收录 <strong>' + vehicleCount + '</strong> 款载具 &nbsp;·&nbsp; 版本 <span id="about-version">v' + (GTA.APP_VERSION || '10.27.0') + '</span></p>' +
-      '<p class="settings-meta">数据来源 antwen.cn / xiaoheihe.cn</p>' +
+      '<p class="settings-meta">数据来源：GTA V 游戏文件 &amp; GTA Wiki &amp; antwen.cn &amp; xiaoheihe.cn</p>' +
       '<p class="settings-author">by oolpploo &nbsp;·&nbsp; <a href="https://github.com/oolpploo/VaultGTA" target="_blank">GitHub</a> &nbsp;·&nbsp; 2453133436@qq.com</p>' +
     '</div>';
   }
@@ -126,7 +126,7 @@ GTA.Settings = (function () {
     return '<div class="settings-card">' +
       '<h3>关于 VaultGTA</h3>' +
       '<p>GTA Online 载具收藏管理工具，收录 <strong>' + vehicleCount + '</strong> 款载具的完整数据。</p>' +
-      '<p>数据来源：antwen.cn（中文GTA数据库）、小黑盒 GTA5 百科 (xiaoheihe.cn)</p>' +
+      '<p>数据来源：GTA V 游戏文件（车辆颜色/性能）、GTA Wiki（交通默认色）、antwen.cn（中文数据库）、小黑盒 GTA5 百科 (xiaoheihe.cn)</p>' +
       '<p>作者：GTA玩家 oolpploo</p>' +
       '<p class="text-muted">联系：2453133436@qq.com</p>' +
       '<p class="text-muted">版本 <span id="about-version">v' + (GTA.APP_VERSION || '10.27.0') + '</span></p>' +
@@ -596,6 +596,31 @@ GTA.Settings = (function () {
     }
   }
 
+  function bindTheme() {
+    var items = document.querySelectorAll('.theme-preset-item');
+    if (!items.length) return;
+    // Sync active state from saved theme
+    GTA.db.ready().then(function () {
+      return GTA.db.settings.get('theme');
+    }).then(function (entry) {
+      var current = (entry && entry.value) ? entry.value : 'black-gold';
+      items.forEach(function (el) {
+        el.classList.toggle('active', el.getAttribute('data-theme') === current);
+      });
+    }).catch(function () {});
+    items.forEach(function (item) {
+      item.addEventListener('click', function () {
+        var theme = this.getAttribute('data-theme');
+        if (!theme) return;
+        items.forEach(function (el) { el.classList.remove('active'); });
+        this.classList.add('active');
+        if (GTA.Theme && GTA.Theme.apply) {
+          GTA.Theme.apply(theme);
+        }
+      });
+    });
+  }
+
   function bindButtons() {
     var btnSaveName = document.getElementById('btn-save-name');
     if (btnSaveName) btnSaveName.addEventListener('click', savePlayerName);
@@ -620,11 +645,6 @@ GTA.Settings = (function () {
 
     bindUpdate();
     bindTheme();
-
-    var btnUpload = document.getElementById('btn-cloud-upload');
-    var btnDownload = document.getElementById('btn-cloud-download');
-    if (btnUpload) btnUpload.addEventListener('click', function () { GTA.SupabaseService.upload(); });
-    if (btnDownload) btnDownload.addEventListener('click', function () { GTA.SupabaseService.download(); });
 
     var btnSelectBg = document.getElementById('btn-select-bg-video');
     var btnResetBg = document.getElementById('btn-reset-bg-video');
@@ -829,5 +849,21 @@ GTA.Settings = (function () {
 
   function destroy() {}
 
-  return { init: init, destroy: destroy, applyBgBrightness: applyBgBrightness };
+  function _cloudUpload() {
+    if (!GTA.AuthService || !GTA.AuthService.isLoggedIn()) {
+      GTA.Toast.warning('请先登录后再使用云同步');
+      return;
+    }
+    GTA.SupabaseService.upload();
+  }
+
+  function _cloudDownload() {
+    if (!GTA.AuthService || !GTA.AuthService.isLoggedIn()) {
+      GTA.Toast.warning('请先登录后再使用云同步');
+      return;
+    }
+    GTA.SupabaseService.download();
+  }
+
+  return { init: init, destroy: destroy, applyBgBrightness: applyBgBrightness, _cloudUpload: _cloudUpload, _cloudDownload: _cloudDownload };
 })();

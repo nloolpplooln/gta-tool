@@ -7,6 +7,9 @@ GTA.Encyclopedia = (function () {
   var ownedSet = new Set();
   var currentBrand = '';
   var currentType = '';
+  var PAGE_SIZE = 48;
+  var allFiltered = [];
+  var showingCount = 0;
 
   // Type → icon mapping
   var TYPE_ICONS = {
@@ -151,7 +154,13 @@ GTA.Encyclopedia = (function () {
     });
   }
 
-  function destroy() {}
+  function destroy() {
+    // Clean up EventBus listeners
+    if (_onVehicleAdded)   { GTA.EventBus.off('vehicle:added', _onVehicleAdded); _onVehicleAdded = null; }
+    if (_onVehicleRemoved) { GTA.EventBus.off('vehicle:removed', _onVehicleRemoved); _onVehicleRemoved = null; }
+    if (_onCatalogLoaded)  { GTA.EventBus.off('catalog:loaded', _onCatalogLoaded); _onCatalogLoaded = null; }
+    if (_onDiscontinued)   { GTA.EventBus.off('catalog:discontinued', _onDiscontinued); _onDiscontinued = null; }
+  }
 
   function buildBrandSidebar() {
     var sidebar = document.getElementById('brand-sidebar');
@@ -296,28 +305,65 @@ GTA.Encyclopedia = (function () {
     var grid = document.getElementById('vehicle-grid');
     if (!grid) return;
 
+    // Reset pagination
+    allFiltered = vehicles;
+    showingCount = 0;
+
     if (vehicles.length === 0) {
       grid.innerHTML = '<div class="no-results">没有找到匹配的载具</div>';
       return;
     }
 
     grid.innerHTML = '';
-    vehicles.forEach(function (vehicle) {
-      var isOwned = ownedSet.has(vehicle.id);
-      var card = GTA.VehicleCard.render(vehicle, isOwned);
-      grid.appendChild(card);
-    });
+    appendVehicleBatch(grid, PAGE_SIZE);
   }
 
-  GTA.EventBus.on('vehicle:added', function () { renderCards(); });
-  GTA.EventBus.on('vehicle:removed', function () { renderCards(); });
-  GTA.EventBus.on('catalog:loaded', function () {
+  function appendVehicleBatch(grid, count) {
+    var start = showingCount;
+    var end = Math.min(start + count, allFiltered.length);
+    var fragment = document.createDocumentFragment();
+    for (var i = start; i < end; i++) {
+      var vehicle = allFiltered[i];
+      var isOwned = ownedSet.has(vehicle.id);
+      fragment.appendChild(GTA.VehicleCard.render(vehicle, isOwned));
+    }
+    grid.appendChild(fragment);
+    showingCount = end;
+
+    // Remove old load-more button
+    var oldBtn = document.getElementById('load-more-btn');
+    if (oldBtn) oldBtn.remove();
+
+    // Add load-more button if more vehicles remain
+    if (showingCount < allFiltered.length) {
+      var remaining = allFiltered.length - showingCount;
+      var btn = document.createElement('button');
+      btn.id = 'load-more-btn';
+      btn.className = 'btn btn-secondary load-more-btn';
+      btn.textContent = '加载更多 (' + remaining + ' 辆剩余)';
+      btn.addEventListener('click', function () {
+        appendVehicleBatch(grid, PAGE_SIZE);
+      });
+      grid.parentNode.insertBefore(btn, grid.nextSibling);
+    }
+  }
+
+  var _onVehicleAdded, _onVehicleRemoved, _onCatalogLoaded, _onDiscontinued;
+
+  _onVehicleAdded = function () { renderCards(); };
+  _onVehicleRemoved = function () { renderCards(); };
+  _onCatalogLoaded = function () {
     GTA.FilterBar.refresh();
     buildBrandSidebar();
     buildTypeSidebar();
     renderCards();
-  });
-  GTA.EventBus.on('catalog:discontinued', function () { renderCards(); });
+  };
+  _onDiscontinued = function () { renderCards(); };
+
+  GTA.EventBus.on('vehicle:added', _onVehicleAdded);
+  GTA.EventBus.on('vehicle:removed', _onVehicleRemoved);
+  GTA.EventBus.on('catalog:loaded', _onCatalogLoaded);
+  GTA.EventBus.on('catalog:discontinued', _onDiscontinued);
 
   return { init: init, destroy: destroy };
 })();

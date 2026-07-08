@@ -159,7 +159,8 @@
 .detail-content-below {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-lg) var(--space-xl);
+  gap: var(--space-sm) var(--space-xl);
+  align-items: flex-start;
 }
 
 .detail-content-below .detail-full-width {
@@ -198,14 +199,14 @@
 /* Performance bars */
 
 .performance-section {
-  margin-bottom: var(--space-lg);
+  margin-bottom: 6px;
 }
 
 .performance-section h3 {
   font-size: var(--font-size-caption);
   color: var(--color-text-muted);
   opacity: 0.7;
-  margin-bottom: var(--space-md);
+  margin-bottom: 4px;
   font-weight: var(--font-weight-medium);
 }
 
@@ -492,3 +493,147 @@
   text-overflow: ellipsis;
 }
 
+/* ===== FIX: 消除「伊玛尼改装项」→「改装选项」垂直空白 =====
+   用 #vehicle-detail-content 前缀 + !important 最高优先级覆盖 */
+
+/* Grid: 取消 stretch(左栏不再被右栏撑高) + 行间距缩到6px */
+#vehicle-detail-content .detail-content-below {
+  align-items: flex-start !important;
+  row-gap: 6px !important;
+}
+
+/* 内联 margin-top 覆盖（原 style="margin-top:var(--space-lg)" = 24px）*/
+#vehicle-detail-content .performance-section[style*="margin-top"] {
+  margin-top: 0 !important;
+}
+
+/* 全宽直系子块（改装选项/涂装/截图）：零margin-top + 微padding缓冲 */
+#vehicle-detail-content .detail-content-below > .performance-section {
+  margin-top: 0 !important;
+  padding-top: 6px !important;
+}
+
+/* ===== 车辆详情页整体紧凑优化 ===== */
+
+/* 页面外层padding：64px → 20px */
+[data-page="vehicle-detail"].page-section {
+  padding: var(--space-md) var(--space-md) !important;
+}
+
+/* 大图：缩小高度 */
+#vehicle-detail-content .detail-hero-image {
+  height: 50vh !important;
+  min-height: 360px !important;
+  margin-bottom: var(--space-sm) !important;
+}
+
+/* 标题信息栏：收紧 */
+#vehicle-detail-content .detail-hero-info {
+  padding-bottom: 6px !important;
+  margin-bottom: var(--space-sm) !important;
+}
+#vehicle-detail-content .detail-hero-info .detail-hero-price {
+  margin-bottom: 0 !important;
+}
+
+/* 左侧/右侧列间距 */
+#vehicle-detail-content .detail-content-below {
+  column-gap: var(--space-md) !important;
+}
+
+/* 所有performance-section标题 */
+#vehicle-detail-content .performance-section h3 {
+  margin-bottom: 2px !important;
+}
+#vehicle-detail-content .performance-section {
+  margin-bottom: 4px !important;
+}
+
+/* 快速链接 */
+#vehicle-detail-content .detail-quick-links {
+  margin-top: var(--space-sm) !important;
+}
+
+/* 底部layout间距归零 */
+#vehicle-detail-content.detail-layout {
+  margin-bottom: 0 !important;
+}
+
+/* ===== 默认颜色（游戏文件提取）===== */
+.default-colors {
+  margin-top: var(--space-sm);
+}
+.data-source {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  opacity: 0.5;
+  margin-left: var(--space-sm);
+}
+.default-color-table {
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.default-color-header {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 1px;
+  background: rgba(255,255,255,0.03);
+  padding: 6px 8px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+.default-color-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 1px;
+  border-top: 1px solid rgba(255,255,255,0.03);
+}
+.default-color-swatch {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+  border-right: 1px solid rgba(255,255,255,0.02);
+  position: relative;
+  text-align: center;
+  padding: 0 4px;
+}
+.default-color-swatch[data-nav] { cursor: pointer; }
+.default-color-swatch[data-nav]:hover {
+  transform: scale(1.05);
+  z-index: 1;
+  box-shadow: 0 0 8px rgba(0,0,0,0.3);
+}
+.default-swatch-label {
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.1;
+  text-align: center;
+  word-break: keep-all;
+}
+.default-color-empty {
+  background: rgba(255,255,255,0.02) !important;
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+.default-color-rare {
+  border: 1px solid var(--color-gold) !important;
+  box-shadow: inset 0 0 12px rgba(212,168,67,0.15);
+}
+.default-rare-tag {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: var(--color-gold);
+  color: #0B0B0B;
+  font-size: 8px;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+}

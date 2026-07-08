@@ -1,14 +1,14 @@
 {
   "name": "vault-gta",
-  "version": "10.31.0",
+  "version": "10.32.0",
   "description": "VaultGTA - GTA Online Vehicle Collection Tracker",
   "main": "main.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
     "electron": "electron .",
-    "build": "electron-builder",
-    "build:win": "electron-builder --win"
+    "build": "electron-builder && node scripts/cleanup-build.js",
+    "build:win": "electron-builder --win && node scripts/cleanup-build.js"
   },
   "author": "VaultGTA",
   "license": "MIT",
@@ -16,8 +16,7 @@
     "@supabase/supabase-js": "^2.110.0",
     "dexie": "^4.0.8",
     "electron-updater": "^6.8.9",
-    "html2canvas": "^1.4.1",
-    "tesseract.js": "^5.1.1"
+    "html2canvas": "^1.4.1"
   },
   "devDependencies": {
     "electron": "42.4.0",
@@ -46,6 +45,8 @@
       "vehicle-blacklist.json",
       "vehicle-parts-restrictions.json",
       "street-car-models.json",
+      "traffic-default-colors.json",
+      "rare-color-ids.json",
       "assets/liveries.pdf",
       "assets/**/*",
       "garage-scanner-overlay.html",
@@ -54,13 +55,15 @@
       "magic-link.html",
       "installer/setup.html",
       "installer/setup-preload.js",
-      "node_modules/**/*"
+      "node_modules/**/*",
+      "!**/*.map",
+      "!**/*.ts",
+      "!**/*.md",
+      "!**/LICENSE*",
+      "!**/CHANGELOG*"
     ],
     "win": {
-      "target": [
-        "nsis",
-        "portable"
-      ],
+      "target": ["nsis","portable"],
       "icon": "assets/icons/app-icon.png"
     },
     "npmRebuild": false,

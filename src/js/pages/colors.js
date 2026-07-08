@@ -4,6 +4,7 @@ window.GTA = window.GTA || {};
 GTA.Colors = (function () {
   var Utils = GTA.Utils;
   var allColors = [];
+  var rareColorIds = new Set();
   var activeFilter = 'all';
   var searchQuery = '';
   var targetColorId = null;
@@ -54,13 +55,23 @@ GTA.Colors = (function () {
       }
     }
 
+    if (rareColorIds.size === 0) {
+      try {
+        var resp = await fetch('../../rare-color-ids.json');
+        var ids = await resp.json();
+        rareColorIds = new Set(ids);
+      } catch (e) {}
+    }
+
     render(container);
     ensureCarLightbox();
 
-    // Scroll to target color after render
+    // Scroll to target color after render (only once, with guard)
     if (targetColorId !== null) {
+      var scrollTarget = targetColorId;
+      targetColorId = null; // Clear immediately to prevent re-trigger
       setTimeout(function () {
-        var targetCard = document.querySelector('.color-card[data-color-id="' + targetColorId + '"]');
+        var targetCard = document.querySelector('.color-card[data-color-id="' + scrollTarget + '"]');
         if (targetCard) {
           targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
           targetCard.classList.add('color-card-highlight');
@@ -68,8 +79,7 @@ GTA.Colors = (function () {
             targetCard.classList.remove('color-card-highlight');
           }, 2000);
         }
-        targetColorId = null;
-      }, 150);
+      }, 300); // Increased delay for DOM stability
     }
   }
 
@@ -207,9 +217,11 @@ GTA.Colors = (function () {
     var hasPearl = c.purchase && c.purchase.pearlescent;
     var hasCarImg = !!c.car_image;
 
-    return '<div class="color-card" data-color-id="' + c.id + '" data-idx="' + idx + '"' + (hasCarImg ? ' title="点击查看上车效果"' : '') + '>' +
+    var isRare = rareColorIds.has(c.id);
+    return '<div class="color-card' + (isRare ? ' color-card-rare' : '') + '" data-color-id="' + c.id + '" data-idx="' + idx + '"' + (hasCarImg ? ' title="点击查看上车效果"' : '') + '>' +
       '<div class="' + swatchClass + '" style="' + swatchStyle + '">' +
         '<span class="color-id" style="color:' + (isChameleon ? '#fff' : idTextColor) + ';background:' + (isChameleon ? 'rgba(0,0,0,0.45)' : idBgColor) + ';">' + c.id + '</span>' +
+        (isRare ? '<span class="rare-badge">稀有</span>' : '') +
         (hasCarImg ? '<span class="car-img-hint">🔍</span>' : '') +
       '</div>' +
       '<div class="color-info">' +

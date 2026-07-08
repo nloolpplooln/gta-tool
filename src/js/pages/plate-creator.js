@@ -62,8 +62,26 @@ GTA.PlateCreator = (function() {
   }
 
   function destroy() {
-    if (renderer3d) { try { renderer3d.dispose(); } catch(e){} renderer3d = null; }
-    scene3d = null; camera3d = null; plateMesh = null; plateTex = null;
+    // Clean up window event listeners
+    if (_onMouseMove) { window.removeEventListener('mousemove', _onMouseMove); _onMouseMove = null; }
+    if (_onMouseUp)   { window.removeEventListener('mouseup', _onMouseUp); _onMouseUp = null; }
+    if (_onResize)    { window.removeEventListener('resize', _onResize); _onResize = null; }
+    // Dispose WebGL resources
+    if (plateTex) { try { plateTex.dispose(); } catch(e){} plateTex = null; }
+    if (plateMesh && plateMesh.material) {
+      try {
+        if (plateMesh.material.map) plateMesh.material.map.dispose();
+        plateMesh.material.dispose();
+      } catch(e){}
+    }
+    if (renderer3d) {
+      try { renderer3d.dispose(); } catch(e){}
+      if (renderer3d.domElement && renderer3d.domElement.parentNode) {
+        renderer3d.domElement.parentNode.removeChild(renderer3d.domElement);
+      }
+      renderer3d = null;
+    }
+    scene3d = null; camera3d = null; plateMesh = null;
     inited = false; loadedImgs = {}; selIdx = 0; _tries = 0;
     if (animFrame3d) { cancelAnimationFrame(animFrame3d); animFrame3d = null; }
   }
@@ -191,6 +209,8 @@ GTA.PlateCreator = (function() {
 
   /* ===== 3D (Three.js, optional) ===== */
   var renderer3d, scene3d, camera3d, plateMesh, plateTex, animFrame3d;
+  var _onMouseMove = null, _onMouseUp = null, _onResize = null;
+  var _dragging3d = false, _px3d = 0, _py3d = 0;
   var _tries = 0;
 
   function try3D() {
@@ -256,26 +276,26 @@ GTA.PlateCreator = (function() {
       scene3d.add(plateMesh);
 
       // Mouse drag
-      var dragging = false, px = 0, py = 0;
       var dom = renderer3d.domElement;
-      dom.addEventListener('mousedown', function(e) { dragging = true; px = e.clientX; py = e.clientY; });
-      window.addEventListener('mousemove', function(e) {
-        if (!dragging || !plateMesh) return;
-        plateMesh.rotation.y += (e.clientX - px) * 0.005;
-        plateMesh.rotation.x += (e.clientY - py) * 0.005;
-        // Clamp: prevent flipping past front-facing view
+      dom.addEventListener('mousedown', function(e) { _dragging3d = true; _px3d = e.clientX; _py3d = e.clientY; });
+      _onMouseMove = function(e) {
+        if (!_dragging3d || !plateMesh) return;
+        plateMesh.rotation.y += (e.clientX - _px3d) * 0.005;
+        plateMesh.rotation.x += (e.clientY - _py3d) * 0.005;
         plateMesh.rotation.y = Math.max(-1.2, Math.min(1.2, plateMesh.rotation.y));
         plateMesh.rotation.x = Math.max(-1.0, Math.min(1.0, plateMesh.rotation.x));
-        px = e.clientX; py = e.clientY;
-      });
-      window.addEventListener('mouseup', function() { dragging = false; });
-
-      window.addEventListener('resize', function() {
+        _px3d = e.clientX; _py3d = e.clientY;
+      };
+      _onMouseUp = function() { _dragging3d = false; };
+      _onResize = function() {
         if (!renderer3d || !el3d) return;
         var w2 = el3d.clientWidth, h2 = el3d.clientHeight;
         renderer3d.setSize(w2, h2);
         camera3d.aspect = w2/h2; camera3d.updateProjectionMatrix();
-      });
+      };
+      window.addEventListener('mousemove', _onMouseMove);
+      window.addEventListener('mouseup', _onMouseUp);
+      window.addEventListener('resize', _onResize);
 
       function loop() {
         animFrame3d = requestAnimationFrame(loop);

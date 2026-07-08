@@ -117,6 +117,14 @@
 
   /* ===== LAYOUT ===== */
   --sidebar-width: clamp(90px, 9vw, 130px);
+  --content-max-width: 1200px;
+  --header-height: 60px;
+
+  /* ===== Z-INDEX ===== */
+  --z-sidebar: 100;
+  --z-modal: 200;
+  --z-toast: 300;
+  --z-loading: 400;
 }
 
 /* ===== THEME: Los Santos Blue ===== */
@@ -128,6 +136,17 @@
   --color-gold-subtle: rgba(59, 125, 216, 0.06);
   --color-glass-border: rgba(59, 125, 216, 0.10);
   --color-glass-border-hover: rgba(59, 125, 216, 0.30);
+  --color-accent-common: #2a6dc8;
+  --color-accent-rare: #3b7dd8;
+  --color-accent-legendary: #4b8de8;
+  --color-info: #3b7dd8;
+  --color-sidebar-border: rgba(59, 125, 216, 0.06);
+  --color-sidebar-hover: rgba(59, 125, 216, 0.04);
+  --color-sidebar-active: rgba(59, 125, 216, 0.10);
+  --shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(59, 125, 216, 0.12);
+  --shadow-gold: 0 0 40px rgba(59, 125, 216, 0.08);
+  --glow-soft: 0 0 80px rgba(59, 125, 216, 0.04);
+  --glow-text: 0 0 48px rgba(59, 125, 216, 0.1);
 }
 
 /* ===== THEME: Liberty City Purple ===== */
@@ -139,12 +158,15 @@
   --color-gold-subtle: rgba(139, 59, 216, 0.06);
   --color-glass-border: rgba(139, 59, 216, 0.10);
   --color-glass-border-hover: rgba(139, 59, 216, 0.30);
-  --content-max-width: 1200px;
-  --header-height: 60px;
-
-  /* ===== Z-INDEX ===== */
-  --z-sidebar: 100;
-  --z-modal: 200;
-  --z-toast: 300;
-  --z-loading: 400;
+  --color-accent-common: #7b2bc8;
+  --color-accent-rare: #8b3bd8;
+  --color-accent-legendary: #9b4be8;
+  --color-info: #8b3bd8;
+  --color-sidebar-border: rgba(139, 59, 216, 0.06);
+  --color-sidebar-hover: rgba(139, 59, 216, 0.04);
+  --color-sidebar-active: rgba(139, 59, 216, 0.10);
+  --shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(139, 59, 216, 0.12);
+  --shadow-gold: 0 0 40px rgba(139, 59, 216, 0.08);
+  --glow-soft: 0 0 80px rgba(139, 59, 216, 0.04);
+  --glow-text: 0 0 48px rgba(139, 59, 216, 0.1);
 }

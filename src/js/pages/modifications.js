@@ -58,10 +58,13 @@ GTA.Modifications = (function () {
         '<h2>' + Utils.escapeHtml(v.name) + '</h2>' +
       '</div>' +
 
-      // --- Cosmetic form (collapsed by default) ---
-      '<div class="mod-form glass-card" style="margin-top:var(--space-md);">' +
+      // --- Catalog modifications (tabs) — top priority ---
+      (hasCatMods ? renderCatalogMods(v) : '<div class="glass-card" style="margin-top:0;padding:var(--space-md);text-align:center;color:var(--color-text-muted);">该车辆暂无改装选项数据</div>') +
+
+      // --- Cosmetic form (collapsed) ---
+      '<div class="mod-form glass-card" style="margin-top:0;">' +
         '<details>' +
-          '<summary style="cursor:pointer;font-weight:var(--font-weight-semibold);color:var(--color-text-primary);padding:var(--space-xs) 0;font-size:var(--font-size-sm);">外观记录（颜色/涂装）</summary>' +
+          '<summary style="cursor:pointer;font-weight:var(--font-weight-semibold);color:var(--color-text-primary);padding:2px 0;font-size:var(--font-size-sm);">外观记录（颜色/涂装）</summary>' +
           '<div style="margin-top:var(--space-sm);">' +
             '<div class="mod-section">' +
               '<div class="mod-section-title">外观颜色</div>' +
@@ -90,11 +93,8 @@ GTA.Modifications = (function () {
         '</details>' +
       '</div>' +
 
-      // --- Catalog modifications checkboxes ---
-      (hasCatMods ? renderCatalogMods(v) : '<div class="glass-card" style="margin-top:var(--space-md);padding:var(--space-md);text-align:center;color:var(--color-text-muted);">该车辆暂无改装选项数据</div>') +
-
       // --- Extra cost + total + save ---
-      '<div class="mod-form glass-card" style="margin-top:var(--space-md);display:flex;gap:var(--space-sm);align-items:center;flex-wrap:wrap;">' +
+      '<div class="mod-form glass-card" style="margin-top:0;display:flex;gap:var(--space-sm);align-items:center;flex-wrap:wrap;">' +
         '<div class="form-group" style="margin:0;flex:1;min-width:140px;">' +
           '<label class="form-label" style="font-size:var(--font-size-xs);">额外花费</label>' +
           '<input type="number" class="form-input" id="mod-extra-cost" value="0" min="0" step="1000" style="text-align:right;">' +
@@ -107,7 +107,7 @@ GTA.Modifications = (function () {
       '</div>' +
 
       // --- History ---
-      '<div class="mod-history" style="margin-top:var(--space-lg);">' +
+      '<div class="mod-history" style="margin-top:var(--space-md);">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-sm);">' +
           '<h3 style="margin:0;">改装历史</h3>' +
           '<span style="font-size:var(--font-size-sm);color:var(--color-text-muted);">累计: <strong id="mod-history-total" style="color:var(--color-success);">$0</strong></span>' +
@@ -122,6 +122,17 @@ GTA.Modifications = (function () {
       container.querySelectorAll('.mod-radio').forEach(function (cb) {
         cb.addEventListener('change', updateTotal);
       });
+      // Tab switching
+      container.querySelectorAll('.mod-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          var idx = this.getAttribute('data-tab');
+          container.querySelectorAll('.mod-tab').forEach(function (t) { t.classList.remove('active'); });
+          container.querySelectorAll('.mod-tab-panel').forEach(function (p) { p.classList.remove('active'); });
+          this.classList.add('active');
+          var panel = container.querySelector('.mod-tab-panel[data-tab="' + idx + '"]');
+          if (panel) panel.classList.add('active');
+        });
+      });
     }
 
     updateTotal();
@@ -130,33 +141,41 @@ GTA.Modifications = (function () {
 
   function renderCatalogMods(v) {
     var categories = Object.keys(v.modifications);
-    var html = '';
+    var html = '<div class="glass-card mod-tabs-card" style="margin-top:0;padding:0;">';
 
+    // Tab bar
+    html += '<div class="mod-tab-bar">';
+    for (var i = 0; i < categories.length; i++) {
+      var cat = categories[i];
+      var items = v.modifications[cat];
+      if (!items || items.length === 0) continue;
+      html += '<button class="mod-tab' + (i === 0 ? ' active' : '') + '" data-tab="' + i + '">' +
+        Utils.escapeHtml(cat) + '</button>';
+    }
+    html += '</div>';
+
+    // Tab panels
     for (var i = 0; i < categories.length; i++) {
       var cat = categories[i];
       var items = v.modifications[cat];
       if (!items || items.length === 0) continue;
 
-      html += '<div class="glass-card" style="margin-top:var(--space-xs);">';
-      html += '<details>';
-      html += '<summary style="cursor:pointer;font-weight:var(--font-weight-medium);color:var(--color-text-primary);padding:var(--space-xs) var(--space-sm);font-size:var(--font-size-sm);">' +
-        Utils.escapeHtml(cat) + ' <span style="font-size:var(--font-size-xs);color:var(--color-text-muted);">(' + items.length + ' 项)</span>' +
-      '</summary>';
-
-      html += '<div style="padding:0 var(--space-sm) var(--space-xs);">';
+      html += '<div class="mod-tab-panel' + (i === 0 ? ' active' : '') + '" data-tab="' + i + '">';
       for (var j = 0; j < items.length; j++) {
         var m = items[j];
         var isStock = m.name === '无';
         var priceStr = m.price > 0 ? '$' + Number(m.price).toLocaleString('en-US') : '免费';
 
-        html += '<label style="display:flex;align-items:center;gap:var(--space-sm);padding:5px 0;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.03);font-size:var(--font-size-xs);">' +
-          '<input type="radio" class="mod-radio" name="mod-cat-' + i + '" data-category="' + Utils.escapeHtml(cat) + '" data-name="' + Utils.escapeHtml(m.name) + '" data-price="' + (m.price || 0) + '" style="accent-color:var(--color-gold);flex-shrink:0;">' +
-          '<span style="flex:1;color:' + (isStock ? 'var(--color-text-muted)' : 'var(--color-text-secondary)') + ';">' + (isStock ? '无（原厂）' : Utils.escapeHtml(m.name)) + '</span>' +
-          '<span style="color:var(--color-gold);font-weight:var(--font-weight-medium);min-width:60px;text-align:right;">' + priceStr + '</span>' +
+        html += '<label class="mod-option">' +
+          '<input type="radio" class="mod-radio" name="mod-cat-' + i + '" data-category="' + Utils.escapeHtml(cat) + '" data-name="' + Utils.escapeHtml(m.name) + '" data-price="' + (m.price || 0) + '">' +
+          '<span class="mod-option-name' + (isStock ? ' mod-option-stock' : '') + '">' + (isStock ? '原厂' : Utils.escapeHtml(m.name)) + '</span>' +
+          '<span class="mod-option-price">' + priceStr + '</span>' +
         '</label>';
       }
-      html += '</div></details></div>';
+      html += '</div>';
     }
+
+    html += '</div>';
     return html;
   }
 

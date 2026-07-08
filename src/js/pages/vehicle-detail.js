@@ -9,6 +9,9 @@ GTA.VehicleDetail = (function () {
   var blacklistData = null;
   var partsRestrictData = null;
   var streetCarColorsData = null;
+  var defaultColorsData = null;
+  var gtaColorsMap = {}; // hex → {id, name_cn, name_en}
+  var rareColorIds = new Set();
 
   async function loadDataFiles() {
     try {
@@ -23,6 +26,28 @@ GTA.VehicleDetail = (function () {
       var resp = await fetch('../../street-car-colors.json');
       streetCarColorsData = await resp.json();
     } catch (e) { streetCarColorsData = []; }
+    try {
+      var resp = await fetch('../../traffic-default-colors.json');
+      defaultColorsData = await resp.json();
+    } catch (e) { defaultColorsData = {}; }
+    // Build hex→color lookup
+    try {
+      var resp = await fetch('../../gta-colors.json');
+      var cd = await resp.json();
+      (cd.colors || []).forEach(function (c) {
+        if (c.hex && c.hex.startsWith('#')) {
+          gtaColorsMap[c.hex.toUpperCase()] = {
+            id: c.id, name_cn: c.name_cn || '', name_en: c.name_en || ''
+          };
+        }
+      });
+    } catch (e) {}
+    // Load rare color IDs
+    try {
+      var resp = await fetch('../../rare-color-ids.json');
+      var ids = await resp.json();
+      rareColorIds = new Set(ids);
+    } catch (e) {}
   }
 
   // Safe render wrapper — catches errors in optional render blocks
@@ -65,6 +90,36 @@ GTA.VehicleDetail = (function () {
   async function render() {
     var container = document.getElementById('vehicle-detail-content');
     if (!container || !currentVehicle) return;
+
+    // ── Force spacing fix: 用JS测量右栏高度，计算需要的负边距 ──
+    var fixStyleId = 'vd-gap-fix';
+    var oldFix = document.getElementById(fixStyleId);
+    if (oldFix) oldFix.remove();
+
+    // Phase 1: base fixes
+    var fixStyle = document.createElement('style');
+    fixStyle.id = fixStyleId;
+    fixStyle.textContent = [
+      '#vehicle-detail-content .detail-content-below { align-items: flex-start !important; row-gap: 0px !important; }',
+      '#vehicle-detail-content .detail-content-below > div:first-child > .performance-section:last-child { margin-bottom: 0px !important; }',
+      '#vehicle-detail-content .detail-content-below > .performance-section { margin-top: 0px !important; padding-top: 6px !important; }'
+    ].join('\n');
+    document.head.appendChild(fixStyle);
+
+    // Phase 2: pull full-width blocks up — measure gap, apply negative margin
+    setTimeout(function () {
+      var grid = container.querySelector('.detail-content-below');
+      if (!grid) return;
+      var leftCol = grid.children[0];
+      var modsBlock = grid.querySelector(':scope > .performance-section');
+      if (!leftCol || !modsBlock) return;
+      var leftBottom = leftCol.getBoundingClientRect().bottom;
+      var modsTop = modsBlock.getBoundingClientRect().top;
+      var gap = modsTop - leftBottom;
+      if (gap > 30) {
+        modsBlock.style.setProperty('margin-top', '-' + Math.round(gap - 8) + 'px', 'important');
+      }
+    }, 100);
 
     var v = currentVehicle;
 
@@ -193,10 +248,49 @@ GTA.VehicleDetail = (function () {
 
     // Fetch Xiaoheihe rich data
     fetchXiaoheiheData();
+
+    // ── Spacing fix: 强制收紧「伊玛尼改装项」→「改装选项」垂直间距 ──
+    (function fixVerticalGap() {
+      var grid = container.querySelector('.detail-content-below');
+      if (!grid) return;
+
+      // 1. Grid: flex-start + 收紧row-gap
+      grid.style.setProperty('align-items', 'flex-start', 'important');
+      grid.style.setProperty('row-gap', '4px', 'important');
+      grid.style.setProperty('grid-auto-rows', 'auto', 'important');
+
+      // 2. Grid所有直系子元素: 杀min-height + 清除margin
+      Array.from(grid.children).forEach(function (child) {
+        child.style.setProperty('min-height', 'auto', 'important');
+        child.style.setProperty('margin-top', '0px', 'important');
+        child.style.setProperty('margin-bottom', '0px', 'important');
+      });
+
+      // 3. 左栏内部: 杀高度 + 每个section收紧
+      var leftCol = grid.firstElementChild;
+      if (leftCol) {
+        leftCol.style.setProperty('min-height', 'auto', 'important');
+        leftCol.style.setProperty('height', 'auto', 'important');
+        var leftSections = leftCol.querySelectorAll('.performance-section');
+        leftSections.forEach(function (s, i) {
+          s.style.setProperty('margin-top', '0px', 'important');
+          s.style.setProperty('margin-bottom', (i === leftSections.length - 1) ? '-12px' : '4px', 'important');
+        });
+      }
+
+      // 4. 全宽改装选项: 负margin-top拉近 + 微padding防贴死
+      var fullWidthSections = grid.querySelectorAll(':scope > .performance-section');
+      fullWidthSections.forEach(function (s, i) {
+        if (i === 0) {
+          s.style.setProperty('margin-top', '-8px', 'important');
+          s.style.setProperty('padding-top', '8px', 'important');
+        }
+      });
+    })();
   }
 
   function renderSpecsTable(specs) {
-    var html = '<div class="performance-section" style="margin-top:var(--space-lg);">';
+    var html = '<div class="performance-section">';
     html += '<h3>详细规格</h3>';
     html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-sm) var(--space-xl);">';
 
@@ -214,7 +308,7 @@ GTA.VehicleDetail = (function () {
   }
 
   function renderReleaseInfo(release) {
-    var html = '<div class="performance-section" style="margin-top:var(--space-lg);">';
+    var html = '<div class="performance-section">';
     html += '<h3>推出信息</h3>';
     html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-sm) var(--space-xl);">';
 
@@ -233,7 +327,7 @@ GTA.VehicleDetail = (function () {
   }
 
   function renderUpgrades(upgrades) {
-    var html = '<div class="performance-section" style="margin-top:var(--space-lg);">';
+    var html = '<div class="performance-section">';
     html += '<h3>支持升级</h3>';
     html += '<div style="display:flex;flex-wrap:wrap;gap:var(--space-xs);">';
     upgrades.forEach(function (u) {
@@ -244,7 +338,7 @@ GTA.VehicleDetail = (function () {
   }
 
   function renderImaniTech(imani) {
-    var html = '<div class="performance-section" style="margin-top:var(--space-lg);">';
+    var html = '<div class="performance-section">';
     html += '<h3 style="color:var(--color-gold);">伊玛尼改装项</h3>';
     html += '<div style="display:flex;flex-wrap:wrap;gap:var(--space-xs);">';
     imani.forEach(function (t) {
@@ -279,7 +373,7 @@ GTA.VehicleDetail = (function () {
 
   function renderArmorBlock(v) {
     if (!v.armor && !v.explosion_resistance && !v.missile_protection) return '';
-    var html = '<div class="performance-section" style="margin-top:var(--space-lg);">';
+    var html = '<div class="performance-section">';
     html += '<h3>防护信息</h3>';
     html += '<div style="display:flex;flex-wrap:wrap;gap:var(--space-sm);align-items:center;">';
 
@@ -333,7 +427,7 @@ GTA.VehicleDetail = (function () {
 
   function renderBasedOnBlock(v) {
     if (!v.based_on) return '';
-    var html = '<div class="performance-section" style="margin-top:var(--space-lg);">';
+    var html = '<div class="performance-section">';
     html += '<h3>真实车型</h3>';
     html += '<p style="color:var(--color-text-secondary);font-size:var(--font-size-sm);margin:0;">' + Utils.escapeHtml(v.based_on) + '</p>';
     if (v.based_on_sc && v.based_on_sc !== v.based_on) {
@@ -353,7 +447,7 @@ GTA.VehicleDetail = (function () {
     var displayTags = activeTags.filter(function (t) { return !skipTags[t]; });
     if (displayTags.length === 0) return '';
 
-    var html = '<div class="performance-section" style="margin-top:var(--space-lg);">';
+    var html = '<div class="performance-section">';
     html += '<h3>载具标签</h3>';
     html += '<div style="display:flex;flex-wrap:wrap;gap:var(--space-xs);">';
     displayTags.forEach(function (tag) {
@@ -368,7 +462,7 @@ GTA.VehicleDetail = (function () {
     if (!v.modifications || Object.keys(v.modifications).length === 0) return '';
 
     var categories = Object.keys(v.modifications);
-    var html = '<div class="performance-section" style="margin-top:var(--space-lg);">';
+    var html = '<div class="performance-section">';
     html += '<h3>改装选项 (' + categories.length + ' 类)</h3>';
 
     for (var i = 0; i < categories.length; i++) {
@@ -408,7 +502,7 @@ GTA.VehicleDetail = (function () {
     var model = (v.model_name || '').toLowerCase();
     var baseUrl = 'https://cdn-gta-images.antwen.cn/';
 
-    var html = '<div class="performance-section" style="margin-top:var(--space-lg);">';
+    var html = '<div class="performance-section">';
     html += '<h3>涂装 (' + (v.liveries.length - 1) + ' 款)</h3>';
 
     var showCount = Math.min(v.liveries.length, 12);
@@ -450,7 +544,7 @@ GTA.VehicleDetail = (function () {
     }
     if (urls.length === 0) return '';
 
-    var html = '<div class="performance-section" style="margin-top:var(--space-lg);">';
+    var html = '<div class="performance-section">';
     html += '<h3>多角度截图 (' + urls.length + ')</h3>';
     html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-sm);">';
     for (var i = 0; i < urls.length; i++) {
@@ -795,6 +889,15 @@ GTA.VehicleDetail = (function () {
       }
     }
 
+    // Traffic default colors (from game files)
+    if (defaultColorsData && currentVehicle.model_name) {
+      var key = currentVehicle.model_name.toLowerCase();
+      var def = defaultColorsData[key];
+      if (def && def.colors && def.colors.length > 0) {
+        extra.push(renderDefaultColors(def.colors));
+      }
+    }
+
     if (extra.length === 0) return;
 
     // Append after detail-content-below
@@ -812,7 +915,7 @@ GTA.VehicleDetail = (function () {
   }
 
   function renderPartsRestrictions(parts) {
-    var html = '<div class="performance-section" style="margin-top:var(--space-lg);">' +
+    var html = '<div class="performance-section">' +
       '<h3>隐藏配件位 (' + parts.total_slots + ' 槽位)</h3>';
     html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;">';
     parts.restrictions.forEach(function (r) {
@@ -869,6 +972,62 @@ GTA.VehicleDetail = (function () {
     setTimeout(function () {
       document.querySelectorAll('.color-cell[data-nav]').forEach(function (cell) {
         cell.addEventListener('click', function () {
+          var nav = this.getAttribute('data-nav');
+          if (nav) GTA.Router.navigate(nav);
+        });
+      });
+    }, 100);
+
+    return html;
+  }
+
+  function renderDefaultColors(colors) {
+    var labels = ['主色', '副色', '珠光', '轮毂', '内饰', '装饰'];
+    var keys = ['primary', 'secondary', 'pearlescent', 'wheel', 'trim', 'accent'];
+    var activeCols = keys.filter(function(k) {
+      return colors.some(function(r) { return !!r[k]; });
+    });
+
+    var html = '<div class="default-colors">' +
+      '<div class="performance-section"><h3>默认颜色 (' + colors.length + ' 种)</h3>' +
+      '<span class="data-source">数据来源：GTA V 游戏文件 &amp; GTA Wiki</span></div>' +
+      '<div class="default-color-table">' +
+        '<div class="default-color-header">' +
+          activeCols.map(function (k) {
+            return '<span>' + labels[keys.indexOf(k)] + '</span>';
+          }).join('') +
+        '</div>';
+
+    colors.forEach(function (row) {
+      html += '<div class="default-color-row">';
+      activeCols.forEach(function (k) {
+        var hex = row[k];
+        if (hex) {
+          var upper = hex.toUpperCase();
+          var info = gtaColorsMap[upper];
+          var displayName = info && info.name_cn ? info.name_cn : hex;
+          var colorId = info ? info.id : '';
+          var isRare = info && rareColorIds.has(info.id);
+          var textColor = isLightColor(hex) ? '#0B0B0B' : '#e8e8e8';
+          var nav = colorId !== '' ? ' data-nav=\"colors?id=' + colorId + '\"' : '';
+          html += '<div class=\"default-color-swatch' + (isRare ? ' default-color-rare' : '') + '\" style=\"background:' + hex + ';\" title=\"' +
+            (info ? info.name_en + ' (ID:' + colorId + ')' + (isRare ? ' 稀有' : '') : hex) + '\"' + nav + '>' +
+            '<span class=\"default-swatch-label\" style=\"color:' + textColor + ';\">' + Utils.escapeHtml(displayName) + '</span>' +
+            (isRare ? '<span class=\"default-rare-tag\">稀有</span>' : '') +
+          '</div>';
+        } else {
+          html += '<div class=\"default-color-swatch default-color-empty\">-</div>';
+        }
+      });
+      html += '</div>';
+    });
+
+    html += '</div></div>';
+
+    // Bind click events for color swatches
+    setTimeout(function () {
+      document.querySelectorAll('.default-color-swatch[data-nav]').forEach(function (el) {
+        el.addEventListener('click', function () {
           var nav = this.getAttribute('data-nav');
           if (nav) GTA.Router.navigate(nav);
         });

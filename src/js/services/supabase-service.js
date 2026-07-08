@@ -83,6 +83,15 @@ GTA.SupabaseService = (function () {
         user_id: uid,
         garage_id: g.id,
         name: g.name,
+        location: g.location || '',
+        property_name: g.propertyName || '',
+        property_category: g.propertyCategory || '',
+        property_type: g.propertyType || '',
+        slot_count: g.slotCount || 0,
+        floors: Array.isArray(g.floors) ? g.floors.length : (g.floors || 1),
+        floor: g.floor || 1,
+        enabled: g.enabled !== false,
+        slot_index: g.slotIndex || 0,
         sort_order: g.sortOrder || 0,
         created_at: g.createdAt || Date.now(),
         synced_at: Date.now()
@@ -143,15 +152,28 @@ GTA.SupabaseService = (function () {
       if (!cid) continue;
 
       var existing = await GTA.db.garages.get(cid);
+      var fields = {
+        name: cg.name,
+        location: cg.location || '',
+        propertyName: cg.property_name || '',
+        propertyCategory: cg.property_category || '',
+        propertyType: cg.property_type || '',
+        slotCount: cg.slot_count || 0,
+        floors: cg.floors || 1,
+        floor: cg.floor || 1,
+        enabled: cg.enabled !== false,
+        slotIndex: cg.slot_index || 0,
+        sortOrder: cg.sort_order || 0,
+        syncedAt: cg.synced_at
+      };
       if (existing) {
         if (cg.synced_at && (!existing.syncedAt || cg.synced_at > existing.syncedAt)) {
-          await GTA.db.garages.update(cid, { name: cg.name, sortOrder: cg.sort_order || 0 });
+          await GTA.db.garages.update(cid, fields);
         }
       } else {
-        await GTA.db.garages.put({
-          id: cid, name: cg.name, sortOrder: cg.sort_order || 0,
-          createdAt: cg.created_at || Date.now()
-        });
+        fields.id = cid;
+        fields.createdAt = cg.created_at || Date.now();
+        await GTA.db.garages.put(fields);
       }
 
       // Pull garage vehicles
@@ -369,7 +391,8 @@ GTA.SupabaseService = (function () {
   // ==================== PUBLIC API ====================
 
   async function upload() {
-    if (!uid) { GTA.Toast.error('请先登录'); return; }
+    if (!uid) { try { GTA.Toast.warning('请先登录后再使用云同步'); } catch(e) { console.error(e); } return; }
+    if (!sb) { try { GTA.Toast.error('云服务未初始化，请重新登录'); } catch(e) { console.error(e); } return; }
     try {
       GTA.EventBus.emit('sync:loading', { action: 'upload', status: 'started' });
       await Promise.all([

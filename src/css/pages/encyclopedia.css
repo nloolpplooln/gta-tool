@@ -372,3 +372,11 @@
   padding: var(--space-3xl);
   color: var(--color-text-muted);
 }
+
+.load-more-btn {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-md);
+  padding: var(--space-sm) 0;
+  text-align: center;
+}

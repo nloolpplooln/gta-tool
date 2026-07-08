@@ -7,18 +7,7 @@ GTA.App = (function () {
   async function bootstrap() {
     GTA.log('[App] Starting VaultGTA...');
 
-    // Register Service Worker for Tesseract CDN → local proxy
-    if ('serviceWorker' in navigator) {
-      try {
-        await navigator.serviceWorker.register('/sw.js', { scope: '/' });
-        GTA.log('[App] Service Worker registered');
-      } catch (e) {
-        console.warn('[App] Service Worker registration failed:', e.message);
-      }
-    }
-
     GTA.log('[App] Vendor check - Dexie:', typeof Dexie !== 'undefined');
-    GTA.log('[App] Vendor check - Tesseract:', typeof Tesseract !== 'undefined');
     GTA.log('[App] Vendor check - html2canvas:', typeof html2canvas !== 'undefined');
 
     try {
