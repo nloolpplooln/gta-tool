@@ -1,6 +1,6 @@
 {
   "name": "vault-gta",
-  "version": "10.32.0",
+  "version": "10.33.0",
   "description": "VaultGTA - GTA Online Vehicle Collection Tracker",
   "main": "main.js",
   "scripts": {

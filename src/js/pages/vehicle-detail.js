@@ -153,7 +153,10 @@ GTA.VehicleDetail = (function () {
             (v.specs && v.specs.top_speed ? '<div class="detail-hero-spec"><span class="detail-hero-spec-value">' + v.specs.top_speed + '</span><span class="detail-hero-spec-label">极速</span></div>' : '') +
             '<div class="detail-hero-spec" id="hero-collection-status"><span class="detail-hero-spec-value">-</span><span class="detail-hero-spec-label">收藏</span></div>' +
           '</div>' +
-          '<div class="ownership-toggle" id="ownership-toggle"></div>' +
+          '<div class="detail-hero-actions">' +
+            '<div class="ownership-toggle" id="ownership-toggle"></div>' +
+            '<button class="btn btn-secondary" id="btn-go-add-garage" style="flex:1">加入车库</button>' +
+          '</div>' +
         '</div>' +
       '</div>' +
 
@@ -215,7 +218,6 @@ GTA.VehicleDetail = (function () {
       '<div class="detail-quick-links">' +
         '<button class="btn btn-secondary" id="btn-go-album">车辆相册</button>' +
         '<button class="btn btn-secondary" id="btn-go-mods">改装记录</button>' +
-        '<button class="btn btn-secondary" id="btn-go-add-garage">加入车库</button>' +
         '<button class="btn compare-add-btn" id="btn-compare"' + (GTA.CompareList && GTA.CompareList.get().indexOf(currentVehicleId) !== -1 ? ' disabled style="opacity:0.5" title="已加入对比"' : '') + '>对比</button>' +
       '</div>';
 

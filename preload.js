@@ -44,5 +44,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   downloadUpdate: function () { return ipcRenderer.invoke('app:downloadUpdate'); },
   installUpdate: function () { return ipcRenderer.invoke('app:installUpdate'); },
   getVersion: function () { return ipcRenderer.invoke('app:getVersion'); },
-  onUpdateStatus: function (cb) { ipcRenderer.on('update:status', function (_e, data) { cb(data); }); }
+  onUpdateStatus: function (cb) { ipcRenderer.on('update:status', function (_e, data) { cb(data); }); },
+
+  // ===== GTA Online Career Lookup =====
+  queryCareer: function (nickname, opts) { return ipcRenderer.invoke('career:query', nickname, opts); },
+  requestCareerSnapshot: function (nickname, platform) { return ipcRenderer.invoke('career:requestSnapshot', nickname, platform); }
 });
