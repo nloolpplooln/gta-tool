@@ -144,14 +144,21 @@
   opacity: 0.7;
 }
 
-.ownership-toggle {
+.detail-hero-actions {
   display: flex;
   gap: var(--space-sm);
   margin-top: var(--space-sm);
 }
 
-.ownership-toggle .btn {
-  min-width: 120px;
+.ownership-toggle {
+  display: flex;
+  gap: var(--space-sm);
+  flex: 1;
+}
+
+.ownership-toggle .btn,
+.detail-hero-actions .btn {
+  min-width: 0;
 }
 
 /* ---- Content Below Fold — 2 columns ---- */

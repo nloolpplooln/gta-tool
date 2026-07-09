@@ -5,6 +5,7 @@ const { exec } = require('child_process');
 const { autoUpdater } = require('electron-updater');
 const SteamProfile = require('./src/main/steam-profile');
 const RockstarProfile = require('./src/main/rockstar-profile');
+const GtaCareer = require('./src/main/gta-career');
 
 let mainWindow = null;
 let serverProcess = null;
@@ -362,6 +363,16 @@ ipcMain.handle('steam:getAvatar', async () => {
 
 ipcMain.handle('rockstar:getAvatar', async () => {
   return await RockstarProfile.getRockstarAvatar();
+});
+
+// ===== GTA Online Career Lookup (HQSHI) =====
+
+ipcMain.handle('career:query', async (event, nickname, opts) => {
+  return await GtaCareer.queryCareer(nickname, opts);
+});
+
+ipcMain.handle('career:requestSnapshot', async (event, nickname, platform) => {
+  return await GtaCareer.requestSnapshot(nickname, platform);
 });
 
 // ===== Auto Updater =====
